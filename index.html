@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Data Exhibition</title>
+<meta name="description" content="S4D 合成 4D 人体数据集样例：UE 5.5 场景里的主角沿路线行走，双机位 RGB、深度、mask 与逐帧顶点真值。">
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --text:#e8eaf0; --muted:#9aa3b2; --line:#2a2f3a;
+  --accent:#5cc8ff; --ok:#7bd88f; --warn:#ffcf66; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f6f7fa; --panel:#ffffff; --panel2:#eef1f6; --text:#1a1d24; --muted:#5b6474; --line:#dde2ea;
+    --accent:#0b78c2; --ok:#1f8a4c; --warn:#b47a00; --shadow:0 8px 24px rgba(20,30,60,.08);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f6f7fa; --panel:#ffffff; --panel2:#eef1f6; --text:#1a1d24; --muted:#5b6474; --line:#dde2ea;
+  --accent:#0b78c2; --ok:#1f8a4c; --warn:#b47a00; --shadow:0 8px 24px rgba(20,30,60,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:56px 0 28px;border-bottom:1px solid var(--line)}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:0 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:820px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:860px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card .vid{position:relative;aspect-ratio:16/9;background:#000}
+.card video{width:100%;height:100%;display:block;object-fit:cover}
+.card .tabs{display:flex;gap:6px;position:absolute;left:10px;top:10px}
+.card .tabs button{background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 11px;font-size:12px;cursor:pointer;backdrop-filter:blur(4px)}
+.card .tabs button.on{background:var(--accent);color:#061018;border-color:transparent}
+.card .body{padding:14px 16px 16px}
+.card h3{margin:0 0 4px;font-size:17px}
+.card .map{color:var(--muted);font-size:12px;word-break:break-all;margin-bottom:10px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px}
+.kv div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:2px 0}
+.kv div span:first-child{color:var(--muted)}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle}
+.tag.ok{color:var(--ok);border-color:var(--ok)}
+.gt{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.gt figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.gt video{width:100%;display:block;aspect-ratio:16/9;background:#000}
+.gt figcaption{padding:10px 14px;font-size:14px;color:var(--muted)}
+.gt figcaption b{color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+@media (max-width:480px){ .grid{grid-template-columns:1fr} .kv{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>S4D Data Exhibition</h1>
+    <p class="sub">S4D 是在 Unreal Engine 5.5 里批量合成的 4D 人体数据集。每个样本是一个「世界」：一位 Rocketbox 主角在一张地图里沿 40 m 规划路线走、跑、跳 20 秒，被跟拍相机和静态相机各录 600 帧 1280×720 视频，并同步导出主角与群众的逐帧顶点、骨骼、相机轨迹、深度与 mask。下面每张地图展示一个通过质量门槛的世界。</p>
+    <div class="stats" id="stats">
+      <div class="stat"><b>13</b><span>地图配方（11 张图 + 2 个带群众变体）</span></div>
+      <div class="stat"><b>292</b><span>已渲染的世界</span></div>
+      <div class="stat"><b>584</b><span>视频段（世界 × 相机）</span></div>
+      <div class="stat"><b>458</b><span>通过质量门槛的段</span></div>
+      <div class="stat"><b>192</b><span>双机位全过的世界</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="gallery">
+  <div class="wrap">
+    <h2>地图样例</h2>
+    <p class="lead">每张卡片是一个世界的两台相机：<b>跟拍</b>在主角胸口后方 3.5 m（室内 1.5 m）带碰撞回推，<b>静态</b>是路线旁一个能看见主角的长焦机位。点击卡片左上角切换机位；视频默认不自动下载，点击播放。</p>
+    <div class="ctl">
+      <button id="playAll">全部播放</button>
+      <button id="pauseAll">全部暂停</button>
+      <button id="theme">切换深浅色</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section id="gt">
+  <div class="wrap">
+    <h2>同一段里的真值</h2>
+    <p class="lead">以 Sicka Ancient Kit 场景 3 的世界 2（跟拍相机）为例：画面之外同步落盘的还有逐像素世界深度、人物 mask，以及主角与 12 位群众的逐帧顶点坐标。右图把顶点真值重投影回 RGB，主角按高度上色、群众每人一色，用来验收位姿是否对齐。</p>
+    <div class="gt">
+      <figure><video preload="none" controls loop muted playsinline poster="media/a3_cam0.jpg" src="media/a3_cam0.mp4"></video><figcaption><b>RGB</b>　线性半浮点 EXR 经 sRGB 传递函数</figcaption></figure>
+      <figure><video preload="none" controls loop muted playsinline poster="media/a3_depth.jpg" src="media/a3_depth.mp4"></video><figcaption><b>世界深度</b>　单位 cm，这里按 2.5 m 到 300 m 取对数着色，天空压成深灰</figcaption></figure>
+      <figure><video preload="none" controls loop muted playsinline poster="media/a3_track.jpg" src="media/a3_track.mp4"></video><figcaption><b>顶点真值重投影</b>　主角细分后 32k 顶点 + 群众顶点，被遮挡的点按深度剔除</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="files">
+  <div class="wrap">
+    <h2>一个世界里有什么</h2>
+    <p class="lead">目录 <code>WORLD_%08d/</code> 下的内容。坐标统一是 UE 世界坐标，单位 cm；EXR 为 PIZ 压缩的 half float 多层文件，两台相机的通道都在同一个文件里。</p>
+    <table>
+      <thead><tr><th style="width:34%">文件</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><code>images/%04d.exr</code></td><td>600 帧多层 EXR：每台相机的 RGB、世界深度（cm）、二值人物 mask</td></tr>
+        <tr><td><code>vertex_data/frame_%04d.bin</code></td><td>逐帧全体人物的顶点坐标（float32）；<code>actor_0</code> 永远是主角，其余是群众</td></tr>
+        <tr><td><code>faces.bin</code></td><td>每个人物的三角形索引</td></tr>
+        <tr><td><code>bones_actor_0_RocketboxBody.bin</code></td><td>主角逐帧骨骼（81 根 Bip01 骨，组件空间变换），另有 1 帧参考姿态 <code>_ref.bin</code></td></tr>
+        <tr><td><code>refverts_actor_0_*.bin</code></td><td>LOD0 渲染顶点在参考姿态下的位置，用于与 SMPL-X 等模板做对应</td></tr>
+        <tr><td><code>skinweights_actor_0_*.bin</code></td><td>每顶点 4 个骨骼影响的蒙皮权重</td></tr>
+        <tr><td><code>camera_track_live.json</code> / <code>_cam01.json</code></td><td>两台相机逐帧实拍位置、朝向、焦距与传感器尺寸</td></tr>
+        <tr><td><code>crowd_track_live.json</code></td><td>群众逐帧位置与朝向</td></tr>
+        <tr><td><code>rocketbox_foot_ground.json</code></td><td>主角左右脚趾逐帧触地标签与落地点</td></tr>
+        <tr><td><code>world_00000000.json</code></td><td>世界清单：相机、人物、通道名、深度与 mask 的定义、格式版本</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="gates">
+  <div class="wrap">
+    <h2>质量门槛</h2>
+    <p class="lead">一条视频段要同时满足下面所有条件才计入「通过」。门槛数字由引擎实时报告与后处理抽帧体检给出。</p>
+    <table>
+      <thead><tr><th style="width:22%">项</th><th>门槛</th></tr></thead>
+      <tbody>
+        <tr><td>渲染</td><td>渲染正常退出且 EXR ≥ 600 帧</td></tr>
+        <tr><td>走动</td><td>实际走过的路程 ≥ 规划路线长度的 40%</td></tr>
+        <tr><td>自由落体</td><td>坠落帧 &lt; 95%（整段都在掉 = 人不在场景里；台阶、跳跃造成的坠落帧不计）</td></tr>
+        <tr><td>相机</td><td>相机到主角最近距离 ≥ 36 cm（跟拍相机塌到支点的指纹是 34 到 35）</td></tr>
+        <tr><td>群众 / 车</td><td>人数与车辆数等于配方要求；带车批至少一台相机看到车 ≥ 100 帧</td></tr>
+        <tr><td>顶点体检</td><td>抽 3 帧重投影：坏点 ≤ 1%；主角去遮挡后落在 mask 内的比例跟拍 ≥ 88%、静态 ≥ 80%</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:16px">卡片上的「in-mask」就是最后一项的主角比例；「坠落帧」是 20 秒里处于空中的 tick 数，Namaqualand 的沙丘和乐善斋的台阶会天然带一些。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    样例渲染于 2026-10-05 之前的批次；统计口径为 2026-10-05 的 trainable 目录。视频为网页压缩版（480p），原始数据为 1280×720 EXR。
+  </div>
+</footer>
+
+<script>
+const WORLDS = [
+  {key:"a2", name:"Sicka Ancient Kit · 场景 2", map:"/Game/Sicka_EnvPack2/Sicka_Ancient_Kit/Maps/Map_scene2", tag:"A2_S9 / 世界 4", hero:"rb_police_male_05", walked:"110.0 / 39.9 m", fall:30, inmask:"94.7% / 95.9%", crowd:"12 群众", kind:"室外"},
+  {key:"a3", name:"Sicka Ancient Kit · 场景 3", map:"/Game/Sicka_EnvPack2/Sicka_Ancient_Kit/Maps/Map_Scene3", tag:"A3CAS2_S7 / 世界 2", hero:"rb_military_male_04", walked:"65.6 / 39.9 m", fall:0, inmask:"96.2% / 95.1%", crowd:"12 群众", kind:"室外"},
+  {key:"fa", name:"Factory Pack", map:"/Game/Factory_Pack_V1/Maps/Demo", tag:"FA_S13 / 世界 1", hero:"rb_female_adult_14", walked:"96.0 / 39.9 m", fall:0, inmask:"94.8% / 94.1%", crowd:"12 群众", kind:"室外"},
+  {key:"fv", name:"Factory Pack · 带 2 辆车", map:"/Game/Factory_Pack_V1/Maps/Demo", tag:"FV_S9 / 世界 4", hero:"rb_police_male_05", walked:"112.9 / 39.9 m", fall:30, inmask:"95.1% / 95.5%", crowd:"12 群众 + 2 车", kind:"室外"},
+  {key:"nq", name:"Namaqualand", map:"/Game/Namaqualand/Levels/Showcase", tag:"NQ_S8 / 世界 4", hero:"rb_female_adult_13", walked:"107.6 / 39.4 m", fall:85, inmask:"95.4% / 91.4%", crowd:"12 群众", kind:"室外"},
+  {key:"nk", name:"乐善斋 Nakseonjae", map:"/Game/Nakseonjae/Map/Main/Demo_Nakseonjae", tag:"NK_S9 / 世界 3", hero:"rb_female_adult_17", walked:"91.7 / 39.9 m", fall:57, inmask:"92.4% / 91.7%", crowd:"12 群众", kind:"室外"},
+  {key:"ru", name:"Modular Rural Cabin", map:"/Game/Modular_Rural_Cabin/Maps/Rural_Cabins", tag:"RU_S10 / 世界 1", hero:"rb_female_adult_04", walked:"100.2 / 39.7 m", fall:0, inmask:"93.7% / 93.4%", crowd:"无群众", kind:"室内"},
+  {key:"sf", name:"Sicka Scifi Interior", map:"/Game/Sicka_EnvPack2/Sicka_Scifi_Interior/Maps/Map_MainScene", tag:"SF_S10 / 世界 2", hero:"rb_male_adult_20", walked:"90.6 / 39.8 m", fall:30, inmask:"97.0% / 94.4%", crowd:"无群众", kind:"室内"},
+  {key:"sfc3", name:"Sicka Scifi Interior · 3 位群众", map:"/Game/Sicka_EnvPack2/Sicka_Scifi_Interior/Maps/Map_MainScene", tag:"SFC3_S10 / 世界 2", hero:"rb_male_adult_20", walked:"90.7 / 39.8 m", fall:30, inmask:"97.0% / 94.3%", crowd:"3 群众", kind:"室内"},
+];
+const grid = document.getElementById("grid");
+for (const w of WORLDS) {
+  const card = document.createElement("div"); card.className = "card";
+  card.innerHTML = `
+    <div class="vid">
+      <video preload="none" controls loop muted playsinline poster="media/${w.key}_cam0.jpg" src="media/${w.key}_cam0.mp4"></video>
+      <div class="tabs"><button class="on" data-cam="0">跟拍</button><button data-cam="1">静态</button></div>
+    </div>
+    <div class="body">
+      <h3>${w.name}<span class="tag">${w.kind}</span><span class="tag ok">双机位通过</span></h3>
+      <div class="map">${w.map}</div>
+      <div class="kv">
+        <div><span>批次 / 世界</span><span>${w.tag}</span></div>
+        <div><span>主角</span><span>${w.hero}</span></div>
+        <div><span>走过 / 路线</span><span>${w.walked}</span></div>
+        <div><span>坠落帧 / 600</span><span>${w.fall}</span></div>
+        <div><span>in-mask 跟拍 / 静态</span><span>${w.inmask}</span></div>
+        <div><span>配置</span><span>${w.crowd}</span></div>
+      </div>
+    </div>`;
+  const video = card.querySelector("video");
+  card.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
+    card.querySelectorAll(".tabs button").forEach(x => x.classList.remove("on")); b.classList.add("on");
+    const playing = !video.paused;
+    video.poster = `media/${w.key}_cam${b.dataset.cam}.jpg`;
+    video.src = `media/${w.key}_cam${b.dataset.cam}.mp4`;
+    if (playing) video.play().catch(()=>{});
+  }));
+  grid.appendChild(card);
+}
+document.getElementById("playAll").onclick = () => document.querySelectorAll("#grid video").forEach(v => v.play().catch(()=>{}));
+document.getElementById("pauseAll").onclick = () => document.querySelectorAll("#grid video").forEach(v => v.pause());
+document.getElementById("theme").onclick = () => {
+  const r = document.documentElement; const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur = r.dataset.theme || (dark ? "dark" : "light");
+  r.dataset.theme = cur === "dark" ? "light" : "dark";
+  try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+};
+try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</body>
+</html>
