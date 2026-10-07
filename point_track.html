@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Point Tracking</title>
+<meta name="description" content="用 4RC 的 sparse 点追踪评测跑 S4D 抽样 100 段：GT 与预测 3D 轨迹投影对比视频。">
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --text:#e8eaf0; --muted:#9aa3b2; --line:#2a2f3a;
+  --accent:#5cc8ff; --ok:#7bd88f; --warn:#ffcf66; --bad:#ff7b72; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f6f7fa; --panel:#ffffff; --panel2:#eef1f6; --text:#1a1d24; --muted:#5b6474; --line:#dde2ea;
+    --accent:#0b78c2; --ok:#1f8a4c; --warn:#b47a00; --bad:#c0392b; --shadow:0 8px 24px rgba(20,30,60,.08);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f6f7fa; --panel:#ffffff; --panel2:#eef1f6; --text:#1a1d24; --muted:#5b6474; --line:#dde2ea;
+  --accent:#0b78c2; --ok:#1f8a4c; --warn:#b47a00; --bad:#c0392b; --shadow:0 8px 24px rgba(20,30,60,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+.hi{color:var(--ok)} .mid{color:var(--warn)} .lo{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:18px}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl select,.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover,.ctl select:hover{border-color:var(--accent)}
+.ctl .count{color:var(--muted)}
+@media (max-width:600px){ .grid{grid-template-columns:1fr} .kv{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="index.html">← S4D Data Exhibition</a>
+    <h1>Point Tracking · 4RC</h1>
+    <p class="sub">从 S4D 通过质量门槛的视频段里随机抽 100 段，转成 TAPVid-3D 格式，跑 <a href="https://github.com/Luo-Yihang/4RC">4RC</a> 自带的 sparse 点追踪评测：第 0 帧的人物前景点作为 query，追踪它们在之后 63 帧（约 8.4 秒）的 3D 位置。每段视频左边是网格真值轨迹，右边是 4RC 的预测。</p>
+    <div class="stats">
+      <div class="stat"><b>100</b><span>视频段（来自 96 个世界、9 种地图配方）</span></div>
+      <div class="stat"><b>0.269</b><span>avg_pts（0.1 / 0.3 / 0.5 / 1.0 m 内比例的平均）</span></div>
+      <div class="stat"><b>0.266</b><span>avg_pts_dyn（只算运动点）</span></div>
+      <div class="stat"><b>5.48 m</b><span>EPE（Sim(3) 对齐后平均 3D 误差）</span></div>
+      <div class="stat"><b>2185</b><span>每段 query 点数中位数</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="protocol">
+  <div class="wrap">
+    <h2>评测协议</h2>
+    <p class="lead">评测脚本和参数与 4RC 仓库的 <code>eval/track/eval_point_track.sh</code> 一致，只把数据换成 S4D。真值由 S4D 的逐帧网格顶点给出，不是标注或估计。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>抽样</td><td>从 1110 段过门槛的段（世界 × 相机）里固定种子随机抽 100 段；去掉与无群众版同路线的 3 群众重跑批和工业区；第 0 帧看不到人的段跳过补位</td></tr>
+        <tr><td>帧</td><td>源视频 30 fps，从第 0 帧起<b>每 4 帧取 1 帧，共 64 帧</b>（约 8.4 s）；视频按 7.5 fps 播放即为实时速度</td></tr>
+        <tr><td>query 点</td><td>第 0 帧人物 mask 内每 4 个像素取 1 个，按深度反投影到 3D；主角、群众、车都算前景</td></tr>
+        <tr><td>真值轨迹</td><td>每个 query 点挂到最近的网格三角形上，随网格逐帧搬运（三角形三顶点的加权 Procrustes）；到网格距离中位数 0.06 到 0.19 cm</td></tr>
+        <tr><td>模型输入</td><td>64 帧 RGB 缩放到 504×280，一次前向；模型对第 0 帧每个像素输出它在每一帧的 3D 位置，评测在 query 像素上取值</td></tr>
+        <tr><td>打分</td><td>整段所有点、所有帧一起做一次 Sim(3) RANSAC 对齐，误差在 0.1 / 0.3 / 0.5 / 1.0 m 以内的比例取平均为 <b>avg_pts</b>；后续帧被遮挡的点照样计分</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="breakdown">
+  <div class="wrap">
+    <h2>分组结果</h2>
+    <p class="lead">avg_pts 为官方逐段结果的平均；EPE 列是可视化脚本重新做 Sim(3) 对齐后的逐段平均误差再取中位数（RANSAC 未固定种子，与官方数值有小差异）。各阈值内比例（全部 100 段平均）：0.1 m 内 0.095，0.3 m 内 0.231，0.5 m 内 0.314，1.0 m 内 0.434。</p>
+    <div class="tables">
+      <div class="tablewrap"><table id="byMap"><thead><tr><th>地图</th><th class="num">段</th><th class="num">avg_pts</th><th class="num">dyn</th><th class="num">EPE 中位</th></tr></thead><tbody></tbody></table></div>
+      <div class="tablewrap"><table id="byCam"><thead><tr><th>相机</th><th class="num">段</th><th class="num">avg_pts</th><th class="num">dyn</th><th class="num">EPE 中位</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="videos">
+  <div class="wrap">
+    <h2>全部 100 段</h2>
+    <p class="lead">每段最多画 300 条轨迹，颜色按 query 点在第 0 帧的横坐标；拖尾为最近 6 帧。左 <b>GT</b>：实心 = 可见，空心 = 被遮挡。右 <b>4RC</b>：预测经 Sim(3) 对齐到真值后用真值相机投影，标题栏是该帧的平均 3D 误差。视频默认不下载，点击播放。</p>
+    <div class="ctl">
+      <label>地图 <select id="fMap"><option value="">全部</option></select></label>
+      <label>相机 <select id="fCam"><option value="">全部</option><option value="0">跟拍</option><option value="1">静态</option></select></label>
+      <label>排序 <select id="fSort"><option value="name">名称</option><option value="desc">avg_pts 高→低</option><option value="asc">avg_pts 低→高</option></select></label>
+      <button id="playAll">播放可见</button><button id="pauseAll">全部暂停</button><button id="theme">切换深浅色</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section id="notes">
+  <div class="wrap">
+    <h2>说明</h2>
+    <p class="note"><b>画面方向。</b>转换沿用数据引擎上游的相机约定，几何对齐的是左右镜像后的图像，所以 4RC 看到的输入是镜像画面；这里的视频画完点后整体翻回正向。</p>
+    <p class="note"><b>T-pose 开头。</b>抽到的 96 个世界里有 6 个（Namaqualand 4、Ancient2 2）主角在第 0 帧还是 T-pose 或接近 T-pose，要过 4 到 30 帧才进入正常步态；这些段的 query 点取在 T-pose 上，真值轨迹本身是对的。</p>
+    <p class="note"><b>贴近相机的点。</b>跟拍相机在窄处会被推到离身体很近，离相机不到 0.1 m 的点不画，拖尾里单段超过 120 像素的跳变也不画，只影响画面，不影响打分。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    评测于 2026-10-07，权重 <code>Luo-Yihang/4RC</code>，<code>--num_frames 64 --size 512 --align sim3</code>。视频 1280×360（两个 640×360 面板），H.264。
+  </div>
+</footer>
+
+<script>
+const MAPS = {"A2": "Sicka Ancient Kit · 场景 2", "A3": "Sicka Ancient Kit · 场景 3", "FA": "Factory Pack", "FV": "Factory Pack · 带 2 辆车", "NQ": "Namaqualand", "NK": "乐善斋 Nakseonjae", "SF": "Sicka Scifi Interior", "SFC5": "Sicka Scifi Interior · 5 位群众", "RU": "Modular Rural Cabin", "RUC5": "Modular Rural Cabin · 5 位群众"};
+const ROWS = [{"name": "a2_s11_w0_cam1", "prefix": "A2", "world": "A2_S11_ROCKETBOX_H1M2/WORLD_00000000", "cam": 1, "avg_pts": 0.4409, "avg_pts_dyn": 0.3715, "epe_viz": 1.528, "n_points": 1350}, {"name": "a2_s23_w6_cam1", "prefix": "A2", "world": "A2_S23_ROCKETBOX_H1M2/WORLD_00000006", "cam": 1, "avg_pts": 0.3817, "avg_pts_dyn": 0.3352, "epe_viz": 1.805, "n_points": 1294}, {"name": "a2_s25_w3_cam0", "prefix": "A2", "world": "A2_S25_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.5356, "avg_pts_dyn": 0.5316, "epe_viz": 3.744, "n_points": 3751}, {"name": "a2_s28_w6_cam0", "prefix": "A2", "world": "A2_S28_ROCKETBOX_H1M2/WORLD_00000006", "cam": 0, "avg_pts": 0.0626, "avg_pts_dyn": 0.0836, "epe_viz": 40.523, "n_points": 1551}, {"name": "a2_s29_w3_cam1", "prefix": "A2", "world": "A2_S29_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.3281, "avg_pts_dyn": 0.3343, "epe_viz": 5.18, "n_points": 380}, {"name": "a2_s30_w4_cam0", "prefix": "A2", "world": "A2_S30_ROCKETBOX_H1M2/WORLD_00000004", "cam": 0, "avg_pts": 0.0746, "avg_pts_dyn": 0.0705, "epe_viz": 17.217, "n_points": 2298}, {"name": "a2_s30_w7_cam1", "prefix": "A2", "world": "A2_S30_ROCKETBOX_H1M2/WORLD_00000007", "cam": 1, "avg_pts": 0.1783, "avg_pts_dyn": 0.1679, "epe_viz": 7.151, "n_points": 1442}, {"name": "a2_s8_w5_cam0", "prefix": "A2", "world": "A2_S8_ROCKETBOX_H1M2/WORLD_00000005", "cam": 0, "avg_pts": 0.1451, "avg_pts_dyn": 0.1762, "epe_viz": 7.327, "n_points": 1578}, {"name": "a2_s9_w5_cam0", "prefix": "A2", "world": "A2_S9_ROCKETBOX_H1M2/WORLD_00000005", "cam": 0, "avg_pts": 0.1573, "avg_pts_dyn": 0.1617, "epe_viz": 3.27, "n_points": 4895}, {"name": "a2_s9_w6_cam0", "prefix": "A2", "world": "A2_S9_ROCKETBOX_H1M2/WORLD_00000006", "cam": 0, "avg_pts": 0.3082, "avg_pts_dyn": 0.3383, "epe_viz": 5.125, "n_points": 2971}, {"name": "a3_s12_w2_cam1", "prefix": "A3", "world": "A3_S12_ROCKETBOX_H1M2/WORLD_00000002", "cam": 1, "avg_pts": 0.3486, "avg_pts_dyn": 0.3594, "epe_viz": 2.966, "n_points": 1791}, {"name": "a3_s14_w2_cam0", "prefix": "A3", "world": "A3_S14_ROCKETBOX_H1M2/WORLD_00000002", "cam": 0, "avg_pts": 0.0902, "avg_pts_dyn": 0.0858, "epe_viz": 7.79, "n_points": 1650}, {"name": "a3_s26_w6_cam0", "prefix": "A3", "world": "A3_S26_ROCKETBOX_H1M2/WORLD_00000006", "cam": 0, "avg_pts": 0.1106, "avg_pts_dyn": 0.0992, "epe_viz": 12.358, "n_points": 2297}, {"name": "a3_s30_w5_cam0", "prefix": "A3", "world": "A3_S30_ROCKETBOX_H1M2/WORLD_00000005", "cam": 0, "avg_pts": 0.2725, "avg_pts_dyn": 0.2768, "epe_viz": 5.854, "n_points": 2366}, {"name": "a3_s32_w5_cam1", "prefix": "A3", "world": "A3_S32_ROCKETBOX_H1M2/WORLD_00000005", "cam": 1, "avg_pts": 0.7513, "avg_pts_dyn": 0.7537, "epe_viz": 0.556, "n_points": 2263}, {"name": "a3_s33_w1_cam1", "prefix": "A3", "world": "A3_S33_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.5536, "avg_pts_dyn": 0.3574, "epe_viz": 1.027, "n_points": 1133}, {"name": "a3_s37_w0_cam0", "prefix": "A3", "world": "A3_S37_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.1372, "avg_pts_dyn": 0.1126, "epe_viz": 14.877, "n_points": 2272}, {"name": "a3_s37_w0_cam1", "prefix": "A3", "world": "A3_S37_ROCKETBOX_H1M2/WORLD_00000000", "cam": 1, "avg_pts": 0.7073, "avg_pts_dyn": 0.7018, "epe_viz": 1.638, "n_points": 1465}, {"name": "a3_s37_w4_cam1", "prefix": "A3", "world": "A3_S37_ROCKETBOX_H1M2/WORLD_00000004", "cam": 1, "avg_pts": 0.2662, "avg_pts_dyn": 0.2615, "epe_viz": 1.709, "n_points": 634}, {"name": "a3_s38_w6_cam1", "prefix": "A3", "world": "A3_S38_ROCKETBOX_H1M2/WORLD_00000006", "cam": 1, "avg_pts": 0.5821, "avg_pts_dyn": 0.5865, "epe_viz": 1.886, "n_points": 312}, {"name": "a3_s7_w3_cam1", "prefix": "A3", "world": "A3_S7_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.2143, "avg_pts_dyn": 0.1448, "epe_viz": 7.191, "n_points": 822}, {"name": "a3_s8_w6_cam0", "prefix": "A3", "world": "A3_S8_ROCKETBOX_H1M2/WORLD_00000006", "cam": 0, "avg_pts": 0.3861, "avg_pts_dyn": 0.3948, "epe_viz": 3.437, "n_points": 4543}, {"name": "a3_s9_w0_cam0", "prefix": "A3", "world": "A3_S9_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.1277, "avg_pts_dyn": 0.1915, "epe_viz": 6.454, "n_points": 2689}, {"name": "a3_s9_w0_cam1", "prefix": "A3", "world": "A3_S9_ROCKETBOX_H1M2/WORLD_00000000", "cam": 1, "avg_pts": 0.4122, "avg_pts_dyn": 0.4115, "epe_viz": 4.041, "n_points": 390}, {"name": "fa_s10_w0_cam0", "prefix": "FA", "world": "FA_S10_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.3503, "avg_pts_dyn": 0.3553, "epe_viz": 2.025, "n_points": 4694}, {"name": "fa_s10_w3_cam0", "prefix": "FA", "world": "FA_S10_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.1307, "avg_pts_dyn": 0.1098, "epe_viz": 12.871, "n_points": 1971}, {"name": "fa_s11_w1_cam0", "prefix": "FA", "world": "FA_S11_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.0638, "avg_pts_dyn": 0.1114, "epe_viz": 7.302, "n_points": 3781}, {"name": "fa_s11_w3_cam1", "prefix": "FA", "world": "FA_S11_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.3082, "avg_pts_dyn": 0.309, "epe_viz": 1.724, "n_points": 2573}, {"name": "fa_s12_w3_cam0", "prefix": "FA", "world": "FA_S12_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.005, "avg_pts_dyn": 0.0177, "epe_viz": 13.35, "n_points": 3881}, {"name": "fa_s13_w1_cam1", "prefix": "FA", "world": "FA_S13_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.2505, "avg_pts_dyn": 0.2701, "epe_viz": 6.354, "n_points": 875}, {"name": "fa_s13_w4_cam1", "prefix": "FA", "world": "FA_S13_ROCKETBOX_H1M2/WORLD_00000004", "cam": 1, "avg_pts": 0.2171, "avg_pts_dyn": 0.2118, "epe_viz": 7.4, "n_points": 468}, {"name": "fa_s26_w0_cam0", "prefix": "FA", "world": "FA_S26_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.0742, "avg_pts_dyn": 0.1613, "epe_viz": 7.334, "n_points": 2109}, {"name": "fa_s26_w7_cam1", "prefix": "FA", "world": "FA_S26_ROCKETBOX_H1M2/WORLD_00000007", "cam": 1, "avg_pts": 0.5061, "avg_pts_dyn": 0.4988, "epe_viz": 3.265, "n_points": 1694}, {"name": "fa_s30_w7_cam1", "prefix": "FA", "world": "FA_S30_ROCKETBOX_H1M2/WORLD_00000007", "cam": 1, "avg_pts": 0.0928, "avg_pts_dyn": 0.0958, "epe_viz": 3.02, "n_points": 1965}, {"name": "fa_s31_w6_cam0", "prefix": "FA", "world": "FA_S31_ROCKETBOX_H1M2/WORLD_00000006", "cam": 0, "avg_pts": 0.1016, "avg_pts_dyn": 0.0802, "epe_viz": 7.698, "n_points": 3566}, {"name": "fa_s32_w2_cam1", "prefix": "FA", "world": "FA_S32_ROCKETBOX_H1M2/WORLD_00000002", "cam": 1, "avg_pts": 0.3828, "avg_pts_dyn": 0.3966, "epe_viz": 4.664, "n_points": 1784}, {"name": "fa_s32_w4_cam0", "prefix": "FA", "world": "FA_S32_ROCKETBOX_H1M2/WORLD_00000004", "cam": 0, "avg_pts": 0.0347, "avg_pts_dyn": 0.0379, "epe_viz": 7.29, "n_points": 2898}, {"name": "fa_s32_w7_cam0", "prefix": "FA", "world": "FA_S32_ROCKETBOX_H1M2/WORLD_00000007", "cam": 0, "avg_pts": 0.2832, "avg_pts_dyn": 0.3193, "epe_viz": 7.495, "n_points": 1337}, {"name": "fa_s33_w0_cam0", "prefix": "FA", "world": "FA_S33_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2209, "avg_pts_dyn": 0.2027, "epe_viz": 5.188, "n_points": 2503}, {"name": "fa_s33_w2_cam0", "prefix": "FA", "world": "FA_S33_ROCKETBOX_H1M2/WORLD_00000002", "cam": 0, "avg_pts": 0.0573, "avg_pts_dyn": 0.0501, "epe_viz": 9.813, "n_points": 2781}, {"name": "fa_s33_w2_cam1", "prefix": "FA", "world": "FA_S33_ROCKETBOX_H1M2/WORLD_00000002", "cam": 1, "avg_pts": 0.2968, "avg_pts_dyn": 0.2795, "epe_viz": 10.269, "n_points": 421}, {"name": "fv_s28_w1_cam0", "prefix": "FV", "world": "FV_S28_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.011, "avg_pts_dyn": 0.0167, "epe_viz": 12.174, "n_points": 2241}, {"name": "fv_s28_w4_cam0", "prefix": "FV", "world": "FV_S28_ROCKETBOX_H1M2/WORLD_00000004", "cam": 0, "avg_pts": 0.1709, "avg_pts_dyn": 0.1894, "epe_viz": 15.626, "n_points": 1605}, {"name": "fv_s29_w0_cam0", "prefix": "FV", "world": "FV_S29_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2388, "avg_pts_dyn": 0.2535, "epe_viz": 3.434, "n_points": 2555}, {"name": "fv_s34_w1_cam1", "prefix": "FV", "world": "FV_S34_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.453, "avg_pts_dyn": 0.453, "epe_viz": 3.292, "n_points": 914}, {"name": "fv_s35_w0_cam0", "prefix": "FV", "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.0476, "avg_pts_dyn": 0.0293, "epe_viz": 9.775, "n_points": 3189}, {"name": "fv_s35_w1_cam1", "prefix": "FV", "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.4822, "avg_pts_dyn": 0.4279, "epe_viz": 1.149, "n_points": 3372}, {"name": "fv_s35_w4_cam0", "prefix": "FV", "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000004", "cam": 0, "avg_pts": 0.0594, "avg_pts_dyn": 0.0385, "epe_viz": 7.569, "n_points": 1354}, {"name": "fv_s35_w5_cam0", "prefix": "FV", "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000005", "cam": 0, "avg_pts": 0.0575, "avg_pts_dyn": 0.0964, "epe_viz": 11.483, "n_points": 2306}, {"name": "fv_s36_w3_cam1", "prefix": "FV", "world": "FV_S36_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.3579, "avg_pts_dyn": 0.4687, "epe_viz": 1.55, "n_points": 1510}, {"name": "fv_s36_w7_cam0", "prefix": "FV", "world": "FV_S36_ROCKETBOX_H1M2/WORLD_00000007", "cam": 0, "avg_pts": 0.2101, "avg_pts_dyn": 0.2001, "epe_viz": 7.489, "n_points": 1670}, {"name": "nk_s10_w6_cam1", "prefix": "NK", "world": "NK_S10_ROCKETBOX_H1M2/WORLD_00000006", "cam": 1, "avg_pts": 0.3455, "avg_pts_dyn": 0.2323, "epe_viz": 1.252, "n_points": 1401}, {"name": "nk_s23_w0_cam1", "prefix": "NK", "world": "NK_S23_ROCKETBOX_H1M2/WORLD_00000000", "cam": 1, "avg_pts": 0.1111, "avg_pts_dyn": 0.1073, "epe_viz": 5.136, "n_points": 9360}, {"name": "nk_s24_w2_cam0", "prefix": "NK", "world": "NK_S24_ROCKETBOX_H1M2/WORLD_00000002", "cam": 0, "avg_pts": 0.0595, "avg_pts_dyn": 0.0309, "epe_viz": 5.968, "n_points": 2612}, {"name": "nk_s26_w4_cam0", "prefix": "NK", "world": "NK_S26_ROCKETBOX_H1M2/WORLD_00000004", "cam": 0, "avg_pts": 0.0219, "avg_pts_dyn": 0.0431, "epe_viz": 8.905, "n_points": 2097}, {"name": "nk_s28_w6_cam1", "prefix": "NK", "world": "NK_S28_ROCKETBOX_H1M2/WORLD_00000006", "cam": 1, "avg_pts": 0.3652, "avg_pts_dyn": 0.3633, "epe_viz": 4.067, "n_points": 2629}, {"name": "nk_s30_w0_cam0", "prefix": "NK", "world": "NK_S30_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.1711, "avg_pts_dyn": 0.1779, "epe_viz": 8.811, "n_points": 1902}, {"name": "nk_s9_w1_cam0", "prefix": "NK", "world": "NK_S9_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.1734, "avg_pts_dyn": 0.1228, "epe_viz": 1.971, "n_points": 1796}, {"name": "nq_s10_w3_cam0", "prefix": "NQ", "world": "NQ_S10_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.1638, "avg_pts_dyn": 0.1656, "epe_viz": 5.495, "n_points": 2754}, {"name": "nq_s23_w4_cam0", "prefix": "NQ", "world": "NQ_S23_ROCKETBOX_H1M2/WORLD_00000004", "cam": 0, "avg_pts": 0.1171, "avg_pts_dyn": 0.1026, "epe_viz": 16.428, "n_points": 3106}, {"name": "nq_s23_w5_cam1", "prefix": "NQ", "world": "NQ_S23_ROCKETBOX_H1M2/WORLD_00000005", "cam": 1, "avg_pts": 0.198, "avg_pts_dyn": 0.1932, "epe_viz": 5.635, "n_points": 700}, {"name": "nq_s24_w1_cam1", "prefix": "NQ", "world": "NQ_S24_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.202, "avg_pts_dyn": 0.1659, "epe_viz": 2.755, "n_points": 1330}, {"name": "nq_s24_w2_cam0", "prefix": "NQ", "world": "NQ_S24_ROCKETBOX_H1M2/WORLD_00000002", "cam": 0, "avg_pts": 0.1719, "avg_pts_dyn": 0.1962, "epe_viz": 10.294, "n_points": 4053}, {"name": "nq_s25_w3_cam0", "prefix": "NQ", "world": "NQ_S25_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.1338, "avg_pts_dyn": 0.1362, "epe_viz": 15.822, "n_points": 1441}, {"name": "nq_s26_w5_cam1", "prefix": "NQ", "world": "NQ_S26_ROCKETBOX_H1M2/WORLD_00000005", "cam": 1, "avg_pts": 0.3316, "avg_pts_dyn": 0.288, "epe_viz": 2.961, "n_points": 665}, {"name": "nq_s27_w0_cam0", "prefix": "NQ", "world": "NQ_S27_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2175, "avg_pts_dyn": 0.0721, "epe_viz": 2.985, "n_points": 16137}, {"name": "nq_s27_w1_cam0", "prefix": "NQ", "world": "NQ_S27_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.0963, "avg_pts_dyn": 0.1001, "epe_viz": 5.488, "n_points": 2939}, {"name": "nq_s27_w7_cam0", "prefix": "NQ", "world": "NQ_S27_ROCKETBOX_H1M2/WORLD_00000007", "cam": 0, "avg_pts": 0.2412, "avg_pts_dyn": 0.2086, "epe_viz": 1.863, "n_points": 2129}, {"name": "nq_s28_w1_cam1", "prefix": "NQ", "world": "NQ_S28_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.2371, "avg_pts_dyn": 0.2366, "epe_viz": 5.627, "n_points": 679}, {"name": "nq_s28_w3_cam1", "prefix": "NQ", "world": "NQ_S28_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.1321, "avg_pts_dyn": 0.1141, "epe_viz": 12.462, "n_points": 336}, {"name": "nq_s29_w1_cam1", "prefix": "NQ", "world": "NQ_S29_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.1147, "avg_pts_dyn": 0.1127, "epe_viz": 6.762, "n_points": 1435}, {"name": "nq_s29_w7_cam1", "prefix": "NQ", "world": "NQ_S29_ROCKETBOX_H1M2/WORLD_00000007", "cam": 1, "avg_pts": 0.3639, "avg_pts_dyn": 0.3636, "epe_viz": 4.481, "n_points": 1639}, {"name": "nq_s30_w0_cam0", "prefix": "NQ", "world": "NQ_S30_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.0961, "avg_pts_dyn": 0.0751, "epe_viz": 6.38, "n_points": 686}, {"name": "nq_s31_w2_cam0", "prefix": "NQ", "world": "NQ_S31_ROCKETBOX_H1M2/WORLD_00000002", "cam": 0, "avg_pts": 0.0365, "avg_pts_dyn": 0.0265, "epe_viz": 8.242, "n_points": 1803}, {"name": "nq_s32_w0_cam0", "prefix": "NQ", "world": "NQ_S32_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2594, "avg_pts_dyn": 0.2354, "epe_viz": 5.392, "n_points": 4485}, {"name": "nq_s32_w1_cam0", "prefix": "NQ", "world": "NQ_S32_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.0611, "avg_pts_dyn": 0.0867, "epe_viz": 12.975, "n_points": 1836}, {"name": "nq_s32_w7_cam1", "prefix": "NQ", "world": "NQ_S32_ROCKETBOX_H1M2/WORLD_00000007", "cam": 1, "avg_pts": 0.1292, "avg_pts_dyn": 0.128, "epe_viz": 9.295, "n_points": 547}, {"name": "nq_s7_w4_cam1", "prefix": "NQ", "world": "NQ_S7_ROCKETBOX_H1M2/WORLD_00000004", "cam": 1, "avg_pts": 0.4517, "avg_pts_dyn": 0.5137, "epe_viz": 1.279, "n_points": 727}, {"name": "nq_s8_w3_cam1", "prefix": "NQ", "world": "NQ_S8_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.313, "avg_pts_dyn": 0.304, "epe_viz": 2.297, "n_points": 1741}, {"name": "nq_s9_w2_cam1", "prefix": "NQ", "world": "NQ_S9_ROCKETBOX_H1M2/WORLD_00000002", "cam": 1, "avg_pts": 0.5604, "avg_pts_dyn": 0.558, "epe_viz": 1.481, "n_points": 1512}, {"name": "ruc5_s23_w0_cam0", "prefix": "RUC5", "world": "RUC5_S23_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.5253, "avg_pts_dyn": 0.533, "epe_viz": 0.606, "n_points": 5820}, {"name": "ruc5_s24_w0_cam0", "prefix": "RUC5", "world": "RUC5_S24_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.5307, "avg_pts_dyn": 0.524, "epe_viz": 0.564, "n_points": 8481}, {"name": "ruc5_s30_w1_cam0", "prefix": "RUC5", "world": "RUC5_S30_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.4799, "avg_pts_dyn": 0.4708, "epe_viz": 0.668, "n_points": 11192}, {"name": "sf_s11_w0_cam0", "prefix": "SF", "world": "SF_S11_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2012, "avg_pts_dyn": 0.269, "epe_viz": 1.482, "n_points": 9794}, {"name": "sf_s12_w1_cam1", "prefix": "SF", "world": "SF_S12_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.3831, "avg_pts_dyn": 0.3546, "epe_viz": 0.882, "n_points": 2684}, {"name": "sf_s16_w2_cam1", "prefix": "SF", "world": "SF_S16_ROCKETBOX_H1M2/WORLD_00000002", "cam": 1, "avg_pts": 0.3447, "avg_pts_dyn": 0.3524, "epe_viz": 0.874, "n_points": 1765}, {"name": "sf_s8_w1_cam1", "prefix": "SF", "world": "SF_S8_ROCKETBOX_H1M2/WORLD_00000001", "cam": 1, "avg_pts": 0.5435, "avg_pts_dyn": 0.4626, "epe_viz": 0.647, "n_points": 1841}, {"name": "sfc5_s23_w0_cam0", "prefix": "SFC5", "world": "SFC5_S23_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2861, "avg_pts_dyn": 0.2769, "epe_viz": 2.05, "n_points": 5305}, {"name": "sfc5_s24_w0_cam1", "prefix": "SFC5", "world": "SFC5_S24_ROCKETBOX_H1M2/WORLD_00000000", "cam": 1, "avg_pts": 0.4297, "avg_pts_dyn": 0.4337, "epe_viz": 0.733, "n_points": 2751}, {"name": "sfc5_s29_w1_cam0", "prefix": "SFC5", "world": "SFC5_S29_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.3553, "avg_pts_dyn": 0.347, "epe_viz": 1.077, "n_points": 5375}, {"name": "sfc5_s29_w6_cam1", "prefix": "SFC5", "world": "SFC5_S29_ROCKETBOX_H1M2/WORLD_00000006", "cam": 1, "avg_pts": 0.4495, "avg_pts_dyn": 0.4717, "epe_viz": 0.655, "n_points": 3150}, {"name": "sfc5_s31_w3_cam0", "prefix": "SFC5", "world": "SFC5_S31_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.394, "avg_pts_dyn": 0.2769, "epe_viz": 0.925, "n_points": 8056}, {"name": "sfc5_s36_w0_cam0", "prefix": "SFC5", "world": "SFC5_S36_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.3104, "avg_pts_dyn": 0.3781, "epe_viz": 0.679, "n_points": 10188}, {"name": "sfc5_s36_w3_cam0", "prefix": "SFC5", "world": "SFC5_S36_ROCKETBOX_H1M2/WORLD_00000003", "cam": 0, "avg_pts": 0.4043, "avg_pts_dyn": 0.4313, "epe_viz": 0.859, "n_points": 7543}, {"name": "sfc5_s36_w3_cam1", "prefix": "SFC5", "world": "SFC5_S36_ROCKETBOX_H1M2/WORLD_00000003", "cam": 1, "avg_pts": 0.4135, "avg_pts_dyn": 0.5751, "epe_viz": 0.745, "n_points": 5052}, {"name": "sfc5_s39_w0_cam0", "prefix": "SFC5", "world": "SFC5_S39_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.2573, "avg_pts_dyn": 0.2899, "epe_viz": 1.936, "n_points": 7736}, {"name": "sfc5_s48_w0_cam1", "prefix": "SFC5", "world": "SFC5_S48_ROCKETBOX_H1M2/WORLD_00000000", "cam": 1, "avg_pts": 0.5305, "avg_pts_dyn": 0.5383, "epe_viz": 0.513, "n_points": 3311}, {"name": "sfc5_s48_w1_cam0", "prefix": "SFC5", "world": "SFC5_S48_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.4017, "avg_pts_dyn": 0.3859, "epe_viz": 0.82, "n_points": 6264}, {"name": "sfc5_s49_w1_cam0", "prefix": "SFC5", "world": "SFC5_S49_ROCKETBOX_H1M2/WORLD_00000001", "cam": 0, "avg_pts": 0.2824, "avg_pts_dyn": 0.2961, "epe_viz": 1.249, "n_points": 7994}, {"name": "sfc5_s53_w0_cam0", "prefix": "SFC5", "world": "SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000", "cam": 0, "avg_pts": 0.4149, "avg_pts_dyn": 0.4618, "epe_viz": 0.743, "n_points": 6986}];
+const BY_MAP = [{"name": "NQ", "n": 22, "avg_pts": 0.21038181818181814, "avg_pts_dyn": 0.19922272727272727, "epe": 5.5607264041900635}, {"name": "FA", "n": 17, "avg_pts": 0.19858823529411768, "avg_pts_dyn": 0.20631176470588236, "epe": 7.301586627960205}, {"name": "A3", "n": 14, "avg_pts": 0.35427857142857144, "avg_pts_dyn": 0.33837857142857136, "epe": 3.739443063735962}, {"name": "SFC5", "n": 13, "avg_pts": 0.3792, "avg_pts_dyn": 0.39713076923076923, "epe": 0.8196974992752075}, {"name": "A2", "n": 10, "avg_pts": 0.26123999999999997, "avg_pts_dyn": 0.25708, "epe": 5.152859449386597}, {"name": "FV", "n": 10, "avg_pts": 0.20884, "avg_pts_dyn": 0.21735000000000002, "epe": 7.528948783874512}, {"name": "NK", "n": 7, "avg_pts": 0.17824285714285715, "avg_pts_dyn": 0.15394285714285713, "epe": 5.136402606964111}, {"name": "SF", "n": 4, "avg_pts": 0.36812500000000004, "avg_pts_dyn": 0.35965, "epe": 0.8777690231800079}, {"name": "RUC5", "n": 3, "avg_pts": 0.5119666666666667, "avg_pts_dyn": 0.5092666666666666, "epe": 0.6057908535003662}];
+const BY_CAM = [{"name": "0", "n": 57, "avg_pts": 0.19980350877192982, "avg_pts_dyn": 0.20197719298245612, "epe": 6.379502773284912}, {"name": "1", "n": 43, "avg_pts": 0.3595813953488372, "avg_pts_dyn": 0.3503674418604651, "epe": 2.755168914794922}];
+const f2 = x => (x == null || isNaN(x)) ? "—" : x.toFixed(2);
+const f3 = x => (x == null || isNaN(x)) ? "—" : x.toFixed(3);
+const cls = x => x >= 0.5 ? "hi" : (x >= 0.3 ? "mid" : "lo");
+const camName = c => c === 0 ? "跟拍" : "静态";
+function fillTable(id, rows, label) {
+  document.querySelector(`#${id} tbody`).innerHTML = rows.map(r =>
+    `<tr><td>${label(r.name)}</td><td class="num">${r.n}</td><td class="num ${cls(r.avg_pts)}">${f3(r.avg_pts)}</td><td class="num">${f3(r.avg_pts_dyn)}</td><td class="num">${f2(r.epe)} m</td></tr>`).join("");
+}
+fillTable("byMap", BY_MAP, k => MAPS[k] || k);
+fillTable("byCam", BY_CAM, k => camName(+k));
+const fMap = document.getElementById("fMap");
+for (const r of BY_MAP) fMap.insertAdjacentHTML("beforeend", `<option value="${r.name}">${MAPS[r.name] || r.name}（${r.n}）</option>`);
+const grid = document.getElementById("grid");
+function render() {
+  const m = fMap.value, c = document.getElementById("fCam").value, s = document.getElementById("fSort").value;
+  let rows = ROWS.filter(r => (!m || r.prefix === m) && (c === "" || String(r.cam) === c));
+  if (s === "desc") rows = rows.slice().sort((a, b) => b.avg_pts - a.avg_pts);
+  if (s === "asc") rows = rows.slice().sort((a, b) => a.avg_pts - b.avg_pts);
+  grid.innerHTML = rows.map(r => `
+    <div class="card">
+      <video preload="none" controls loop muted playsinline poster="media/point_track/${r.name}.jpg" src="media/point_track/${r.name}.mp4"></video>
+      <div class="body">
+        <h3>${r.name}<span class="tag">${camName(r.cam)}</span></h3>
+        <div class="map">${MAPS[r.prefix] || r.prefix} · ${r.world}</div>
+        <div class="kv">
+          <div><span>avg_pts</span><span class="${cls(r.avg_pts)}">${f3(r.avg_pts)}</span></div>
+          <div><span>avg_pts_dyn</span><span>${f3(r.avg_pts_dyn)}</span></div>
+          <div><span>EPE</span><span>${f2(r.epe_viz)} m</span></div>
+          <div><span>query 点</span><span>${r.n_points}</span></div>
+        </div>
+      </div>
+    </div>`).join("");
+  document.getElementById("count").textContent = `${rows.length} 段`;
+}
+["fMap", "fCam", "fSort"].forEach(id => document.getElementById(id).addEventListener("change", render));
+render();
+document.getElementById("playAll").onclick = () => document.querySelectorAll("#grid video").forEach(v => {
+  const r = v.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) v.play().catch(()=>{});
+});
+document.getElementById("pauseAll").onclick = () => document.querySelectorAll("#grid video").forEach(v => v.pause());
+document.getElementById("theme").onclick = () => {
+  const r = document.documentElement; const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur = r.dataset.theme || (dark ? "dark" : "light");
+  r.dataset.theme = cur === "dark" ? "light" : "dark";
+  try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+};
+try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</body>
+</html>
