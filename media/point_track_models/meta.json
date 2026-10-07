@@ -1,0 +1,4302 @@
+[
+ {
+  "name": "a2_s11_w0_cam1",
+  "prefix": "A2",
+  "world": "A2_S11_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1366,
+  "mp4_bytes": 1093959,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.5512255430221558,
+    "err_first": 1.2027076482772827,
+    "err_last": 1.0869648456573486,
+    "scale": 14.734284442960783,
+    "avg_pts": 0.4409,
+    "avg_pts_dyn": 0.3715
+   },
+   "traceanything": {
+    "epe_viz": 2.7187726497650146,
+    "err_first": 2.551514148712158,
+    "err_last": 1.9132506847381592,
+    "scale": 92.62257039823419,
+    "avg_pts": 0.2645,
+    "avg_pts_dyn": 0.2523
+   },
+   "any4d": {
+    "epe_viz": 4.550978660583496,
+    "err_first": 3.5957417488098145,
+    "err_last": 3.780954122543335,
+    "scale": 1.1613095260529762,
+    "avg_pts": 0.2439,
+    "avg_pts_dyn": 0.1984
+   },
+   "point4d": {
+    "epe_viz": 1.4991812705993652,
+    "err_first": 1.4651676416397095,
+    "err_last": 1.2720662355422974,
+    "scale": 30.59392503571139,
+    "avg_pts": 0.4188,
+    "avg_pts_dyn": 0.4314
+   }
+  }
+ },
+ {
+  "name": "a2_s23_w6_cam1",
+  "prefix": "A2",
+  "world": "A2_S23_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1294,
+  "mp4_bytes": 1695185,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.695539116859436,
+    "err_first": 1.4873993396759033,
+    "err_last": 1.1240829229354858,
+    "scale": 17.242523681383005,
+    "avg_pts": 0.3817,
+    "avg_pts_dyn": 0.3352
+   },
+   "traceanything": {
+    "epe_viz": 2.4370274543762207,
+    "err_first": 2.820770263671875,
+    "err_last": 1.6095709800720215,
+    "scale": 64.33155226786731,
+    "avg_pts": 0.3254,
+    "avg_pts_dyn": 0.3177
+   },
+   "any4d": {
+    "epe_viz": 3.7538809776306152,
+    "err_first": 1.3293960094451904,
+    "err_last": 2.694617986679077,
+    "scale": 0.9915412356136027,
+    "avg_pts": 0.1919,
+    "avg_pts_dyn": 0.1526
+   },
+   "point4d": {
+    "epe_viz": 0.6834698915481567,
+    "err_first": 0.4370401203632355,
+    "err_last": 0.8493477702140808,
+    "scale": 20.721641662379128,
+    "avg_pts": 0.5637,
+    "avg_pts_dyn": 0.5719
+   }
+  }
+ },
+ {
+  "name": "a2_s25_w3_cam0",
+  "prefix": "A2",
+  "world": "A2_S25_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 3751,
+  "mp4_bytes": 1562863,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.668198585510254,
+    "err_first": 0.46195852756500244,
+    "err_last": 1.933742642402649,
+    "scale": 15.92817735462781,
+    "avg_pts": 0.5356,
+    "avg_pts_dyn": 0.5316
+   },
+   "traceanything": {
+    "epe_viz": 4.801302433013916,
+    "err_first": 1.166823148727417,
+    "err_last": 3.3735411167144775,
+    "scale": 6.487483523991341,
+    "avg_pts": 0.4927,
+    "avg_pts_dyn": 0.4894
+   },
+   "any4d": {
+    "epe_viz": 4.77194356918335,
+    "err_first": 1.1333190202713013,
+    "err_last": 3.343385934829712,
+    "scale": 0.016435009622616792,
+    "avg_pts": 0.4692,
+    "avg_pts_dyn": 0.4728
+   },
+   "point4d": {
+    "epe_viz": 3.11867618560791,
+    "err_first": 0.8684957027435303,
+    "err_last": 2.203615427017212,
+    "scale": 13.279458249063735,
+    "avg_pts": 0.3877,
+    "avg_pts_dyn": 0.3898
+   }
+  }
+ },
+ {
+  "name": "a2_s28_w6_cam0",
+  "prefix": "A2",
+  "world": "A2_S28_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1551,
+  "mp4_bytes": 767843,
+  "models": {
+   "4rc": {
+    "epe_viz": 40.45340347290039,
+    "err_first": 0.40712904930114746,
+    "err_last": 154.13107299804688,
+    "scale": 11.419023207788873,
+    "avg_pts": 0.0626,
+    "avg_pts_dyn": 0.0836
+   },
+   "traceanything": {
+    "epe_viz": 39.643280029296875,
+    "err_first": 8.184321403503418,
+    "err_last": 153.42677307128906,
+    "scale": 53.36461758885296,
+    "avg_pts": 0.0602,
+    "avg_pts_dyn": 0.0707
+   },
+   "any4d": {
+    "epe_viz": 40.36619186401367,
+    "err_first": 0.44631439447402954,
+    "err_last": 154.13670349121094,
+    "scale": 1.1117343408183913,
+    "avg_pts": 0.0987,
+    "avg_pts_dyn": 0.0861
+   },
+   "point4d": {
+    "epe_viz": 39.863155364990234,
+    "err_first": 8.936991691589355,
+    "err_last": 153.26332092285156,
+    "scale": 5.148345210417987,
+    "avg_pts": 0.0595,
+    "avg_pts_dyn": 0.059
+   }
+  }
+ },
+ {
+  "name": "a2_s29_w3_cam1",
+  "prefix": "A2",
+  "world": "A2_S29_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 380,
+  "mp4_bytes": 830747,
+  "models": {
+   "4rc": {
+    "epe_viz": 4.7799835205078125,
+    "err_first": 3.851391553878784,
+    "err_last": 7.061410427093506,
+    "scale": 12.501635532121202,
+    "avg_pts": 0.3281,
+    "avg_pts_dyn": 0.3343
+   },
+   "traceanything": {
+    "epe_viz": 4.5788068771362305,
+    "err_first": 5.490357875823975,
+    "err_last": 7.1426100730896,
+    "scale": 3.9150634519276672,
+    "avg_pts": 0.3796,
+    "avg_pts_dyn": 0.3815
+   },
+   "any4d": {
+    "epe_viz": 5.631102085113525,
+    "err_first": 4.260709285736084,
+    "err_last": 9.186640739440918,
+    "scale": 0.7559461772638693,
+    "avg_pts": 0.265,
+    "avg_pts_dyn": 0.2655
+   },
+   "point4d": {
+    "epe_viz": 4.6319427490234375,
+    "err_first": 5.515496730804443,
+    "err_last": 7.210334300994873,
+    "scale": 2.013368672003773,
+    "avg_pts": 0.4428,
+    "avg_pts_dyn": 0.3624
+   }
+  }
+ },
+ {
+  "name": "a2_s30_w4_cam0",
+  "prefix": "A2",
+  "world": "A2_S30_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2299,
+  "mp4_bytes": 1394318,
+  "models": {
+   "4rc": {
+    "epe_viz": 8.640172958374023,
+    "err_first": 23.368757247924805,
+    "err_last": 5.16769552230835,
+    "scale": 7.215459140424731,
+    "avg_pts": 0.0746,
+    "avg_pts_dyn": 0.0705
+   },
+   "traceanything": {
+    "epe_viz": 8.966073989868164,
+    "err_first": 19.167245864868164,
+    "err_last": 12.702021598815918,
+    "scale": 50.88743257280311,
+    "avg_pts": 0.0513,
+    "avg_pts_dyn": 0.062
+   },
+   "any4d": {
+    "epe_viz": 8.258872032165527,
+    "err_first": 17.682632446289062,
+    "err_last": 9.178803443908691,
+    "scale": 0.6752806681165521,
+    "avg_pts": 0.0491,
+    "avg_pts_dyn": 0.015
+   },
+   "point4d": {
+    "epe_viz": 2.1487112045288086,
+    "err_first": 2.0048956871032715,
+    "err_last": 4.8348469734191895,
+    "scale": 29.028242076882496,
+    "avg_pts": 0.0642,
+    "avg_pts_dyn": 0.0977
+   }
+  }
+ },
+ {
+  "name": "a2_s30_w7_cam1",
+  "prefix": "A2",
+  "world": "A2_S30_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1442,
+  "mp4_bytes": 1140671,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.366487979888916,
+    "err_first": 2.0362229347229004,
+    "err_last": 5.697380542755127,
+    "scale": 1.5282149437346717,
+    "avg_pts": 0.1783,
+    "avg_pts_dyn": 0.1679
+   },
+   "traceanything": {
+    "epe_viz": 5.433487892150879,
+    "err_first": 3.461118221282959,
+    "err_last": 5.539680004119873,
+    "scale": 50.71892849080727,
+    "avg_pts": 0.2155,
+    "avg_pts_dyn": 0.1889
+   },
+   "any4d": {
+    "epe_viz": 6.6104326248168945,
+    "err_first": 2.271890878677368,
+    "err_last": 5.959390640258789,
+    "scale": 0.010354081775752472,
+    "avg_pts": 0.1094,
+    "avg_pts_dyn": 0.126
+   },
+   "point4d": {
+    "epe_viz": 6.28590202331543,
+    "err_first": 1.9528433084487915,
+    "err_last": 5.31965970993042,
+    "scale": 2.845362554119187,
+    "avg_pts": 0.1904,
+    "avg_pts_dyn": 0.1922
+   }
+  }
+ },
+ {
+  "name": "a2_s8_w5_cam0",
+  "prefix": "A2",
+  "world": "A2_S8_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1578,
+  "mp4_bytes": 1249970,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.3450236320495605,
+    "err_first": 3.193240165710449,
+    "err_last": 6.335032939910889,
+    "scale": 14.105836827275692,
+    "avg_pts": 0.1451,
+    "avg_pts_dyn": 0.1762
+   },
+   "traceanything": {
+    "epe_viz": 7.294949054718018,
+    "err_first": 3.251344680786133,
+    "err_last": 7.840236663818359,
+    "scale": 7.95037956106446,
+    "avg_pts": 0.0272,
+    "avg_pts_dyn": 0.0351
+   },
+   "any4d": {
+    "epe_viz": 5.9469170570373535,
+    "err_first": 0.8707682490348816,
+    "err_last": 6.2042741775512695,
+    "scale": 0.8827335570535464,
+    "avg_pts": 0.1847,
+    "avg_pts_dyn": 0.1398
+   },
+   "point4d": {
+    "epe_viz": 3.340393304824829,
+    "err_first": 0.9662343263626099,
+    "err_last": 2.8034098148345947,
+    "scale": 10.788249812775367,
+    "avg_pts": 0.2753,
+    "avg_pts_dyn": 0.2737
+   }
+  }
+ },
+ {
+  "name": "a2_s9_w5_cam0",
+  "prefix": "A2",
+  "world": "A2_S9_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 4895,
+  "mp4_bytes": 1851609,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.4546663761138916,
+    "err_first": 0.35052451491355896,
+    "err_last": 2.3822479248046875,
+    "scale": 16.06413005622865,
+    "avg_pts": 0.1573,
+    "avg_pts_dyn": 0.1617
+   },
+   "traceanything": {
+    "epe_viz": 8.07119083404541,
+    "err_first": 0.28504663705825806,
+    "err_last": 6.986311912536621,
+    "scale": 65.39535628148762,
+    "avg_pts": 0.0735,
+    "avg_pts_dyn": 0.0681
+   },
+   "any4d": {
+    "epe_viz": 4.775710582733154,
+    "err_first": 0.24571147561073303,
+    "err_last": 4.874388694763184,
+    "scale": 0.9593750760590101,
+    "avg_pts": 0.0697,
+    "avg_pts_dyn": 0.1213
+   },
+   "point4d": {
+    "epe_viz": 1.1784107685089111,
+    "err_first": 0.38217994570732117,
+    "err_last": 1.67070472240448,
+    "scale": 20.05833889185536,
+    "avg_pts": 0.3281,
+    "avg_pts_dyn": 0.352
+   }
+  }
+ },
+ {
+  "name": "a2_s9_w6_cam0",
+  "prefix": "A2",
+  "world": "A2_S9_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2971,
+  "mp4_bytes": 1138534,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.183222770690918,
+    "err_first": 1.1020781993865967,
+    "err_last": 10.367546081542969,
+    "scale": 30.41003538880206,
+    "avg_pts": 0.3082,
+    "avg_pts_dyn": 0.3383
+   },
+   "traceanything": {
+    "epe_viz": 11.3936185836792,
+    "err_first": 2.5920772552490234,
+    "err_last": 16.419214248657227,
+    "scale": 15.330759024315514,
+    "avg_pts": 0.2403,
+    "avg_pts_dyn": 0.2394
+   },
+   "any4d": {
+    "epe_viz": 10.457852363586426,
+    "err_first": 1.888466477394104,
+    "err_last": 15.598100662231445,
+    "scale": 0.30426165611867523,
+    "avg_pts": 0.2436,
+    "avg_pts_dyn": 0.2217
+   },
+   "point4d": {
+    "epe_viz": 3.4876935482025146,
+    "err_first": 0.5577868223190308,
+    "err_last": 4.862604141235352,
+    "scale": 34.31967965928791,
+    "avg_pts": 0.2889,
+    "avg_pts_dyn": 0.2095
+   }
+  }
+ },
+ {
+  "name": "a3_s12_w2_cam1",
+  "prefix": "A3",
+  "world": "A3_S12_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1791,
+  "mp4_bytes": 1098535,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.7389349937438965,
+    "err_first": 1.148802638053894,
+    "err_last": 1.50532865524292,
+    "scale": 5.919595602780261,
+    "avg_pts": 0.3486,
+    "avg_pts_dyn": 0.3594
+   },
+   "traceanything": {
+    "epe_viz": 4.205367565155029,
+    "err_first": 1.4890323877334595,
+    "err_last": 3.1777050495147705,
+    "scale": 48.88958646507765,
+    "avg_pts": 0.2602,
+    "avg_pts_dyn": 0.2549
+   },
+   "any4d": {
+    "epe_viz": 3.5399060249328613,
+    "err_first": 2.118983268737793,
+    "err_last": 2.1509087085723877,
+    "scale": 0.02609515900830121,
+    "avg_pts": 0.2512,
+    "avg_pts_dyn": 0.2707
+   },
+   "point4d": {
+    "epe_viz": 2.9347259998321533,
+    "err_first": 2.1626453399658203,
+    "err_last": 2.1544690132141113,
+    "scale": 12.977643040587985,
+    "avg_pts": 0.4184,
+    "avg_pts_dyn": 0.4257
+   }
+  }
+ },
+ {
+  "name": "a3_s14_w2_cam0",
+  "prefix": "A3",
+  "world": "A3_S14_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1650,
+  "mp4_bytes": 1663899,
+  "models": {
+   "4rc": {
+    "epe_viz": 13.376011848449707,
+    "err_first": 0.71125727891922,
+    "err_last": 19.8804874420166,
+    "scale": 20.460518945532733,
+    "avg_pts": 0.0902,
+    "avg_pts_dyn": 0.0858
+   },
+   "traceanything": {
+    "epe_viz": 7.88482141494751,
+    "err_first": 21.872888565063477,
+    "err_last": 2.4669289588928223,
+    "scale": 77.25137487520392,
+    "avg_pts": 0.0332,
+    "avg_pts_dyn": 0.032
+   },
+   "any4d": {
+    "epe_viz": 10.186650276184082,
+    "err_first": 4.653775215148926,
+    "err_last": 14.377050399780273,
+    "scale": 1.2444571889535254,
+    "avg_pts": 0.0563,
+    "avg_pts_dyn": 0.0701
+   },
+   "point4d": {
+    "epe_viz": 7.458115577697754,
+    "err_first": 19.94988250732422,
+    "err_last": 2.5884554386138916,
+    "scale": 15.352867163041516,
+    "avg_pts": 0.0604,
+    "avg_pts_dyn": 0.0193
+   }
+  }
+ },
+ {
+  "name": "a3_s26_w6_cam0",
+  "prefix": "A3",
+  "world": "A3_S26_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2297,
+  "mp4_bytes": 1542496,
+  "models": {
+   "4rc": {
+    "epe_viz": 11.973505973815918,
+    "err_first": 1.5514404773712158,
+    "err_last": 19.221660614013672,
+    "scale": 15.42376188147628,
+    "avg_pts": 0.1106,
+    "avg_pts_dyn": 0.0992
+   },
+   "traceanything": {
+    "epe_viz": 8.946818351745605,
+    "err_first": 9.843240737915039,
+    "err_last": 13.518240928649902,
+    "scale": 57.542425924254225,
+    "avg_pts": 0.0419,
+    "avg_pts_dyn": 0.0472
+   },
+   "any4d": {
+    "epe_viz": 13.243668556213379,
+    "err_first": 0.7869579195976257,
+    "err_last": 18.628040313720703,
+    "scale": 0.628747312662856,
+    "avg_pts": 0.0486,
+    "avg_pts_dyn": 0.065
+   },
+   "point4d": {
+    "epe_viz": 12.286792755126953,
+    "err_first": 1.2813236713409424,
+    "err_last": 19.2437801361084,
+    "scale": 22.596274754130544,
+    "avg_pts": 0.0269,
+    "avg_pts_dyn": 0.0484
+   }
+  }
+ },
+ {
+  "name": "a3_s30_w5_cam0",
+  "prefix": "A3",
+  "world": "A3_S30_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2366,
+  "mp4_bytes": 1804493,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.627583980560303,
+    "err_first": 2.418868064880371,
+    "err_last": 6.814027786254883,
+    "scale": 9.506474308016868,
+    "avg_pts": 0.2725,
+    "avg_pts_dyn": 0.2768
+   },
+   "traceanything": {
+    "epe_viz": 5.8769731521606445,
+    "err_first": 1.7058215141296387,
+    "err_last": 5.883907318115234,
+    "scale": 51.86686966064123,
+    "avg_pts": 0.2663,
+    "avg_pts_dyn": 0.2365
+   },
+   "any4d": {
+    "epe_viz": 6.004735946655273,
+    "err_first": 1.5252827405929565,
+    "err_last": 6.65170431137085,
+    "scale": 0.8841537554588358,
+    "avg_pts": 0.2279,
+    "avg_pts_dyn": 0.2263
+   },
+   "point4d": {
+    "epe_viz": 5.588613986968994,
+    "err_first": 1.3366456031799316,
+    "err_last": 5.828393459320068,
+    "scale": 9.177394399226607,
+    "avg_pts": 0.273,
+    "avg_pts_dyn": 0.2753
+   }
+  }
+ },
+ {
+  "name": "a3_s32_w5_cam1",
+  "prefix": "A3",
+  "world": "A3_S32_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 2290,
+  "mp4_bytes": 1206022,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.5615662932395935,
+    "err_first": 0.620233952999115,
+    "err_last": 0.8198627829551697,
+    "scale": 8.741831104673272,
+    "avg_pts": 0.7513,
+    "avg_pts_dyn": 0.7537
+   },
+   "traceanything": {
+    "epe_viz": 1.5032405853271484,
+    "err_first": 1.8507132530212402,
+    "err_last": 1.6435123682022095,
+    "scale": 8.952764826560095,
+    "avg_pts": 0.3688,
+    "avg_pts_dyn": 0.3237
+   },
+   "any4d": {
+    "epe_viz": 1.8886462450027466,
+    "err_first": 0.5186071395874023,
+    "err_last": 4.705490589141846,
+    "scale": 0.7190269304883399,
+    "avg_pts": 0.3034,
+    "avg_pts_dyn": 0.3614
+   },
+   "point4d": {
+    "epe_viz": 0.6210734844207764,
+    "err_first": 0.5458889007568359,
+    "err_last": 0.6821524500846863,
+    "scale": 14.814866327435624,
+    "avg_pts": 0.6751,
+    "avg_pts_dyn": 0.7358
+   }
+  }
+ },
+ {
+  "name": "a3_s33_w1_cam1",
+  "prefix": "A3",
+  "world": "A3_S33_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1133,
+  "mp4_bytes": 1006112,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.0228630304336548,
+    "err_first": 1.9483404159545898,
+    "err_last": 1.510749101638794,
+    "scale": 8.396128342691414,
+    "avg_pts": 0.5536,
+    "avg_pts_dyn": 0.3574
+   },
+   "traceanything": {
+    "epe_viz": 3.3461623191833496,
+    "err_first": 3.446657419204712,
+    "err_last": 4.6136932373046875,
+    "scale": 42.79356579477393,
+    "avg_pts": 0.2547,
+    "avg_pts_dyn": 0.2706
+   },
+   "any4d": {
+    "epe_viz": 4.202187538146973,
+    "err_first": 2.0419819355010986,
+    "err_last": 8.72098445892334,
+    "scale": 0.5108539047417892,
+    "avg_pts": 0.1591,
+    "avg_pts_dyn": 0.1577
+   },
+   "point4d": {
+    "epe_viz": 1.9789862632751465,
+    "err_first": 1.9649749994277954,
+    "err_last": 3.0024447441101074,
+    "scale": 8.242369777711078,
+    "avg_pts": 0.3743,
+    "avg_pts_dyn": 0.3305
+   }
+  }
+ },
+ {
+  "name": "a3_s37_w0_cam0",
+  "prefix": "A3",
+  "world": "A3_S37_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2272,
+  "mp4_bytes": 1299306,
+  "models": {
+   "4rc": {
+    "epe_viz": 14.822652816772461,
+    "err_first": 0.46545812487602234,
+    "err_last": 59.567604064941406,
+    "scale": 8.386961179764686,
+    "avg_pts": 0.1372,
+    "avg_pts_dyn": 0.1126
+   },
+   "traceanything": {
+    "epe_viz": 12.837125778198242,
+    "err_first": 5.038806438446045,
+    "err_last": 57.355552673339844,
+    "scale": 77.79188081842628,
+    "avg_pts": 0.0452,
+    "avg_pts_dyn": 0.0488
+   },
+   "any4d": {
+    "epe_viz": 12.580774307250977,
+    "err_first": 0.13874606788158417,
+    "err_last": 58.365509033203125,
+    "scale": 0.6031852722174186,
+    "avg_pts": 0.1583,
+    "avg_pts_dyn": 0.1341
+   },
+   "point4d": {
+    "epe_viz": 10.360064506530762,
+    "err_first": 1.0524442195892334,
+    "err_last": 56.11567306518555,
+    "scale": 10.70464186722809,
+    "avg_pts": 0.1469,
+    "avg_pts_dyn": 0.2215
+   }
+  }
+ },
+ {
+  "name": "a3_s37_w0_cam1",
+  "prefix": "A3",
+  "world": "A3_S37_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1465,
+  "mp4_bytes": 771682,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.6455079317092896,
+    "err_first": 0.7027910351753235,
+    "err_last": 7.205113410949707,
+    "scale": 5.393930734454493,
+    "avg_pts": 0.7073,
+    "avg_pts_dyn": 0.7018
+   },
+   "traceanything": {
+    "epe_viz": 2.086054563522339,
+    "err_first": 1.839036464691162,
+    "err_last": 7.894661903381348,
+    "scale": 57.268510470925825,
+    "avg_pts": 0.5254,
+    "avg_pts_dyn": 0.5369
+   },
+   "any4d": {
+    "epe_viz": 3.2094216346740723,
+    "err_first": 0.6959226131439209,
+    "err_last": 11.346362113952637,
+    "scale": 0.6577072420098258,
+    "avg_pts": 0.2743,
+    "avg_pts_dyn": 0.2993
+   },
+   "point4d": {
+    "epe_viz": 1.9936105012893677,
+    "err_first": 0.5444803237915039,
+    "err_last": 7.910099029541016,
+    "scale": 6.70539972261471,
+    "avg_pts": 0.5721,
+    "avg_pts_dyn": 0.569
+   }
+  }
+ },
+ {
+  "name": "a3_s37_w4_cam1",
+  "prefix": "A3",
+  "world": "A3_S37_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 635,
+  "mp4_bytes": 1033379,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.9023749828338623,
+    "err_first": 1.7640796899795532,
+    "err_last": 1.895101547241211,
+    "scale": 9.8253523914058,
+    "avg_pts": 0.2662,
+    "avg_pts_dyn": 0.2615
+   },
+   "traceanything": {
+    "epe_viz": 4.481022834777832,
+    "err_first": 4.313353061676025,
+    "err_last": 4.5456223487854,
+    "scale": 26.033410585880745,
+    "avg_pts": 0.2613,
+    "avg_pts_dyn": 0.2509
+   },
+   "any4d": {
+    "epe_viz": 4.798000335693359,
+    "err_first": 4.646296977996826,
+    "err_last": 4.815854072570801,
+    "scale": 0.0135411675064521,
+    "avg_pts": 0.1437,
+    "avg_pts_dyn": 0.164
+   },
+   "point4d": {
+    "epe_viz": 5.039370536804199,
+    "err_first": 4.8715949058532715,
+    "err_last": 5.063656806945801,
+    "scale": 5.082328696707737,
+    "avg_pts": 0.2407,
+    "avg_pts_dyn": 0.1583
+   }
+  }
+ },
+ {
+  "name": "a3_s38_w6_cam1",
+  "prefix": "A3",
+  "world": "A3_S38_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 312,
+  "mp4_bytes": 839132,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.8498281240463257,
+    "err_first": 1.1603960990905762,
+    "err_last": 2.1472060680389404,
+    "scale": 9.331039895944166,
+    "avg_pts": 0.5821,
+    "avg_pts_dyn": 0.5865
+   },
+   "traceanything": {
+    "epe_viz": 1.8977283239364624,
+    "err_first": 1.795599102973938,
+    "err_last": 2.0770390033721924,
+    "scale": 16.079823215488126,
+    "avg_pts": 0.4196,
+    "avg_pts_dyn": 0.4269
+   },
+   "any4d": {
+    "epe_viz": 2.066484212875366,
+    "err_first": 1.9853906631469727,
+    "err_last": 2.28131365776062,
+    "scale": 0.008900507257567055,
+    "avg_pts": 0.4771,
+    "avg_pts_dyn": 0.478
+   },
+   "point4d": {
+    "epe_viz": 1.0849134922027588,
+    "err_first": 0.7606832981109619,
+    "err_last": 1.6472418308258057,
+    "scale": 13.022990251567899,
+    "avg_pts": 0.5848,
+    "avg_pts_dyn": 0.5892
+   }
+  }
+ },
+ {
+  "name": "a3_s7_w3_cam1",
+  "prefix": "A3",
+  "world": "A3_S7_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 822,
+  "mp4_bytes": 793475,
+  "models": {
+   "4rc": {
+    "epe_viz": 11.225818634033203,
+    "err_first": 2.537656784057617,
+    "err_last": 16.66549301147461,
+    "scale": 7.744157393073236,
+    "avg_pts": 0.2143,
+    "avg_pts_dyn": 0.1448
+   },
+   "traceanything": {
+    "epe_viz": 13.390580177307129,
+    "err_first": 3.8783133029937744,
+    "err_last": 19.76344871520996,
+    "scale": 12.805986831581839,
+    "avg_pts": 0.1184,
+    "avg_pts_dyn": 0.1292
+   },
+   "any4d": {
+    "epe_viz": 7.704500198364258,
+    "err_first": 1.1775579452514648,
+    "err_last": 13.053059577941895,
+    "scale": 0.6619399156193612,
+    "avg_pts": 0.1181,
+    "avg_pts_dyn": 0.1084
+   },
+   "point4d": {
+    "epe_viz": 13.088624000549316,
+    "err_first": 4.410237789154053,
+    "err_last": 19.184064865112305,
+    "scale": 9.647699343429352,
+    "avg_pts": 0.1117,
+    "avg_pts_dyn": 0.1057
+   }
+  }
+ },
+ {
+  "name": "a3_s8_w6_cam0",
+  "prefix": "A3",
+  "world": "A3_S8_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 4543,
+  "mp4_bytes": 2400385,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.437188148498535,
+    "err_first": 0.46220725774765015,
+    "err_last": 1.2175467014312744,
+    "scale": 12.769819077179491,
+    "avg_pts": 0.3861,
+    "avg_pts_dyn": 0.3948
+   },
+   "traceanything": {
+    "epe_viz": 5.102013111114502,
+    "err_first": 1.9940683841705322,
+    "err_last": 3.88459849357605,
+    "scale": 21.72895505102523,
+    "avg_pts": 0.1854,
+    "avg_pts_dyn": 0.0845
+   },
+   "any4d": {
+    "epe_viz": 3.75994873046875,
+    "err_first": 1.1948531866073608,
+    "err_last": 2.2463576793670654,
+    "scale": 0.5012778472557524,
+    "avg_pts": 0.2017,
+    "avg_pts_dyn": 0.1378
+   },
+   "point4d": {
+    "epe_viz": 4.0546345710754395,
+    "err_first": 0.42871972918510437,
+    "err_last": 2.6938862800598145,
+    "scale": 10.782992042385006,
+    "avg_pts": 0.2874,
+    "avg_pts_dyn": 0.2892
+   }
+  }
+ },
+ {
+  "name": "a3_s9_w0_cam0",
+  "prefix": "A3",
+  "world": "A3_S9_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2689,
+  "mp4_bytes": 1877513,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.609692573547363,
+    "err_first": 0.6593452095985413,
+    "err_last": 21.02800750732422,
+    "scale": 9.721044955569488,
+    "avg_pts": 0.1277,
+    "avg_pts_dyn": 0.1915
+   },
+   "traceanything": {
+    "epe_viz": 6.733091354370117,
+    "err_first": 11.350667953491211,
+    "err_last": 13.531575202941895,
+    "scale": 113.54759249202489,
+    "avg_pts": 0.0483,
+    "avg_pts_dyn": 0.0527
+   },
+   "any4d": {
+    "epe_viz": 5.144918918609619,
+    "err_first": 0.6067870259284973,
+    "err_last": 18.287559509277344,
+    "scale": 0.6831663772260921,
+    "avg_pts": 0.2312,
+    "avg_pts_dyn": 0.2189
+   },
+   "point4d": {
+    "epe_viz": 6.534191131591797,
+    "err_first": 5.579676628112793,
+    "err_last": 18.89788055419922,
+    "scale": 15.8600172705371,
+    "avg_pts": 0.062,
+    "avg_pts_dyn": 0.041
+   }
+  }
+ },
+ {
+  "name": "a3_s9_w0_cam1",
+  "prefix": "A3",
+  "world": "A3_S9_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 390,
+  "mp4_bytes": 929493,
+  "models": {
+   "4rc": {
+    "epe_viz": 4.173032760620117,
+    "err_first": 4.1779890060424805,
+    "err_last": 4.173055171966553,
+    "scale": 5.217391830089502,
+    "avg_pts": 0.4122,
+    "avg_pts_dyn": 0.4115
+   },
+   "traceanything": {
+    "epe_viz": 4.384432792663574,
+    "err_first": 4.376165866851807,
+    "err_last": 4.418621063232422,
+    "scale": 17.593133965935134,
+    "avg_pts": 0.3974,
+    "avg_pts_dyn": 0.3998
+   },
+   "any4d": {
+    "epe_viz": 3.5439295768737793,
+    "err_first": 1.0504229068756104,
+    "err_last": 11.18617057800293,
+    "scale": 0.7227289215331799,
+    "avg_pts": 0.2294,
+    "avg_pts_dyn": 0.3659
+   },
+   "point4d": {
+    "epe_viz": 3.9298174381256104,
+    "err_first": 3.941546678543091,
+    "err_last": 3.9466919898986816,
+    "scale": 5.251422085662268,
+    "avg_pts": 0.3996,
+    "avg_pts_dyn": 0.4012
+   }
+  }
+ },
+ {
+  "name": "fa_s10_w0_cam0",
+  "prefix": "FA",
+  "world": "FA_S10_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 4694,
+  "mp4_bytes": 2132386,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.4979212284088135,
+    "err_first": 0.35725387930870056,
+    "err_last": 2.7772202491760254,
+    "scale": 20.12798006371887,
+    "avg_pts": 0.3503,
+    "avg_pts_dyn": 0.3553
+   },
+   "traceanything": {
+    "epe_viz": 7.113099098205566,
+    "err_first": 1.3042210340499878,
+    "err_last": 8.276849746704102,
+    "scale": 32.82117940148395,
+    "avg_pts": 0.1808,
+    "avg_pts_dyn": 0.1541
+   },
+   "any4d": {
+    "epe_viz": 4.2120561599731445,
+    "err_first": 0.4041101336479187,
+    "err_last": 4.936348915100098,
+    "scale": 0.8843806449525003,
+    "avg_pts": 0.2082,
+    "avg_pts_dyn": 0.2216
+   },
+   "point4d": {
+    "epe_viz": 0.9260707497596741,
+    "err_first": 0.4678388237953186,
+    "err_last": 1.1553878784179688,
+    "scale": 25.4812135292092,
+    "avg_pts": 0.39,
+    "avg_pts_dyn": 0.3744
+   }
+  }
+ },
+ {
+  "name": "fa_s10_w3_cam0",
+  "prefix": "FA",
+  "world": "FA_S10_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2002,
+  "mp4_bytes": 952243,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.541569232940674,
+    "err_first": 1.0016124248504639,
+    "err_last": 7.689708232879639,
+    "scale": 13.081703293638473,
+    "avg_pts": 0.1307,
+    "avg_pts_dyn": 0.1098
+   },
+   "traceanything": {
+    "epe_viz": 10.760330200195312,
+    "err_first": 1.7603480815887451,
+    "err_last": 11.65499496459961,
+    "scale": 34.5527606036941,
+    "avg_pts": 0.1238,
+    "avg_pts_dyn": 0.1112
+   },
+   "any4d": {
+    "epe_viz": 7.338428497314453,
+    "err_first": 0.5533987879753113,
+    "err_last": 7.533172130584717,
+    "scale": 0.780393071367844,
+    "avg_pts": 0.1027,
+    "avg_pts_dyn": 0.1104
+   },
+   "point4d": {
+    "epe_viz": 5.804615020751953,
+    "err_first": 0.4415510594844818,
+    "err_last": 5.318696022033691,
+    "scale": 21.681617914154927,
+    "avg_pts": 0.1114,
+    "avg_pts_dyn": 0.0978
+   }
+  }
+ },
+ {
+  "name": "fa_s11_w1_cam0",
+  "prefix": "FA",
+  "world": "FA_S11_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 3781,
+  "mp4_bytes": 1922303,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.916469573974609,
+    "err_first": 1.4639352560043335,
+    "err_last": 14.917752265930176,
+    "scale": 34.145107114062874,
+    "avg_pts": 0.0638,
+    "avg_pts_dyn": 0.1114
+   },
+   "traceanything": {
+    "epe_viz": 9.702628135681152,
+    "err_first": 27.207931518554688,
+    "err_last": 2.1149892807006836,
+    "scale": 60.12740109957727,
+    "avg_pts": 0.0474,
+    "avg_pts_dyn": 0.0449
+   },
+   "any4d": {
+    "epe_viz": 10.104578018188477,
+    "err_first": 0.5075347423553467,
+    "err_last": 20.58453941345215,
+    "scale": 0.8893500707303769,
+    "avg_pts": 0.0259,
+    "avg_pts_dyn": 0.115
+   },
+   "point4d": {
+    "epe_viz": 0.9436686635017395,
+    "err_first": 2.0413999557495117,
+    "err_last": 1.556834101676941,
+    "scale": 94.0894244237708,
+    "avg_pts": 0.2989,
+    "avg_pts_dyn": 0.371
+   }
+  }
+ },
+ {
+  "name": "fa_s11_w3_cam1",
+  "prefix": "FA",
+  "world": "FA_S11_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 2573,
+  "mp4_bytes": 1424938,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.6828060150146484,
+    "err_first": 1.2160017490386963,
+    "err_last": 2.010915756225586,
+    "scale": 16.55171494893018,
+    "avg_pts": 0.3082,
+    "avg_pts_dyn": 0.309
+   },
+   "traceanything": {
+    "epe_viz": 2.4464633464813232,
+    "err_first": 2.1816418170928955,
+    "err_last": 2.7365055084228516,
+    "scale": 57.01304594094956,
+    "avg_pts": 0.1993,
+    "avg_pts_dyn": 0.2016
+   },
+   "any4d": {
+    "epe_viz": 3.0777785778045654,
+    "err_first": 2.058562994003296,
+    "err_last": 3.1415843963623047,
+    "scale": 0.972255256471259,
+    "avg_pts": 0.267,
+    "avg_pts_dyn": 0.2507
+   },
+   "point4d": {
+    "epe_viz": 2.0613062381744385,
+    "err_first": 0.9765732288360596,
+    "err_last": 1.326096773147583,
+    "scale": 35.6671088212297,
+    "avg_pts": 0.2737,
+    "avg_pts_dyn": 0.305
+   }
+  }
+ },
+ {
+  "name": "fa_s12_w3_cam0",
+  "prefix": "FA",
+  "world": "FA_S12_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 3881,
+  "mp4_bytes": 1384852,
+  "models": {
+   "4rc": {
+    "epe_viz": 13.705536842346191,
+    "err_first": 32.76773452758789,
+    "err_last": 6.421507835388184,
+    "scale": 10.82250522578507,
+    "avg_pts": 0.005,
+    "avg_pts_dyn": 0.0177
+   },
+   "traceanything": {
+    "epe_viz": 13.137301445007324,
+    "err_first": 32.13563919067383,
+    "err_last": 6.342105388641357,
+    "scale": 53.22124953255552,
+    "avg_pts": 0.0306,
+    "avg_pts_dyn": 0.0189
+   },
+   "any4d": {
+    "epe_viz": 13.9668607711792,
+    "err_first": 33.72052764892578,
+    "err_last": 8.22741985321045,
+    "scale": 0.5759876443796945,
+    "avg_pts": 0.0635,
+    "avg_pts_dyn": 0.03
+   },
+   "point4d": {
+    "epe_viz": 2.3728199005126953,
+    "err_first": 3.4979915618896484,
+    "err_last": 2.1811587810516357,
+    "scale": 50.02936204265791,
+    "avg_pts": 0.1826,
+    "avg_pts_dyn": 0.2039
+   }
+  }
+ },
+ {
+  "name": "fa_s13_w1_cam1",
+  "prefix": "FA",
+  "world": "FA_S13_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 875,
+  "mp4_bytes": 805486,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.268115520477295,
+    "err_first": 0.827416181564331,
+    "err_last": 5.538930892944336,
+    "scale": 13.683705750120149,
+    "avg_pts": 0.2505,
+    "avg_pts_dyn": 0.2701
+   },
+   "traceanything": {
+    "epe_viz": 8.340568542480469,
+    "err_first": 1.5668046474456787,
+    "err_last": 7.839057445526123,
+    "scale": 28.93653634783255,
+    "avg_pts": 0.1891,
+    "avg_pts_dyn": 0.1078
+   },
+   "any4d": {
+    "epe_viz": 8.442233085632324,
+    "err_first": 1.9049216508865356,
+    "err_last": 8.007974624633789,
+    "scale": 0.04745694297079111,
+    "avg_pts": 0.1867,
+    "avg_pts_dyn": 0.205
+   },
+   "point4d": {
+    "epe_viz": 2.985140800476074,
+    "err_first": 0.8339117169380188,
+    "err_last": 2.2629878520965576,
+    "scale": 27.14104346762016,
+    "avg_pts": 0.2119,
+    "avg_pts_dyn": 0.1279
+   }
+  }
+ },
+ {
+  "name": "fa_s13_w4_cam1",
+  "prefix": "FA",
+  "world": "FA_S13_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 468,
+  "mp4_bytes": 799269,
+  "models": {
+   "4rc": {
+    "epe_viz": 8.50200080871582,
+    "err_first": 2.5428855419158936,
+    "err_last": 9.709613800048828,
+    "scale": 14.521362667829779,
+    "avg_pts": 0.2171,
+    "avg_pts_dyn": 0.2118
+   },
+   "traceanything": {
+    "epe_viz": 13.80952262878418,
+    "err_first": 5.01486349105835,
+    "err_last": 14.814939498901367,
+    "scale": 33.013563273677164,
+    "avg_pts": 0.2046,
+    "avg_pts_dyn": 0.1021
+   },
+   "any4d": {
+    "epe_viz": 12.354619026184082,
+    "err_first": 2.2213473320007324,
+    "err_last": 13.78477954864502,
+    "scale": 0.907120928302885,
+    "avg_pts": 0.1486,
+    "avg_pts_dyn": 0.0905
+   },
+   "point4d": {
+    "epe_viz": 12.120162963867188,
+    "err_first": 2.908114194869995,
+    "err_last": 13.1654691696167,
+    "scale": 1.5607886393427304,
+    "avg_pts": 0.1466,
+    "avg_pts_dyn": 0.1455
+   }
+  }
+ },
+ {
+  "name": "fa_s26_w0_cam0",
+  "prefix": "FA",
+  "world": "FA_S26_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2109,
+  "mp4_bytes": 2389359,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.280949115753174,
+    "err_first": 0.2987323999404907,
+    "err_last": 16.201995849609375,
+    "scale": 16.46529373232638,
+    "avg_pts": 0.0742,
+    "avg_pts_dyn": 0.1613
+   },
+   "traceanything": {
+    "epe_viz": 8.9102201461792,
+    "err_first": 16.200502395629883,
+    "err_last": 0.41207385063171387,
+    "scale": 30.995365801941034,
+    "avg_pts": 0.0962,
+    "avg_pts_dyn": 0.0683
+   },
+   "any4d": {
+    "epe_viz": 5.275652885437012,
+    "err_first": 0.3442043662071228,
+    "err_last": 13.809136390686035,
+    "scale": 0.7989684817923548,
+    "avg_pts": 0.2243,
+    "avg_pts_dyn": 0.2293
+   },
+   "point4d": {
+    "epe_viz": 2.7057082653045654,
+    "err_first": 2.6064047813415527,
+    "err_last": 3.2513232231140137,
+    "scale": 16.685493655042713,
+    "avg_pts": 0.2018,
+    "avg_pts_dyn": 0.1709
+   }
+  }
+ },
+ {
+  "name": "fa_s26_w7_cam1",
+  "prefix": "FA",
+  "world": "FA_S26_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1694,
+  "mp4_bytes": 972764,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.8980791568756104,
+    "err_first": 2.016770839691162,
+    "err_last": 10.872970581054688,
+    "scale": 18.662481977042127,
+    "avg_pts": 0.5061,
+    "avg_pts_dyn": 0.4988
+   },
+   "traceanything": {
+    "epe_viz": 4.482350826263428,
+    "err_first": 3.1876871585845947,
+    "err_last": 10.931435585021973,
+    "scale": 2.38997436827786,
+    "avg_pts": 0.3064,
+    "avg_pts_dyn": 0.3302
+   },
+   "any4d": {
+    "epe_viz": 4.5413618087768555,
+    "err_first": 1.2113938331604004,
+    "err_last": 11.045166015625,
+    "scale": 0.7056467707498645,
+    "avg_pts": 0.185,
+    "avg_pts_dyn": 0.1703
+   },
+   "point4d": {
+    "epe_viz": 3.330922842025757,
+    "err_first": 0.8129933476448059,
+    "err_last": 6.65157413482666,
+    "scale": 25.598241177268598,
+    "avg_pts": 0.3261,
+    "avg_pts_dyn": 0.254
+   }
+  }
+ },
+ {
+  "name": "fa_s30_w7_cam1",
+  "prefix": "FA",
+  "world": "FA_S30_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1965,
+  "mp4_bytes": 1155204,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.297421455383301,
+    "err_first": 3.3580312728881836,
+    "err_last": 3.1539306640625,
+    "scale": 9.964357829019978,
+    "avg_pts": 0.0928,
+    "avg_pts_dyn": 0.0958
+   },
+   "traceanything": {
+    "epe_viz": 2.6892192363739014,
+    "err_first": 3.016512632369995,
+    "err_last": 2.5368454456329346,
+    "scale": 58.24755773708452,
+    "avg_pts": 0.2744,
+    "avg_pts_dyn": 0.2761
+   },
+   "any4d": {
+    "epe_viz": 1.9262326955795288,
+    "err_first": 1.4779304265975952,
+    "err_last": 1.3773069381713867,
+    "scale": 0.801929635680831,
+    "avg_pts": 0.1036,
+    "avg_pts_dyn": 0.1906
+   },
+   "point4d": {
+    "epe_viz": 3.740994930267334,
+    "err_first": 3.849989175796509,
+    "err_last": 3.4565868377685547,
+    "scale": 44.5661784962318,
+    "avg_pts": 0.2992,
+    "avg_pts_dyn": 0.1194
+   }
+  }
+ },
+ {
+  "name": "fa_s31_w6_cam0",
+  "prefix": "FA",
+  "world": "FA_S31_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 3566,
+  "mp4_bytes": 1268217,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.637992858886719,
+    "err_first": 1.4292075634002686,
+    "err_last": 5.724828243255615,
+    "scale": 26.938322742669783,
+    "avg_pts": 0.1016,
+    "avg_pts_dyn": 0.0802
+   },
+   "traceanything": {
+    "epe_viz": 15.454660415649414,
+    "err_first": 4.729658126831055,
+    "err_last": 14.401016235351562,
+    "scale": 42.860619695978194,
+    "avg_pts": 0.0308,
+    "avg_pts_dyn": 0.0273
+   },
+   "any4d": {
+    "epe_viz": 15.524674415588379,
+    "err_first": 0.6109984517097473,
+    "err_last": 13.215384483337402,
+    "scale": 0.9124260229190942,
+    "avg_pts": 0.0217,
+    "avg_pts_dyn": 0.0173
+   },
+   "point4d": {
+    "epe_viz": 2.5021684169769287,
+    "err_first": 0.5055793523788452,
+    "err_last": 1.2373378276824951,
+    "scale": 32.34961210543958,
+    "avg_pts": 0.0276,
+    "avg_pts_dyn": 0.0602
+   }
+  }
+ },
+ {
+  "name": "fa_s32_w2_cam1",
+  "prefix": "FA",
+  "world": "FA_S32_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1793,
+  "mp4_bytes": 1657494,
+  "models": {
+   "4rc": {
+    "epe_viz": 4.847857475280762,
+    "err_first": 0.8502543568611145,
+    "err_last": 5.308390140533447,
+    "scale": 11.749239560892923,
+    "avg_pts": 0.3828,
+    "avg_pts_dyn": 0.3966
+   },
+   "traceanything": {
+    "epe_viz": 6.4348320960998535,
+    "err_first": 1.5300407409667969,
+    "err_last": 6.9481201171875,
+    "scale": 65.74789634240511,
+    "avg_pts": 0.2581,
+    "avg_pts_dyn": 0.2777
+   },
+   "any4d": {
+    "epe_viz": 6.3924078941345215,
+    "err_first": 2.217041015625,
+    "err_last": 6.5203166007995605,
+    "scale": 0.24774895736258132,
+    "avg_pts": 0.1868,
+    "avg_pts_dyn": 0.2377
+   },
+   "point4d": {
+    "epe_viz": 6.5002970695495605,
+    "err_first": 2.739762783050537,
+    "err_last": 6.335226535797119,
+    "scale": 50.16603059225557,
+    "avg_pts": 0.3612,
+    "avg_pts_dyn": 0.3447
+   }
+  }
+ },
+ {
+  "name": "fa_s32_w4_cam0",
+  "prefix": "FA",
+  "world": "FA_S32_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2898,
+  "mp4_bytes": 1311135,
+  "models": {
+   "4rc": {
+    "epe_viz": 10.71627140045166,
+    "err_first": 27.410234451293945,
+    "err_last": 10.703156471252441,
+    "scale": 6.457186813386744,
+    "avg_pts": 0.0347,
+    "avg_pts_dyn": 0.0379
+   },
+   "traceanything": {
+    "epe_viz": 10.828086853027344,
+    "err_first": 27.026206970214844,
+    "err_last": 10.54884147644043,
+    "scale": 63.849492806113346,
+    "avg_pts": 0.0311,
+    "avg_pts_dyn": 0.0386
+   },
+   "any4d": {
+    "epe_viz": 7.961871147155762,
+    "err_first": 23.537067413330078,
+    "err_last": 4.616286277770996,
+    "scale": 0.9235549056703971,
+    "avg_pts": 0.0578,
+    "avg_pts_dyn": 0.0366
+   },
+   "point4d": {
+    "epe_viz": 8.99366283416748,
+    "err_first": 3.8165807723999023,
+    "err_last": 10.000200271606445,
+    "scale": 21.859591017429786,
+    "avg_pts": 0.0192,
+    "avg_pts_dyn": 0.0747
+   }
+  }
+ },
+ {
+  "name": "fa_s32_w7_cam0",
+  "prefix": "FA",
+  "world": "FA_S32_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1337,
+  "mp4_bytes": 2108791,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.3753557205200195,
+    "err_first": 1.0684471130371094,
+    "err_last": 24.7589168548584,
+    "scale": 24.775665619053793,
+    "avg_pts": 0.2832,
+    "avg_pts_dyn": 0.3193
+   },
+   "traceanything": {
+    "epe_viz": 10.328919410705566,
+    "err_first": 2.133882999420166,
+    "err_last": 24.06804847717285,
+    "scale": 43.69750244045773,
+    "avg_pts": 0.0404,
+    "avg_pts_dyn": 0.0429
+   },
+   "any4d": {
+    "epe_viz": 8.590130805969238,
+    "err_first": 0.9820467233657837,
+    "err_last": 22.234033584594727,
+    "scale": 0.6913404888095994,
+    "avg_pts": 0.1233,
+    "avg_pts_dyn": 0.1381
+   },
+   "point4d": {
+    "epe_viz": 1.7681688070297241,
+    "err_first": 0.9139791131019592,
+    "err_last": 4.805826187133789,
+    "scale": 31.642746111908153,
+    "avg_pts": 0.378,
+    "avg_pts_dyn": 0.3699
+   }
+  }
+ },
+ {
+  "name": "fa_s33_w0_cam0",
+  "prefix": "FA",
+  "world": "FA_S33_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2503,
+  "mp4_bytes": 992725,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.127207279205322,
+    "err_first": 0.4310014545917511,
+    "err_last": 2.4875879287719727,
+    "scale": 10.977058048685025,
+    "avg_pts": 0.2209,
+    "avg_pts_dyn": 0.2027
+   },
+   "traceanything": {
+    "epe_viz": 7.635702610015869,
+    "err_first": 1.5328704118728638,
+    "err_last": 6.089623928070068,
+    "scale": 35.4386823966745,
+    "avg_pts": 0.0585,
+    "avg_pts_dyn": 0.0598
+   },
+   "any4d": {
+    "epe_viz": 5.417358875274658,
+    "err_first": 0.5358049273490906,
+    "err_last": 3.436985731124878,
+    "scale": 0.8397039258457573,
+    "avg_pts": 0.1595,
+    "avg_pts_dyn": 0.1816
+   },
+   "point4d": {
+    "epe_viz": 2.9010660648345947,
+    "err_first": 0.320267915725708,
+    "err_last": 1.8297597169876099,
+    "scale": 13.25416584714653,
+    "avg_pts": 0.3154,
+    "avg_pts_dyn": 0.3097
+   }
+  }
+ },
+ {
+  "name": "fa_s33_w2_cam0",
+  "prefix": "FA",
+  "world": "FA_S33_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2781,
+  "mp4_bytes": 1239876,
+  "models": {
+   "4rc": {
+    "epe_viz": 8.157308578491211,
+    "err_first": 28.916461944580078,
+    "err_last": 3.014695167541504,
+    "scale": 6.640589484331898,
+    "avg_pts": 0.0573,
+    "avg_pts_dyn": 0.0501
+   },
+   "traceanything": {
+    "epe_viz": 11.294379234313965,
+    "err_first": 34.42456817626953,
+    "err_last": 6.809516429901123,
+    "scale": 66.35715075321885,
+    "avg_pts": 0.0875,
+    "avg_pts_dyn": 0.0625
+   },
+   "any4d": {
+    "epe_viz": 8.297175407409668,
+    "err_first": 28.928789138793945,
+    "err_last": 1.7999258041381836,
+    "scale": 0.8516197374921369,
+    "avg_pts": 0.0762,
+    "avg_pts_dyn": 0.0616
+   },
+   "point4d": {
+    "epe_viz": 6.90093994140625,
+    "err_first": 25.44771957397461,
+    "err_last": 3.0754106044769287,
+    "scale": 14.386618240994471,
+    "avg_pts": 0.1373,
+    "avg_pts_dyn": 0.1221
+   }
+  }
+ },
+ {
+  "name": "fa_s33_w2_cam1",
+  "prefix": "FA",
+  "world": "FA_S33_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 421,
+  "mp4_bytes": 817362,
+  "models": {
+   "4rc": {
+    "epe_viz": 10.344118118286133,
+    "err_first": 1.5430827140808105,
+    "err_last": 12.054121971130371,
+    "scale": 10.396711066711179,
+    "avg_pts": 0.2968,
+    "avg_pts_dyn": 0.2795
+   },
+   "traceanything": {
+    "epe_viz": 13.795218467712402,
+    "err_first": 1.3153369426727295,
+    "err_last": 16.124286651611328,
+    "scale": 54.86480087806206,
+    "avg_pts": 0.2054,
+    "avg_pts_dyn": 0.223
+   },
+   "any4d": {
+    "epe_viz": 13.528969764709473,
+    "err_first": 1.4371707439422607,
+    "err_last": 16.99976348876953,
+    "scale": 0.7711371001303293,
+    "avg_pts": 0.0802,
+    "avg_pts_dyn": 0.082
+   },
+   "point4d": {
+    "epe_viz": 13.593863487243652,
+    "err_first": 3.8032023906707764,
+    "err_last": 15.583367347717285,
+    "scale": 0.3140148481015301,
+    "avg_pts": 0.1696,
+    "avg_pts_dyn": 0.1619
+   }
+  }
+ },
+ {
+  "name": "fv_s28_w1_cam0",
+  "prefix": "FV",
+  "world": "FV_S28_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2241,
+  "mp4_bytes": 974761,
+  "models": {
+   "4rc": {
+    "epe_viz": 10.135652542114258,
+    "err_first": 11.667113304138184,
+    "err_last": 14.180870056152344,
+    "scale": 12.394353628622687,
+    "avg_pts": 0.011,
+    "avg_pts_dyn": 0.0167
+   },
+   "traceanything": {
+    "epe_viz": 10.083847999572754,
+    "err_first": 17.832162857055664,
+    "err_last": 9.385388374328613,
+    "scale": 23.080838736935977,
+    "avg_pts": 0.0465,
+    "avg_pts_dyn": 0.0328
+   },
+   "any4d": {
+    "epe_viz": 10.251055717468262,
+    "err_first": 15.548954963684082,
+    "err_last": 13.187294006347656,
+    "scale": 0.43750498375207886,
+    "avg_pts": 0.0245,
+    "avg_pts_dyn": 0.0179
+   },
+   "point4d": {
+    "epe_viz": 4.145051002502441,
+    "err_first": 2.565943479537964,
+    "err_last": 6.6491217613220215,
+    "scale": 83.75365135660465,
+    "avg_pts": 0.1501,
+    "avg_pts_dyn": 0.1335
+   }
+  }
+ },
+ {
+  "name": "fv_s28_w4_cam0",
+  "prefix": "FV",
+  "world": "FV_S28_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1605,
+  "mp4_bytes": 1392444,
+  "models": {
+   "4rc": {
+    "epe_viz": 16.723129272460938,
+    "err_first": 29.489465713500977,
+    "err_last": 10.414922714233398,
+    "scale": 18.410917237049844,
+    "avg_pts": 0.1709,
+    "avg_pts_dyn": 0.1894
+   },
+   "traceanything": {
+    "epe_viz": 15.276092529296875,
+    "err_first": 28.596349716186523,
+    "err_last": 9.174854278564453,
+    "scale": 52.975499988002156,
+    "avg_pts": 0.1771,
+    "avg_pts_dyn": 0.1436
+   },
+   "any4d": {
+    "epe_viz": 16.905338287353516,
+    "err_first": 28.248661041259766,
+    "err_last": 11.25230884552002,
+    "scale": 0.30787015402879525,
+    "avg_pts": 0.1613,
+    "avg_pts_dyn": 0.1599
+   },
+   "point4d": {
+    "epe_viz": 7.881893634796143,
+    "err_first": 0.87782883644104,
+    "err_last": 16.083707809448242,
+    "scale": 32.95393948778427,
+    "avg_pts": 0.1267,
+    "avg_pts_dyn": 0.1237
+   }
+  }
+ },
+ {
+  "name": "fv_s29_w0_cam0",
+  "prefix": "FV",
+  "world": "FV_S29_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2555,
+  "mp4_bytes": 1386664,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.450608015060425,
+    "err_first": 1.81745445728302,
+    "err_last": 2.1164348125457764,
+    "scale": 22.14916526521549,
+    "avg_pts": 0.2388,
+    "avg_pts_dyn": 0.2535
+   },
+   "traceanything": {
+    "epe_viz": 6.723691940307617,
+    "err_first": 6.629941940307617,
+    "err_last": 5.091749668121338,
+    "scale": 33.7281609220092,
+    "avg_pts": 0.0351,
+    "avg_pts_dyn": 0.0655
+   },
+   "any4d": {
+    "epe_viz": 6.007462024688721,
+    "err_first": 1.273833990097046,
+    "err_last": 5.2673516273498535,
+    "scale": 0.8210226041878061,
+    "avg_pts": 0.0635,
+    "avg_pts_dyn": 0.0949
+   },
+   "point4d": {
+    "epe_viz": 3.416548728942871,
+    "err_first": 2.907059669494629,
+    "err_last": 2.849503517150879,
+    "scale": 40.921969230151745,
+    "avg_pts": 0.2806,
+    "avg_pts_dyn": 0.2895
+   }
+  }
+ },
+ {
+  "name": "fv_s34_w1_cam1",
+  "prefix": "FV",
+  "world": "FV_S34_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 914,
+  "mp4_bytes": 1146831,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.3109331130981445,
+    "err_first": 2.537233591079712,
+    "err_last": 2.582937002182007,
+    "scale": 13.895108437871112,
+    "avg_pts": 0.453,
+    "avg_pts_dyn": 0.453
+   },
+   "traceanything": {
+    "epe_viz": 4.158092021942139,
+    "err_first": 3.5273678302764893,
+    "err_last": 4.17421817779541,
+    "scale": 18.4844124637698,
+    "avg_pts": 0.3446,
+    "avg_pts_dyn": 0.3128
+   },
+   "any4d": {
+    "epe_viz": 4.276105880737305,
+    "err_first": 1.0422042608261108,
+    "err_last": 3.6236870288848877,
+    "scale": 0.8246384108647407,
+    "avg_pts": 0.2081,
+    "avg_pts_dyn": 0.2222
+   },
+   "point4d": {
+    "epe_viz": 1.8012727499008179,
+    "err_first": 1.1325814723968506,
+    "err_last": 1.2368351221084595,
+    "scale": 31.12696214286566,
+    "avg_pts": 0.2972,
+    "avg_pts_dyn": 0.2381
+   }
+  }
+ },
+ {
+  "name": "fv_s35_w0_cam0",
+  "prefix": "FV",
+  "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 3189,
+  "mp4_bytes": 1232945,
+  "models": {
+   "4rc": {
+    "epe_viz": 12.171418190002441,
+    "err_first": 23.120187759399414,
+    "err_last": 7.081002235412598,
+    "scale": 9.408366771011913,
+    "avg_pts": 0.0476,
+    "avg_pts_dyn": 0.0293
+   },
+   "traceanything": {
+    "epe_viz": 7.912721157073975,
+    "err_first": 5.51255464553833,
+    "err_last": 10.654151916503906,
+    "scale": 53.84112039776353,
+    "avg_pts": 0.0554,
+    "avg_pts_dyn": 0.0474
+   },
+   "any4d": {
+    "epe_viz": 7.373610973358154,
+    "err_first": 0.6445013284683228,
+    "err_last": 8.929770469665527,
+    "scale": 1.1274329900617897,
+    "avg_pts": 0.2289,
+    "avg_pts_dyn": 0.2399
+   },
+   "point4d": {
+    "epe_viz": 1.88496732711792,
+    "err_first": 1.2781810760498047,
+    "err_last": 1.635772466659546,
+    "scale": 28.64729632140487,
+    "avg_pts": 0.3196,
+    "avg_pts_dyn": 0.3037
+   }
+  }
+ },
+ {
+  "name": "fv_s35_w1_cam1",
+  "prefix": "FV",
+  "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 3372,
+  "mp4_bytes": 1878131,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.147957682609558,
+    "err_first": 0.7842221260070801,
+    "err_last": 0.8323987722396851,
+    "scale": 14.196236353550859,
+    "avg_pts": 0.4822,
+    "avg_pts_dyn": 0.4279
+   },
+   "traceanything": {
+    "epe_viz": 2.4416332244873047,
+    "err_first": 3.5895073413848877,
+    "err_last": 2.412569522857666,
+    "scale": 65.7659198140769,
+    "avg_pts": 0.2796,
+    "avg_pts_dyn": 0.2987
+   },
+   "any4d": {
+    "epe_viz": 2.0467331409454346,
+    "err_first": 2.1454062461853027,
+    "err_last": 1.7091628313064575,
+    "scale": 0.3620029490922462,
+    "avg_pts": 0.2998,
+    "avg_pts_dyn": 0.2927
+   },
+   "point4d": {
+    "epe_viz": 1.2578564882278442,
+    "err_first": 1.0927120447158813,
+    "err_last": 1.0129609107971191,
+    "scale": 31.825870497431634,
+    "avg_pts": 0.4306,
+    "avg_pts_dyn": 0.4963
+   }
+  }
+ },
+ {
+  "name": "fv_s35_w4_cam0",
+  "prefix": "FV",
+  "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1354,
+  "mp4_bytes": 1227004,
+  "models": {
+   "4rc": {
+    "epe_viz": 8.090178489685059,
+    "err_first": 2.8457882404327393,
+    "err_last": 7.147923946380615,
+    "scale": 19.396661399784236,
+    "avg_pts": 0.0594,
+    "avg_pts_dyn": 0.0385
+   },
+   "traceanything": {
+    "epe_viz": 10.04401969909668,
+    "err_first": 2.168792963027954,
+    "err_last": 9.674072265625,
+    "scale": 59.22676169299298,
+    "avg_pts": 0.0651,
+    "avg_pts_dyn": 0.0485
+   },
+   "any4d": {
+    "epe_viz": 4.861735820770264,
+    "err_first": 1.2883696556091309,
+    "err_last": 3.686863422393799,
+    "scale": 0.9131033005122661,
+    "avg_pts": 0.0464,
+    "avg_pts_dyn": 0.0316
+   },
+   "point4d": {
+    "epe_viz": 2.127502679824829,
+    "err_first": 1.4266489744186401,
+    "err_last": 1.6863009929656982,
+    "scale": 27.88207943166286,
+    "avg_pts": 0.0931,
+    "avg_pts_dyn": 0.1272
+   }
+  }
+ },
+ {
+  "name": "fv_s35_w5_cam0",
+  "prefix": "FV",
+  "world": "FV_S35_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2306,
+  "mp4_bytes": 1522219,
+  "models": {
+   "4rc": {
+    "epe_viz": 11.938678741455078,
+    "err_first": 0.473227322101593,
+    "err_last": 33.17600631713867,
+    "scale": 10.426796918055116,
+    "avg_pts": 0.0575,
+    "avg_pts_dyn": 0.0964
+   },
+   "traceanything": {
+    "epe_viz": 20.17551040649414,
+    "err_first": 33.303916931152344,
+    "err_last": 5.746631622314453,
+    "scale": 51.39560872852905,
+    "avg_pts": 0.044,
+    "avg_pts_dyn": 0.0501
+   },
+   "any4d": {
+    "epe_viz": 12.472246170043945,
+    "err_first": 0.462242066860199,
+    "err_last": 34.489871978759766,
+    "scale": 0.8713127182790344,
+    "avg_pts": 0.077,
+    "avg_pts_dyn": 0.0871
+   },
+   "point4d": {
+    "epe_viz": 2.3550002574920654,
+    "err_first": 1.5817325115203857,
+    "err_last": 5.734685897827148,
+    "scale": 20.24772755721978,
+    "avg_pts": 0.3109,
+    "avg_pts_dyn": 0.326
+   }
+  }
+ },
+ {
+  "name": "fv_s36_w3_cam1",
+  "prefix": "FV",
+  "world": "FV_S36_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1510,
+  "mp4_bytes": 1835194,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.378597378730774,
+    "err_first": 0.6991750001907349,
+    "err_last": 1.3340340852737427,
+    "scale": 15.08070721635266,
+    "avg_pts": 0.3579,
+    "avg_pts_dyn": 0.4687
+   },
+   "traceanything": {
+    "epe_viz": 2.3486385345458984,
+    "err_first": 3.0686700344085693,
+    "err_last": 2.1474339962005615,
+    "scale": 46.91407117311856,
+    "avg_pts": 0.2233,
+    "avg_pts_dyn": 0.0494
+   },
+   "any4d": {
+    "epe_viz": 2.8546481132507324,
+    "err_first": 1.2373688220977783,
+    "err_last": 2.078505277633667,
+    "scale": 0.7532708905630118,
+    "avg_pts": 0.2293,
+    "avg_pts_dyn": 0.2376
+   },
+   "point4d": {
+    "epe_viz": 1.1576467752456665,
+    "err_first": 0.8655052781105042,
+    "err_last": 1.263732671737671,
+    "scale": 38.53276802344934,
+    "avg_pts": 0.406,
+    "avg_pts_dyn": 0.4575
+   }
+  }
+ },
+ {
+  "name": "fv_s36_w7_cam0",
+  "prefix": "FV",
+  "world": "FV_S36_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1670,
+  "mp4_bytes": 913751,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.325893402099609,
+    "err_first": 0.7645793557167053,
+    "err_last": 10.858732223510742,
+    "scale": 10.794325795704856,
+    "avg_pts": 0.2101,
+    "avg_pts_dyn": 0.2001
+   },
+   "traceanything": {
+    "epe_viz": 7.678483963012695,
+    "err_first": 6.471902847290039,
+    "err_last": 9.717765808105469,
+    "scale": 42.42183699850567,
+    "avg_pts": 0.0456,
+    "avg_pts_dyn": 0.0467
+   },
+   "any4d": {
+    "epe_viz": 7.482851028442383,
+    "err_first": 0.6791496872901917,
+    "err_last": 11.329660415649414,
+    "scale": 0.8032198077823324,
+    "avg_pts": 0.2075,
+    "avg_pts_dyn": 0.2197
+   },
+   "point4d": {
+    "epe_viz": 3.1225545406341553,
+    "err_first": 0.9067422151565552,
+    "err_last": 2.997774362564087,
+    "scale": 14.020853863826591,
+    "avg_pts": 0.3257,
+    "avg_pts_dyn": 0.2994
+   }
+  }
+ },
+ {
+  "name": "nk_s10_w6_cam1",
+  "prefix": "NK",
+  "world": "NK_S10_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1402,
+  "mp4_bytes": 2506076,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.286539077758789,
+    "err_first": 0.5176882743835449,
+    "err_last": 1.6001956462860107,
+    "scale": 7.8141265405553755,
+    "avg_pts": 0.3455,
+    "avg_pts_dyn": 0.2323
+   },
+   "traceanything": {
+    "epe_viz": 5.069945812225342,
+    "err_first": 2.796616315841675,
+    "err_last": 5.715657711029053,
+    "scale": 6.45310449500607,
+    "avg_pts": 0.1853,
+    "avg_pts_dyn": 0.1806
+   },
+   "any4d": {
+    "epe_viz": 4.999447345733643,
+    "err_first": 2.8664193153381348,
+    "err_last": 5.562171459197998,
+    "scale": 0.03575500552369421,
+    "avg_pts": 0.145,
+    "avg_pts_dyn": 0.1311
+   },
+   "point4d": {
+    "epe_viz": 5.601260662078857,
+    "err_first": 2.1220827102661133,
+    "err_last": 6.825469970703125,
+    "scale": 4.409390551193838,
+    "avg_pts": 0.1692,
+    "avg_pts_dyn": 0.1712
+   }
+  }
+ },
+ {
+  "name": "nk_s23_w0_cam1",
+  "prefix": "NK",
+  "world": "NK_S23_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 9377,
+  "mp4_bytes": 3214081,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.14408540725708,
+    "err_first": 0.1022544652223587,
+    "err_last": 11.889897346496582,
+    "scale": 4.754837860306546,
+    "avg_pts": 0.1111,
+    "avg_pts_dyn": 0.1073
+   },
+   "traceanything": {
+    "epe_viz": 6.3329176902771,
+    "err_first": 4.958989143371582,
+    "err_last": 14.553401947021484,
+    "scale": 46.101178858430856,
+    "avg_pts": 0.0137,
+    "avg_pts_dyn": 0.0476
+   },
+   "any4d": {
+    "epe_viz": 5.002307891845703,
+    "err_first": 1.9641563892364502,
+    "err_last": 12.281657218933105,
+    "scale": 0.7434552827501024,
+    "avg_pts": 0.0663,
+    "avg_pts_dyn": 0.0437
+   },
+   "point4d": {
+    "epe_viz": 3.7307329177856445,
+    "err_first": 1.363369107246399,
+    "err_last": 11.89763069152832,
+    "scale": 73.78647654466434,
+    "avg_pts": 0.2701,
+    "avg_pts_dyn": 0.2711
+   }
+  }
+ },
+ {
+  "name": "nk_s24_w2_cam0",
+  "prefix": "NK",
+  "world": "NK_S24_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2612,
+  "mp4_bytes": 2722828,
+  "models": {
+   "4rc": {
+    "epe_viz": 11.600384712219238,
+    "err_first": 4.012156009674072,
+    "err_last": 9.917268753051758,
+    "scale": 18.06620329659937,
+    "avg_pts": 0.0595,
+    "avg_pts_dyn": 0.0309
+   },
+   "traceanything": {
+    "epe_viz": 5.691379547119141,
+    "err_first": 18.13396644592285,
+    "err_last": 3.449223279953003,
+    "scale": 7.456577355021501,
+    "avg_pts": 0.0062,
+    "avg_pts_dyn": 0.0366
+   },
+   "any4d": {
+    "epe_viz": 8.477845191955566,
+    "err_first": 24.893253326416016,
+    "err_last": 10.500563621520996,
+    "scale": 0.23513670690831134,
+    "avg_pts": 0.0319,
+    "avg_pts_dyn": 0.0367
+   },
+   "point4d": {
+    "epe_viz": 1.789290428161621,
+    "err_first": 2.264615535736084,
+    "err_last": 3.1805436611175537,
+    "scale": 21.240228396010295,
+    "avg_pts": 0.1378,
+    "avg_pts_dyn": 0.0449
+   }
+  }
+ },
+ {
+  "name": "nk_s26_w4_cam0",
+  "prefix": "NK",
+  "world": "NK_S26_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2097,
+  "mp4_bytes": 1334259,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.040748119354248,
+    "err_first": 11.170186996459961,
+    "err_last": 6.079459190368652,
+    "scale": 12.560003783493876,
+    "avg_pts": 0.0219,
+    "avg_pts_dyn": 0.0431
+   },
+   "traceanything": {
+    "epe_viz": 10.217777252197266,
+    "err_first": 2.345944404602051,
+    "err_last": 11.367253303527832,
+    "scale": 69.01234073184852,
+    "avg_pts": 0.0532,
+    "avg_pts_dyn": 0.0455
+   },
+   "any4d": {
+    "epe_viz": 14.965922355651855,
+    "err_first": 6.277227401733398,
+    "err_last": 16.02504539489746,
+    "scale": 0.3550187069324532,
+    "avg_pts": 0.0117,
+    "avg_pts_dyn": 0.0315
+   },
+   "point4d": {
+    "epe_viz": 12.841023445129395,
+    "err_first": 4.289426803588867,
+    "err_last": 13.469715118408203,
+    "scale": 1.645402679502359,
+    "avg_pts": 0.0216,
+    "avg_pts_dyn": 0.0597
+   }
+  }
+ },
+ {
+  "name": "nk_s28_w6_cam1",
+  "prefix": "NK",
+  "world": "NK_S28_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 2629,
+  "mp4_bytes": 1161940,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.9155728816986084,
+    "err_first": 1.920683741569519,
+    "err_last": 4.145445823669434,
+    "scale": 11.177218663948365,
+    "avg_pts": 0.3652,
+    "avg_pts_dyn": 0.3633
+   },
+   "traceanything": {
+    "epe_viz": 5.276652812957764,
+    "err_first": 3.9619085788726807,
+    "err_last": 5.378559112548828,
+    "scale": 6.836099181339197,
+    "avg_pts": 0.2587,
+    "avg_pts_dyn": 0.3066
+   },
+   "any4d": {
+    "epe_viz": 5.308767795562744,
+    "err_first": 1.2361947298049927,
+    "err_last": 5.675853729248047,
+    "scale": 0.8154669174895482,
+    "avg_pts": 0.1866,
+    "avg_pts_dyn": 0.259
+   },
+   "point4d": {
+    "epe_viz": 4.970653533935547,
+    "err_first": 3.4518001079559326,
+    "err_last": 5.1044230461120605,
+    "scale": 7.7684114371647714,
+    "avg_pts": 0.2703,
+    "avg_pts_dyn": 0.3
+   }
+  }
+ },
+ {
+  "name": "nk_s30_w0_cam0",
+  "prefix": "NK",
+  "world": "NK_S30_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1902,
+  "mp4_bytes": 2656265,
+  "models": {
+   "4rc": {
+    "epe_viz": 8.749444007873535,
+    "err_first": 0.2612856328487396,
+    "err_last": 18.204954147338867,
+    "scale": 17.08378868730801,
+    "avg_pts": 0.1711,
+    "avg_pts_dyn": 0.1779
+   },
+   "traceanything": {
+    "epe_viz": 7.527466297149658,
+    "err_first": 5.995513439178467,
+    "err_last": 12.782562255859375,
+    "scale": 62.38309382577422,
+    "avg_pts": 0.0304,
+    "avg_pts_dyn": 0.0465
+   },
+   "any4d": {
+    "epe_viz": 7.371214866638184,
+    "err_first": 0.21120750904083252,
+    "err_last": 14.256089210510254,
+    "scale": 0.8142203391200343,
+    "avg_pts": 0.1823,
+    "avg_pts_dyn": 0.1534
+   },
+   "point4d": {
+    "epe_viz": 7.3129730224609375,
+    "err_first": 0.4280526041984558,
+    "err_last": 14.948058128356934,
+    "scale": 17.005506072685225,
+    "avg_pts": 0.0716,
+    "avg_pts_dyn": 0.1031
+   }
+  }
+ },
+ {
+  "name": "nk_s9_w1_cam0",
+  "prefix": "NK",
+  "world": "NK_S9_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1796,
+  "mp4_bytes": 2751724,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.111726999282837,
+    "err_first": 1.8623517751693726,
+    "err_last": 1.6280250549316406,
+    "scale": 8.711655561034405,
+    "avg_pts": 0.1734,
+    "avg_pts_dyn": 0.1228
+   },
+   "traceanything": {
+    "epe_viz": 3.4374442100524902,
+    "err_first": 5.70021390914917,
+    "err_last": 2.941377878189087,
+    "scale": 43.585218539607055,
+    "avg_pts": 0.0734,
+    "avg_pts_dyn": 0.0217
+   },
+   "any4d": {
+    "epe_viz": 1.905778169631958,
+    "err_first": 0.6248311400413513,
+    "err_last": 3.4393248558044434,
+    "scale": 0.7376458857840299,
+    "avg_pts": 0.1674,
+    "avg_pts_dyn": 0.1673
+   },
+   "point4d": {
+    "epe_viz": 2.081676959991455,
+    "err_first": 0.8971702456474304,
+    "err_last": 2.421011447906494,
+    "scale": 36.79606931745391,
+    "avg_pts": 0.1053,
+    "avg_pts_dyn": 0.0764
+   }
+  }
+ },
+ {
+  "name": "nq_s10_w3_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S10_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2754,
+  "mp4_bytes": 3653757,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.529544830322266,
+    "err_first": 0.2895699739456177,
+    "err_last": 5.226968288421631,
+    "scale": 9.64386866680218,
+    "avg_pts": 0.1638,
+    "avg_pts_dyn": 0.1656
+   },
+   "traceanything": {
+    "epe_viz": 5.106379985809326,
+    "err_first": 12.746003150939941,
+    "err_last": 3.808424234390259,
+    "scale": 17.989389762334977,
+    "avg_pts": 0.1281,
+    "avg_pts_dyn": 0.152
+   },
+   "any4d": {
+    "epe_viz": 2.8676867485046387,
+    "err_first": 0.2300044298171997,
+    "err_last": 2.105400323867798,
+    "scale": 0.7105021736930628,
+    "avg_pts": 0.1035,
+    "avg_pts_dyn": 0.0931
+   },
+   "point4d": {
+    "epe_viz": 7.102193832397461,
+    "err_first": 0.8360475897789001,
+    "err_last": 7.7816996574401855,
+    "scale": 8.38055727626561,
+    "avg_pts": 0.1348,
+    "avg_pts_dyn": 0.0632
+   }
+  }
+ },
+ {
+  "name": "nq_s23_w4_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S23_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 3106,
+  "mp4_bytes": 4014407,
+  "models": {
+   "4rc": {
+    "epe_viz": 16.34078598022461,
+    "err_first": 0.4529513120651245,
+    "err_last": 38.466529846191406,
+    "scale": 18.698895067044994,
+    "avg_pts": 0.1171,
+    "avg_pts_dyn": 0.1026
+   },
+   "traceanything": {
+    "epe_viz": 14.980063438415527,
+    "err_first": 31.38666534423828,
+    "err_last": 7.779156684875488,
+    "scale": 47.8975248935876,
+    "avg_pts": 0.0236,
+    "avg_pts_dyn": 0.0289
+   },
+   "any4d": {
+    "epe_viz": 17.925439834594727,
+    "err_first": 0.6425529718399048,
+    "err_last": 37.61334991455078,
+    "scale": 0.741977329003337,
+    "avg_pts": 0.086,
+    "avg_pts_dyn": 0.0647
+   },
+   "point4d": {
+    "epe_viz": 18.357559204101562,
+    "err_first": 0.6205914616584778,
+    "err_last": 38.46289825439453,
+    "scale": 29.368987716860325,
+    "avg_pts": 0.011,
+    "avg_pts_dyn": 0.0446
+   }
+  }
+ },
+ {
+  "name": "nq_s23_w5_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S23_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 700,
+  "mp4_bytes": 2908917,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.236638069152832,
+    "err_first": 0.5778646469116211,
+    "err_last": 19.002017974853516,
+    "scale": 10.648485867944734,
+    "avg_pts": 0.198,
+    "avg_pts_dyn": 0.1932
+   },
+   "traceanything": {
+    "epe_viz": 8.314518928527832,
+    "err_first": 2.4664485454559326,
+    "err_last": 23.424821853637695,
+    "scale": 182.1725882976975,
+    "avg_pts": 0.0394,
+    "avg_pts_dyn": 0.0418
+   },
+   "any4d": {
+    "epe_viz": 4.352183818817139,
+    "err_first": 0.36380770802497864,
+    "err_last": 13.90280532836914,
+    "scale": 0.7758901629262724,
+    "avg_pts": 0.1421,
+    "avg_pts_dyn": 0.1656
+   },
+   "point4d": {
+    "epe_viz": 7.138291835784912,
+    "err_first": 2.9230587482452393,
+    "err_last": 22.52950668334961,
+    "scale": 30.159499939088427,
+    "avg_pts": 0.0645,
+    "avg_pts_dyn": 0.0138
+   }
+  }
+ },
+ {
+  "name": "nq_s24_w1_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S24_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1330,
+  "mp4_bytes": 2302437,
+  "models": {
+   "4rc": {
+    "epe_viz": 3.589365005493164,
+    "err_first": 3.1954171657562256,
+    "err_last": 3.863884449005127,
+    "scale": 10.485370397039631,
+    "avg_pts": 0.202,
+    "avg_pts_dyn": 0.1659
+   },
+   "traceanything": {
+    "epe_viz": 5.118173599243164,
+    "err_first": 4.306605339050293,
+    "err_last": 5.131752014160156,
+    "scale": 20.458434988167465,
+    "avg_pts": 0.1057,
+    "avg_pts_dyn": 0.1292
+   },
+   "any4d": {
+    "epe_viz": 4.957176208496094,
+    "err_first": 3.9109601974487305,
+    "err_last": 4.872250556945801,
+    "scale": 0.06683460101607999,
+    "avg_pts": 0.133,
+    "avg_pts_dyn": 0.13
+   },
+   "point4d": {
+    "epe_viz": 9.159491539001465,
+    "err_first": 8.865745544433594,
+    "err_last": 8.987191200256348,
+    "scale": 34.09743372969517,
+    "avg_pts": 0.1666,
+    "avg_pts_dyn": 0.1679
+   }
+  }
+ },
+ {
+  "name": "nq_s24_w2_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S24_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 4053,
+  "mp4_bytes": 3746977,
+  "models": {
+   "4rc": {
+    "epe_viz": 14.11912727355957,
+    "err_first": 4.145476818084717,
+    "err_last": 16.50760269165039,
+    "scale": 29.84319797378889,
+    "avg_pts": 0.1719,
+    "avg_pts_dyn": 0.1962
+   },
+   "traceanything": {
+    "epe_viz": 13.085063934326172,
+    "err_first": 2.369368553161621,
+    "err_last": 14.99130630493164,
+    "scale": 23.70629667842564,
+    "avg_pts": 0.1162,
+    "avg_pts_dyn": 0.0315
+   },
+   "any4d": {
+    "epe_viz": 12.899967193603516,
+    "err_first": 3.0818936824798584,
+    "err_last": 14.779241561889648,
+    "scale": 0.058059604855495175,
+    "avg_pts": 0.0684,
+    "avg_pts_dyn": 0.1017
+   },
+   "point4d": {
+    "epe_viz": 13.780077934265137,
+    "err_first": 1.2320683002471924,
+    "err_last": 15.750075340270996,
+    "scale": 29.503537421363347,
+    "avg_pts": 0.1099,
+    "avg_pts_dyn": 0.1544
+   }
+  }
+ },
+ {
+  "name": "nq_s25_w3_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S25_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1441,
+  "mp4_bytes": 3699201,
+  "models": {
+   "4rc": {
+    "epe_viz": 15.574456214904785,
+    "err_first": 1.066109299659729,
+    "err_last": 25.954748153686523,
+    "scale": 21.071033360745602,
+    "avg_pts": 0.1338,
+    "avg_pts_dyn": 0.1362
+   },
+   "traceanything": {
+    "epe_viz": 12.896586418151855,
+    "err_first": 6.0649518966674805,
+    "err_last": 20.228923797607422,
+    "scale": 121.863598559216,
+    "avg_pts": 0.0358,
+    "avg_pts_dyn": 0.0499
+   },
+   "any4d": {
+    "epe_viz": 8.54814624786377,
+    "err_first": 0.5913584232330322,
+    "err_last": 13.586395263671875,
+    "scale": 0.936769240237332,
+    "avg_pts": 0.0872,
+    "avg_pts_dyn": 0.0628
+   },
+   "point4d": {
+    "epe_viz": 17.295129776000977,
+    "err_first": 0.5937600135803223,
+    "err_last": 25.820878982543945,
+    "scale": 17.79530036247203,
+    "avg_pts": 0.033,
+    "avg_pts_dyn": 0.0551
+   }
+  }
+ },
+ {
+  "name": "nq_s26_w5_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S26_ROCKETBOX_H1M2/WORLD_00000005",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 665,
+  "mp4_bytes": 2266505,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.8142776489257812,
+    "err_first": 2.1348702907562256,
+    "err_last": 7.8632378578186035,
+    "scale": 10.58657872013035,
+    "avg_pts": 0.3316,
+    "avg_pts_dyn": 0.288
+   },
+   "traceanything": {
+    "epe_viz": 3.814908981323242,
+    "err_first": 3.548856496810913,
+    "err_last": 8.750876426696777,
+    "scale": 22.45376228377394,
+    "avg_pts": 0.3047,
+    "avg_pts_dyn": 0.341
+   },
+   "any4d": {
+    "epe_viz": 3.7553396224975586,
+    "err_first": 3.3923795223236084,
+    "err_last": 8.813214302062988,
+    "scale": 0.016020549632889042,
+    "avg_pts": 0.3146,
+    "avg_pts_dyn": 0.2923
+   },
+   "point4d": {
+    "epe_viz": 4.373533248901367,
+    "err_first": 1.183700680732727,
+    "err_last": 11.075827598571777,
+    "scale": 22.19807768762441,
+    "avg_pts": 0.2878,
+    "avg_pts_dyn": 0.2915
+   }
+  }
+ },
+ {
+  "name": "nq_s27_w0_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S27_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 16173,
+  "mp4_bytes": 4325853,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.7385284900665283,
+    "err_first": 1.4015296697616577,
+    "err_last": 4.334892749786377,
+    "scale": 20.138889400100098,
+    "avg_pts": 0.2175,
+    "avg_pts_dyn": 0.0721
+   },
+   "traceanything": {
+    "epe_viz": 7.428901195526123,
+    "err_first": 5.247171878814697,
+    "err_last": 13.852554321289062,
+    "scale": 76.54789310370404,
+    "avg_pts": 0.0193,
+    "avg_pts_dyn": 0.0422
+   },
+   "any4d": {
+    "epe_viz": 4.668744087219238,
+    "err_first": 5.2981390953063965,
+    "err_last": 10.441072463989258,
+    "scale": 0.9131057613049848,
+    "avg_pts": 0.0446,
+    "avg_pts_dyn": 0.0629
+   },
+   "point4d": {
+    "epe_viz": 7.207533836364746,
+    "err_first": 3.187500238418579,
+    "err_last": 14.143975257873535,
+    "scale": 16.333991397160826,
+    "avg_pts": 0.0599,
+    "avg_pts_dyn": 0.0769
+   }
+  }
+ },
+ {
+  "name": "nq_s27_w1_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S27_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2939,
+  "mp4_bytes": 4093580,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.8431925773620605,
+    "err_first": 1.4240700006484985,
+    "err_last": 14.334969520568848,
+    "scale": 6.257761864846009,
+    "avg_pts": 0.0963,
+    "avg_pts_dyn": 0.1001
+   },
+   "traceanything": {
+    "epe_viz": 7.337721824645996,
+    "err_first": 15.065958023071289,
+    "err_last": 3.7241668701171875,
+    "scale": 66.77271985507134,
+    "avg_pts": 0.0601,
+    "avg_pts_dyn": 0.0539
+   },
+   "any4d": {
+    "epe_viz": 5.657318592071533,
+    "err_first": 12.068161010742188,
+    "err_last": 5.052170276641846,
+    "scale": 0.6043253814732495,
+    "avg_pts": 0.0788,
+    "avg_pts_dyn": 0.0957
+   },
+   "point4d": {
+    "epe_viz": 5.006078243255615,
+    "err_first": 0.652152955532074,
+    "err_last": 7.627790451049805,
+    "scale": 30.28394162178612,
+    "avg_pts": 0.1105,
+    "avg_pts_dyn": 0.1124
+   }
+  }
+ },
+ {
+  "name": "nq_s27_w7_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S27_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 2129,
+  "mp4_bytes": 2839900,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.0881507396698,
+    "err_first": 0.5197538137435913,
+    "err_last": 3.584442377090454,
+    "scale": 12.143324334893105,
+    "avg_pts": 0.2412,
+    "avg_pts_dyn": 0.2086
+   },
+   "traceanything": {
+    "epe_viz": 4.676521301269531,
+    "err_first": 0.48183462023735046,
+    "err_last": 7.544894218444824,
+    "scale": 61.81292004589229,
+    "avg_pts": 0.1077,
+    "avg_pts_dyn": 0.1007
+   },
+   "any4d": {
+    "epe_viz": 2.94732403755188,
+    "err_first": 0.5768396258354187,
+    "err_last": 4.7308197021484375,
+    "scale": 0.7517923061573349,
+    "avg_pts": 0.1038,
+    "avg_pts_dyn": 0.1467
+   },
+   "point4d": {
+    "epe_viz": 4.486286640167236,
+    "err_first": 2.4312946796417236,
+    "err_last": 6.658624172210693,
+    "scale": 21.20469358942395,
+    "avg_pts": 0.1314,
+    "avg_pts_dyn": 0.2565
+   }
+  }
+ },
+ {
+  "name": "nq_s28_w1_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S28_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 679,
+  "mp4_bytes": 2414346,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.092763900756836,
+    "err_first": 3.478048086166382,
+    "err_last": 10.310860633850098,
+    "scale": 7.652027729191687,
+    "avg_pts": 0.2371,
+    "avg_pts_dyn": 0.2366
+   },
+   "traceanything": {
+    "epe_viz": 8.638150215148926,
+    "err_first": 4.450855731964111,
+    "err_last": 13.639376640319824,
+    "scale": 13.229353126861117,
+    "avg_pts": 0.235,
+    "avg_pts_dyn": 0.2404
+   },
+   "any4d": {
+    "epe_viz": 7.37789249420166,
+    "err_first": 3.7399532794952393,
+    "err_last": 11.799554824829102,
+    "scale": 0.002273662879557464,
+    "avg_pts": 0.2037,
+    "avg_pts_dyn": 0.2021
+   },
+   "point4d": {
+    "epe_viz": 7.172228813171387,
+    "err_first": 3.9358434677124023,
+    "err_last": 11.541607856750488,
+    "scale": 1.9735221679190238,
+    "avg_pts": 0.161,
+    "avg_pts_dyn": 0.2445
+   }
+  }
+ },
+ {
+  "name": "nq_s28_w3_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S28_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 336,
+  "mp4_bytes": 2402316,
+  "models": {
+   "4rc": {
+    "epe_viz": 14.906346321105957,
+    "err_first": 3.548909902572632,
+    "err_last": 18.00149917602539,
+    "scale": 7.785968097682453,
+    "avg_pts": 0.1321,
+    "avg_pts_dyn": 0.1141
+   },
+   "traceanything": {
+    "epe_viz": 15.312456130981445,
+    "err_first": 3.1295769214630127,
+    "err_last": 18.953277587890625,
+    "scale": 120.04006947635553,
+    "avg_pts": 0.1337,
+    "avg_pts_dyn": 0.1367
+   },
+   "any4d": {
+    "epe_viz": 11.846868515014648,
+    "err_first": 1.9284411668777466,
+    "err_last": 14.264598846435547,
+    "scale": 1.0329790014420879,
+    "avg_pts": 0.1271,
+    "avg_pts_dyn": 0.0947
+   },
+   "point4d": {
+    "epe_viz": 15.767451286315918,
+    "err_first": 1.9201945066452026,
+    "err_last": 19.79048728942871,
+    "scale": 21.548219591035163,
+    "avg_pts": 0.1445,
+    "avg_pts_dyn": 0.1349
+   }
+  }
+ },
+ {
+  "name": "nq_s29_w1_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S29_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1435,
+  "mp4_bytes": 2861578,
+  "models": {
+   "4rc": {
+    "epe_viz": 5.809409141540527,
+    "err_first": 1.4561575651168823,
+    "err_last": 9.552196502685547,
+    "scale": 10.10643677907397,
+    "avg_pts": 0.1147,
+    "avg_pts_dyn": 0.1127
+   },
+   "traceanything": {
+    "epe_viz": 11.42935848236084,
+    "err_first": 3.2734572887420654,
+    "err_last": 13.510090827941895,
+    "scale": 8.409634992614162,
+    "avg_pts": 0.0941,
+    "avg_pts_dyn": 0.0955
+   },
+   "any4d": {
+    "epe_viz": 5.686002254486084,
+    "err_first": 10.949485778808594,
+    "err_last": 2.339031219482422,
+    "scale": 0.5410803589833196,
+    "avg_pts": 0.0912,
+    "avg_pts_dyn": 0.0594
+   },
+   "point4d": {
+    "epe_viz": 7.897497653961182,
+    "err_first": 0.9084782004356384,
+    "err_last": 10.294964790344238,
+    "scale": 11.880178418426144,
+    "avg_pts": 0.1077,
+    "avg_pts_dyn": 0.109
+   }
+  }
+ },
+ {
+  "name": "nq_s29_w7_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S29_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1639,
+  "mp4_bytes": 3968803,
+  "models": {
+   "4rc": {
+    "epe_viz": 4.321460247039795,
+    "err_first": 0.40933549404144287,
+    "err_last": 3.3232100009918213,
+    "scale": 7.388911673978133,
+    "avg_pts": 0.3639,
+    "avg_pts_dyn": 0.3636
+   },
+   "traceanything": {
+    "epe_viz": 5.230484962463379,
+    "err_first": 1.2941417694091797,
+    "err_last": 4.38911247253418,
+    "scale": 27.543556228479396,
+    "avg_pts": 0.212,
+    "avg_pts_dyn": 0.239
+   },
+   "any4d": {
+    "epe_viz": 5.16722297668457,
+    "err_first": 1.5919411182403564,
+    "err_last": 4.245166778564453,
+    "scale": 0.02692703211720779,
+    "avg_pts": 0.1445,
+    "avg_pts_dyn": 0.1618
+   },
+   "point4d": {
+    "epe_viz": 4.018978595733643,
+    "err_first": 0.31694912910461426,
+    "err_last": 2.4763522148132324,
+    "scale": 12.926185086958832,
+    "avg_pts": 0.3812,
+    "avg_pts_dyn": 0.3703
+   }
+  }
+ },
+ {
+  "name": "nq_s30_w0_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S30_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 686,
+  "mp4_bytes": 2946655,
+  "models": {
+   "4rc": {
+    "epe_viz": 7.061396598815918,
+    "err_first": 3.6827375888824463,
+    "err_last": 18.77585792541504,
+    "scale": 7.047071186076012,
+    "avg_pts": 0.0961,
+    "avg_pts_dyn": 0.0751
+   },
+   "traceanything": {
+    "epe_viz": 13.48710823059082,
+    "err_first": 24.3066463470459,
+    "err_last": 1.2816294431686401,
+    "scale": 40.35141895929339,
+    "avg_pts": 0.0585,
+    "avg_pts_dyn": 0.0467
+   },
+   "any4d": {
+    "epe_viz": 6.78279972076416,
+    "err_first": 1.6872435808181763,
+    "err_last": 18.716238021850586,
+    "scale": 0.5195107198023062,
+    "avg_pts": 0.0896,
+    "avg_pts_dyn": 0.1199
+   },
+   "point4d": {
+    "epe_viz": 7.782846450805664,
+    "err_first": 5.567206859588623,
+    "err_last": 19.57976722717285,
+    "scale": 5.05393591035163,
+    "avg_pts": 0.0454,
+    "avg_pts_dyn": 0.0483
+   }
+  }
+ },
+ {
+  "name": "nq_s31_w2_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S31_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1803,
+  "mp4_bytes": 3073273,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.723017692565918,
+    "err_first": 8.591813087463379,
+    "err_last": 14.003466606140137,
+    "scale": 8.663280278626008,
+    "avg_pts": 0.0365,
+    "avg_pts_dyn": 0.0265
+   },
+   "traceanything": {
+    "epe_viz": 7.56115198135376,
+    "err_first": 16.70093536376953,
+    "err_last": 9.975796699523926,
+    "scale": 13.13536642002658,
+    "avg_pts": 0.0425,
+    "avg_pts_dyn": 0.0479
+   },
+   "any4d": {
+    "epe_viz": 6.092351913452148,
+    "err_first": 11.314718246459961,
+    "err_last": 12.959744453430176,
+    "scale": 0.8621055067340229,
+    "avg_pts": 0.016,
+    "avg_pts_dyn": 0.0399
+   },
+   "point4d": {
+    "epe_viz": 10.522558212280273,
+    "err_first": 20.07355308532715,
+    "err_last": 0.9694140553474426,
+    "scale": 78.69218476583994,
+    "avg_pts": 0.0566,
+    "avg_pts_dyn": 0.0213
+   }
+  }
+ },
+ {
+  "name": "nq_s32_w0_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S32_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 4485,
+  "mp4_bytes": 3564108,
+  "models": {
+   "4rc": {
+    "epe_viz": 4.969390392303467,
+    "err_first": 0.7747530937194824,
+    "err_last": 24.584312438964844,
+    "scale": 20.26155506732294,
+    "avg_pts": 0.2594,
+    "avg_pts_dyn": 0.2354
+   },
+   "traceanything": {
+    "epe_viz": 6.922613620758057,
+    "err_first": 7.016737937927246,
+    "err_last": 19.13481903076172,
+    "scale": 79.49691110895189,
+    "avg_pts": 0.0213,
+    "avg_pts_dyn": 0.0407
+   },
+   "any4d": {
+    "epe_viz": 4.754997253417969,
+    "err_first": 1.67375910282135,
+    "err_last": 16.77846908569336,
+    "scale": 1.2228861255937824,
+    "avg_pts": 0.0896,
+    "avg_pts_dyn": 0.0572
+   },
+   "point4d": {
+    "epe_viz": 7.308582305908203,
+    "err_first": 1.7081599235534668,
+    "err_last": 22.528789520263672,
+    "scale": 18.933809074289545,
+    "avg_pts": 0.1111,
+    "avg_pts_dyn": 0.1194
+   }
+  }
+ },
+ {
+  "name": "nq_s32_w1_cam0",
+  "prefix": "NQ",
+  "world": "NQ_S32_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 1836,
+  "mp4_bytes": 3363862,
+  "models": {
+   "4rc": {
+    "epe_viz": 6.235969543457031,
+    "err_first": 21.812450408935547,
+    "err_last": 5.548821926116943,
+    "scale": 14.238836269740665,
+    "avg_pts": 0.0611,
+    "avg_pts_dyn": 0.0867
+   },
+   "traceanything": {
+    "epe_viz": 7.305971145629883,
+    "err_first": 20.5260009765625,
+    "err_last": 6.553110599517822,
+    "scale": 63.13594109978119,
+    "avg_pts": 0.0518,
+    "avg_pts_dyn": 0.0479
+   },
+   "any4d": {
+    "epe_viz": 8.488897323608398,
+    "err_first": 2.000809669494629,
+    "err_last": 17.772035598754883,
+    "scale": 0.9388064972875376,
+    "avg_pts": 0.0417,
+    "avg_pts_dyn": 0.0462
+   },
+   "point4d": {
+    "epe_viz": 7.228722095489502,
+    "err_first": 19.927778244018555,
+    "err_last": 7.226404190063477,
+    "scale": 16.31639350229979,
+    "avg_pts": 0.0444,
+    "avg_pts_dyn": 0.033
+   }
+  }
+ },
+ {
+  "name": "nq_s32_w7_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S32_ROCKETBOX_H1M2/WORLD_00000007",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 547,
+  "mp4_bytes": 1976042,
+  "models": {
+   "4rc": {
+    "epe_viz": 8.089214324951172,
+    "err_first": 3.1247470378875732,
+    "err_last": 20.274450302124023,
+    "scale": 9.771419371728033,
+    "avg_pts": 0.1292,
+    "avg_pts_dyn": 0.128
+   },
+   "traceanything": {
+    "epe_viz": 11.34400463104248,
+    "err_first": 3.0761358737945557,
+    "err_last": 24.744333267211914,
+    "scale": 6.659527050845505,
+    "avg_pts": 0.1406,
+    "avg_pts_dyn": 0.0943
+   },
+   "any4d": {
+    "epe_viz": 9.431997299194336,
+    "err_first": 2.772754192352295,
+    "err_last": 22.30525779724121,
+    "scale": 0.015244187368632757,
+    "avg_pts": 0.0882,
+    "avg_pts_dyn": 0.1387
+   },
+   "point4d": {
+    "epe_viz": 9.624216079711914,
+    "err_first": 2.12186598777771,
+    "err_last": 24.16812515258789,
+    "scale": 11.62635672993145,
+    "avg_pts": 0.0913,
+    "avg_pts_dyn": 0.1345
+   }
+  }
+ },
+ {
+  "name": "nq_s7_w4_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S7_ROCKETBOX_H1M2/WORLD_00000004",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 727,
+  "mp4_bytes": 2379268,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.4352580308914185,
+    "err_first": 0.9435131549835205,
+    "err_last": 1.4867982864379883,
+    "scale": 16.846073460266037,
+    "avg_pts": 0.4517,
+    "avg_pts_dyn": 0.5137
+   },
+   "traceanything": {
+    "epe_viz": 3.3351681232452393,
+    "err_first": 3.2513322830200195,
+    "err_last": 3.3031530380249023,
+    "scale": 22.074387220440983,
+    "avg_pts": 0.2487,
+    "avg_pts_dyn": 0.266
+   },
+   "any4d": {
+    "epe_viz": 5.060056686401367,
+    "err_first": 0.821323812007904,
+    "err_last": 3.2041285037994385,
+    "scale": 0.8657342637040351,
+    "avg_pts": 0.1113,
+    "avg_pts_dyn": 0.2659
+   },
+   "point4d": {
+    "epe_viz": 3.848595142364502,
+    "err_first": 3.6143836975097656,
+    "err_last": 3.821603298187256,
+    "scale": 21.877964495007166,
+    "avg_pts": 0.4073,
+    "avg_pts_dyn": 0.5315
+   }
+  }
+ },
+ {
+  "name": "nq_s8_w3_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S8_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1741,
+  "mp4_bytes": 3163920,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.1571967601776123,
+    "err_first": 2.090695858001709,
+    "err_last": 1.9457536935806274,
+    "scale": 7.2043563464500995,
+    "avg_pts": 0.313,
+    "avg_pts_dyn": 0.304
+   },
+   "traceanything": {
+    "epe_viz": 2.783344268798828,
+    "err_first": 2.2670931816101074,
+    "err_last": 2.43310809135437,
+    "scale": 95.32541836630374,
+    "avg_pts": 0.0552,
+    "avg_pts_dyn": 0.0537
+   },
+   "any4d": {
+    "epe_viz": 2.472517967224121,
+    "err_first": 2.489229679107666,
+    "err_last": 2.381770372390747,
+    "scale": 0.02251755523701806,
+    "avg_pts": 0.255,
+    "avg_pts_dyn": 0.2345
+   },
+   "point4d": {
+    "epe_viz": 1.3725786209106445,
+    "err_first": 1.077206015586853,
+    "err_last": 0.9990768432617188,
+    "scale": 11.682612310502831,
+    "avg_pts": 0.3237,
+    "avg_pts_dyn": 0.3016
+   }
+  }
+ },
+ {
+  "name": "nq_s9_w2_cam1",
+  "prefix": "NQ",
+  "world": "NQ_S9_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1512,
+  "mp4_bytes": 2602131,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.5394701957702637,
+    "err_first": 2.157193183898926,
+    "err_last": 1.171002745628357,
+    "scale": 7.890390415744235,
+    "avg_pts": 0.5604,
+    "avg_pts_dyn": 0.558
+   },
+   "traceanything": {
+    "epe_viz": 2.342752456665039,
+    "err_first": 2.5895204544067383,
+    "err_last": 1.376266598701477,
+    "scale": 34.81068393377954,
+    "avg_pts": 0.4698,
+    "avg_pts_dyn": 0.4612
+   },
+   "any4d": {
+    "epe_viz": 2.978752613067627,
+    "err_first": 1.5939536094665527,
+    "err_last": 0.6681573987007141,
+    "scale": 0.45278656087545066,
+    "avg_pts": 0.2307,
+    "avg_pts_dyn": 0.2246
+   },
+   "point4d": {
+    "epe_viz": 4.926103115081787,
+    "err_first": 5.162272930145264,
+    "err_last": 4.450300693511963,
+    "scale": 40.64267445504837,
+    "avg_pts": 0.4456,
+    "avg_pts_dyn": 0.4518
+   }
+  }
+ },
+ {
+  "name": "ruc5_s23_w0_cam0",
+  "prefix": "RUC5",
+  "world": "RUC5_S23_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 5820,
+  "mp4_bytes": 2790999,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.6369374394416809,
+    "err_first": 0.28099751472473145,
+    "err_last": 1.231191635131836,
+    "scale": 3.7769564062682752,
+    "avg_pts": 0.5253,
+    "avg_pts_dyn": 0.533
+   },
+   "traceanything": {
+    "epe_viz": 2.3933069705963135,
+    "err_first": 1.5528937578201294,
+    "err_last": 4.11968994140625,
+    "scale": 26.738506256007685,
+    "avg_pts": 0.1157,
+    "avg_pts_dyn": 0.2067
+   },
+   "any4d": {
+    "epe_viz": 0.5435265898704529,
+    "err_first": 0.14331579208374023,
+    "err_last": 0.7632448673248291,
+    "scale": 0.846806351456932,
+    "avg_pts": 0.5891,
+    "avg_pts_dyn": 0.5741
+   },
+   "point4d": {
+    "epe_viz": 0.6261693239212036,
+    "err_first": 0.168426513671875,
+    "err_last": 0.3778098523616791,
+    "scale": 4.288615070396266,
+    "avg_pts": 0.4978,
+    "avg_pts_dyn": 0.5128
+   }
+  }
+ },
+ {
+  "name": "ruc5_s24_w0_cam0",
+  "prefix": "RUC5",
+  "world": "RUC5_S24_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 8485,
+  "mp4_bytes": 3390728,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.5921514630317688,
+    "err_first": 0.16626575589179993,
+    "err_last": 1.4509857892990112,
+    "scale": 4.345194580695634,
+    "avg_pts": 0.5307,
+    "avg_pts_dyn": 0.524
+   },
+   "traceanything": {
+    "epe_viz": 1.5397239923477173,
+    "err_first": 0.5085340738296509,
+    "err_last": 3.0372040271759033,
+    "scale": 25.157729590303543,
+    "avg_pts": 0.1583,
+    "avg_pts_dyn": 0.1481
+   },
+   "any4d": {
+    "epe_viz": 0.6358630061149597,
+    "err_first": 0.13252697885036469,
+    "err_last": 1.486682653427124,
+    "scale": 0.9685317670640974,
+    "avg_pts": 0.4402,
+    "avg_pts_dyn": 0.4527
+   },
+   "point4d": {
+    "epe_viz": 0.7876567840576172,
+    "err_first": 0.12726977467536926,
+    "err_last": 1.2720274925231934,
+    "scale": 5.395520608306035,
+    "avg_pts": 0.3889,
+    "avg_pts_dyn": 0.4215
+   }
+  }
+ },
+ {
+  "name": "ruc5_s30_w1_cam0",
+  "prefix": "RUC5",
+  "world": "RUC5_S30_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 11192,
+  "mp4_bytes": 3432422,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.6634488701820374,
+    "err_first": 0.12318836152553558,
+    "err_last": 1.7571971416473389,
+    "scale": 4.481137468466008,
+    "avg_pts": 0.4799,
+    "avg_pts_dyn": 0.4708
+   },
+   "traceanything": {
+    "epe_viz": 2.8830153942108154,
+    "err_first": 2.2305657863616943,
+    "err_last": 1.6657495498657227,
+    "scale": 41.97975639941953,
+    "avg_pts": 0.1114,
+    "avg_pts_dyn": 0.0888
+   },
+   "any4d": {
+    "epe_viz": 0.6897959113121033,
+    "err_first": 0.3232021927833557,
+    "err_last": 0.6389095783233643,
+    "scale": 0.9407613990978051,
+    "avg_pts": 0.4046,
+    "avg_pts_dyn": 0.4247
+   },
+   "point4d": {
+    "epe_viz": 0.6341800689697266,
+    "err_first": 0.2720150649547577,
+    "err_last": 1.397147536277771,
+    "scale": 3.8176330822210724,
+    "avg_pts": 0.3847,
+    "avg_pts_dyn": 0.3913
+   }
+  }
+ },
+ {
+  "name": "sf_s11_w0_cam0",
+  "prefix": "SF",
+  "world": "SF_S11_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 9799,
+  "mp4_bytes": 3320297,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.3456262350082397,
+    "err_first": 0.14610135555267334,
+    "err_last": 4.0197625160217285,
+    "scale": 6.154005140433326,
+    "avg_pts": 0.2012,
+    "avg_pts_dyn": 0.269
+   },
+   "traceanything": {
+    "epe_viz": 3.1243247985839844,
+    "err_first": 1.0680359601974487,
+    "err_last": 6.375358581542969,
+    "scale": 51.38840032736069,
+    "avg_pts": 0.0791,
+    "avg_pts_dyn": 0.0827
+   },
+   "any4d": {
+    "epe_viz": 1.0901951789855957,
+    "err_first": 0.49282366037368774,
+    "err_last": 4.049281120300293,
+    "scale": 0.6621809452933041,
+    "avg_pts": 0.3171,
+    "avg_pts_dyn": 0.3247
+   },
+   "point4d": {
+    "epe_viz": 1.0557641983032227,
+    "err_first": 0.16452321410179138,
+    "err_last": 1.5523780584335327,
+    "scale": 5.594628843063978,
+    "avg_pts": 0.2737,
+    "avg_pts_dyn": 0.2999
+   }
+  }
+ },
+ {
+  "name": "sf_s12_w1_cam1",
+  "prefix": "SF",
+  "world": "SF_S12_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 2684,
+  "mp4_bytes": 2296970,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.9004555940628052,
+    "err_first": 0.24499452114105225,
+    "err_last": 0.8542928695678711,
+    "scale": 8.27950676447727,
+    "avg_pts": 0.3831,
+    "avg_pts_dyn": 0.3546
+   },
+   "traceanything": {
+    "epe_viz": 5.00823974609375,
+    "err_first": 5.469367980957031,
+    "err_last": 7.354776859283447,
+    "scale": 35.14457272262191,
+    "avg_pts": 0.0811,
+    "avg_pts_dyn": 0.0454
+   },
+   "any4d": {
+    "epe_viz": 1.1675735712051392,
+    "err_first": 0.5479696989059448,
+    "err_last": 0.5619677901268005,
+    "scale": 0.5474298235094806,
+    "avg_pts": 0.3519,
+    "avg_pts_dyn": 0.3668
+   },
+   "point4d": {
+    "epe_viz": 0.677861750125885,
+    "err_first": 0.5451120138168335,
+    "err_last": 0.6076088547706604,
+    "scale": 10.154521789559736,
+    "avg_pts": 0.4355,
+    "avg_pts_dyn": 0.3529
+   }
+  }
+ },
+ {
+  "name": "sf_s16_w2_cam1",
+  "prefix": "SF",
+  "world": "SF_S16_ROCKETBOX_H1M2/WORLD_00000002",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1765,
+  "mp4_bytes": 1963002,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.8774979114532471,
+    "err_first": 0.26216575503349304,
+    "err_last": 1.3331845998764038,
+    "scale": 9.472436747529427,
+    "avg_pts": 0.3447,
+    "avg_pts_dyn": 0.3524
+   },
+   "traceanything": {
+    "epe_viz": 3.4565584659576416,
+    "err_first": 1.6798465251922607,
+    "err_last": 6.654959201812744,
+    "scale": 24.387711473493777,
+    "avg_pts": 0.0859,
+    "avg_pts_dyn": 0.0711
+   },
+   "any4d": {
+    "epe_viz": 0.8555419445037842,
+    "err_first": 0.3426118493080139,
+    "err_last": 0.9431979656219482,
+    "scale": 0.6363768645502939,
+    "avg_pts": 0.3811,
+    "avg_pts_dyn": 0.3535
+   },
+   "point4d": {
+    "epe_viz": 0.9585824012756348,
+    "err_first": 0.5374901294708252,
+    "err_last": 1.1320135593414307,
+    "scale": 11.558585495995818,
+    "avg_pts": 0.3665,
+    "avg_pts_dyn": 0.298
+   }
+  }
+ },
+ {
+  "name": "sf_s8_w1_cam1",
+  "prefix": "SF",
+  "world": "SF_S8_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 1841,
+  "mp4_bytes": 2090034,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.6603313088417053,
+    "err_first": 0.244448721408844,
+    "err_last": 0.6601583957672119,
+    "scale": 10.089939413518342,
+    "avg_pts": 0.5435,
+    "avg_pts_dyn": 0.4626
+   },
+   "traceanything": {
+    "epe_viz": 3.5150656700134277,
+    "err_first": 2.9464080333709717,
+    "err_last": 0.6188827753067017,
+    "scale": 54.51390675784292,
+    "avg_pts": 0.0907,
+    "avg_pts_dyn": 0.119
+   },
+   "any4d": {
+    "epe_viz": 1.1834360361099243,
+    "err_first": 0.7539359331130981,
+    "err_last": 2.8841450214385986,
+    "scale": 0.7529187133699727,
+    "avg_pts": 0.2716,
+    "avg_pts_dyn": 0.2232
+   },
+   "point4d": {
+    "epe_viz": 0.6611286997795105,
+    "err_first": 0.20029063522815704,
+    "err_last": 1.0519938468933105,
+    "scale": 10.072325286161297,
+    "avg_pts": 0.4079,
+    "avg_pts_dyn": 0.3517
+   }
+  }
+ },
+ {
+  "name": "sfc5_s23_w0_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S23_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 5305,
+  "mp4_bytes": 3196934,
+  "models": {
+   "4rc": {
+    "epe_viz": 2.0766544342041016,
+    "err_first": 0.20444811880588531,
+    "err_last": 3.310518264770508,
+    "scale": 6.869819638450701,
+    "avg_pts": 0.2861,
+    "avg_pts_dyn": 0.2769
+   },
+   "traceanything": {
+    "epe_viz": 3.6566615104675293,
+    "err_first": 0.3100384771823883,
+    "err_last": 5.638955593109131,
+    "scale": 36.58327028071713,
+    "avg_pts": 0.0761,
+    "avg_pts_dyn": 0.0844
+   },
+   "any4d": {
+    "epe_viz": 1.2925587892532349,
+    "err_first": 0.25136587023735046,
+    "err_last": 1.7492161989212036,
+    "scale": 0.7423560244697371,
+    "avg_pts": 0.3143,
+    "avg_pts_dyn": 0.3006
+   },
+   "point4d": {
+    "epe_viz": 1.1377794742584229,
+    "err_first": 0.4159829616546631,
+    "err_last": 0.46596238017082214,
+    "scale": 6.069925964682086,
+    "avg_pts": 0.3257,
+    "avg_pts_dyn": 0.3436
+   }
+  }
+ },
+ {
+  "name": "sfc5_s24_w0_cam1",
+  "prefix": "SFC5",
+  "world": "SFC5_S24_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 2751,
+  "mp4_bytes": 2339905,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.7885881662368774,
+    "err_first": 0.16937792301177979,
+    "err_last": 0.5832613110542297,
+    "scale": 9.261733413464993,
+    "avg_pts": 0.4297,
+    "avg_pts_dyn": 0.4337
+   },
+   "traceanything": {
+    "epe_viz": 3.7683286666870117,
+    "err_first": 2.195019245147705,
+    "err_last": 3.8647210597991943,
+    "scale": 47.979200618069356,
+    "avg_pts": 0.1286,
+    "avg_pts_dyn": 0.1165
+   },
+   "any4d": {
+    "epe_viz": 1.4999616146087646,
+    "err_first": 0.2813468277454376,
+    "err_last": 1.9679614305496216,
+    "scale": 0.6871694840108843,
+    "avg_pts": 0.3251,
+    "avg_pts_dyn": 0.346
+   },
+   "point4d": {
+    "epe_viz": 0.656302273273468,
+    "err_first": 0.280464231967926,
+    "err_last": 0.633135199546814,
+    "scale": 9.59825975017634,
+    "avg_pts": 0.4765,
+    "avg_pts_dyn": 0.4654
+   }
+  }
+ },
+ {
+  "name": "sfc5_s29_w1_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S29_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 5375,
+  "mp4_bytes": 2976283,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.024216890335083,
+    "err_first": 0.34502220153808594,
+    "err_last": 2.255394458770752,
+    "scale": 4.828736061944918,
+    "avg_pts": 0.3553,
+    "avg_pts_dyn": 0.347
+   },
+   "traceanything": {
+    "epe_viz": 3.845968723297119,
+    "err_first": 4.814972877502441,
+    "err_last": 0.46713316440582275,
+    "scale": 33.922428011399944,
+    "avg_pts": 0.0834,
+    "avg_pts_dyn": 0.0864
+   },
+   "any4d": {
+    "epe_viz": 0.5206783413887024,
+    "err_first": 0.18675032258033752,
+    "err_last": 0.8452143669128418,
+    "scale": 0.8149759919006447,
+    "avg_pts": 0.517,
+    "avg_pts_dyn": 0.4994
+   },
+   "point4d": {
+    "epe_viz": 0.8020482659339905,
+    "err_first": 0.24761240184307098,
+    "err_last": 0.5762753486633301,
+    "scale": 5.2120517432256035,
+    "avg_pts": 0.4074,
+    "avg_pts_dyn": 0.4083
+   }
+  }
+ },
+ {
+  "name": "sfc5_s29_w6_cam1",
+  "prefix": "SFC5",
+  "world": "SFC5_S29_ROCKETBOX_H1M2/WORLD_00000006",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 3150,
+  "mp4_bytes": 2447556,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.6954456567764282,
+    "err_first": 0.154428631067276,
+    "err_last": 0.731264054775238,
+    "scale": 8.21451252943546,
+    "avg_pts": 0.4495,
+    "avg_pts_dyn": 0.4717
+   },
+   "traceanything": {
+    "epe_viz": 3.3181796073913574,
+    "err_first": 1.9021085500717163,
+    "err_last": 2.5444822311401367,
+    "scale": 48.87140629739493,
+    "avg_pts": 0.0771,
+    "avg_pts_dyn": 0.0428
+   },
+   "any4d": {
+    "epe_viz": 1.3262182474136353,
+    "err_first": 0.37185144424438477,
+    "err_last": 1.2700090408325195,
+    "scale": 0.6461566875158516,
+    "avg_pts": 0.2995,
+    "avg_pts_dyn": 0.302
+   },
+   "point4d": {
+    "epe_viz": 0.9270352721214294,
+    "err_first": 0.20847558975219727,
+    "err_last": 0.9191561341285706,
+    "scale": 8.795982545827298,
+    "avg_pts": 0.2831,
+    "avg_pts_dyn": 0.3123
+   }
+  }
+ },
+ {
+  "name": "sfc5_s31_w3_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S31_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 8063,
+  "mp4_bytes": 3219041,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.7477158904075623,
+    "err_first": 0.20854872465133667,
+    "err_last": 0.38016071915626526,
+    "scale": 5.537294148428734,
+    "avg_pts": 0.394,
+    "avg_pts_dyn": 0.2769
+   },
+   "traceanything": {
+    "epe_viz": 3.1534955501556396,
+    "err_first": 2.7340035438537598,
+    "err_last": 0.8581576347351074,
+    "scale": 45.27370178507866,
+    "avg_pts": 0.1035,
+    "avg_pts_dyn": 0.0845
+   },
+   "any4d": {
+    "epe_viz": 0.4667796194553375,
+    "err_first": 0.15870214998722076,
+    "err_last": 0.5298038125038147,
+    "scale": 0.7845510965112925,
+    "avg_pts": 0.4947,
+    "avg_pts_dyn": 0.4834
+   },
+   "point4d": {
+    "epe_viz": 2.584770917892456,
+    "err_first": 1.3879903554916382,
+    "err_last": 0.6156715154647827,
+    "scale": 3.282041088641208,
+    "avg_pts": 0.1609,
+    "avg_pts_dyn": 0.151
+   }
+  }
+ },
+ {
+  "name": "sfc5_s36_w0_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S36_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 10204,
+  "mp4_bytes": 3385590,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.8070439696311951,
+    "err_first": 0.11076833307743073,
+    "err_last": 0.4679446220397949,
+    "scale": 4.917888035080827,
+    "avg_pts": 0.3104,
+    "avg_pts_dyn": 0.3781
+   },
+   "traceanything": {
+    "epe_viz": 2.0952064990997314,
+    "err_first": 3.0674116611480713,
+    "err_last": 5.569826126098633,
+    "scale": 35.59979828464811,
+    "avg_pts": 0.1224,
+    "avg_pts_dyn": 0.1234
+   },
+   "any4d": {
+    "epe_viz": 0.46990200877189636,
+    "err_first": 0.15755629539489746,
+    "err_last": 0.5951910018920898,
+    "scale": 0.8287740659629433,
+    "avg_pts": 0.5117,
+    "avg_pts_dyn": 0.5106
+   },
+   "point4d": {
+    "epe_viz": 0.8253975510597229,
+    "err_first": 0.10976783186197281,
+    "err_last": 2.2797436714172363,
+    "scale": 5.306431263191807,
+    "avg_pts": 0.4073,
+    "avg_pts_dyn": 0.3975
+   }
+  }
+ },
+ {
+  "name": "sfc5_s36_w3_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S36_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 7543,
+  "mp4_bytes": 3048242,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.8370226621627808,
+    "err_first": 0.30617091059684753,
+    "err_last": 0.31598949432373047,
+    "scale": 5.2324325395612785,
+    "avg_pts": 0.4043,
+    "avg_pts_dyn": 0.4313
+   },
+   "traceanything": {
+    "epe_viz": 2.790553092956543,
+    "err_first": 1.7020409107208252,
+    "err_last": 4.708984851837158,
+    "scale": 38.48482188701286,
+    "avg_pts": 0.0738,
+    "avg_pts_dyn": 0.1306
+   },
+   "any4d": {
+    "epe_viz": 0.5251766443252563,
+    "err_first": 0.1433148831129074,
+    "err_last": 0.3991796374320984,
+    "scale": 0.6698274826206255,
+    "avg_pts": 0.5438,
+    "avg_pts_dyn": 0.5534
+   },
+   "point4d": {
+    "epe_viz": 1.2466322183609009,
+    "err_first": 0.25019869208335876,
+    "err_last": 0.7341700196266174,
+    "scale": 7.345070031494935,
+    "avg_pts": 0.2066,
+    "avg_pts_dyn": 0.2238
+   }
+  }
+ },
+ {
+  "name": "sfc5_s36_w3_cam1",
+  "prefix": "SFC5",
+  "world": "SFC5_S36_ROCKETBOX_H1M2/WORLD_00000003",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 5053,
+  "mp4_bytes": 2170798,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.7544409036636353,
+    "err_first": 0.5221964120864868,
+    "err_last": 0.8287169933319092,
+    "scale": 8.338841985059414,
+    "avg_pts": 0.4135,
+    "avg_pts_dyn": 0.5751
+   },
+   "traceanything": {
+    "epe_viz": 2.932356595993042,
+    "err_first": 2.5440752506256104,
+    "err_last": 2.9969799518585205,
+    "scale": 45.38524112283754,
+    "avg_pts": 0.3255,
+    "avg_pts_dyn": 0.1753
+   },
+   "any4d": {
+    "epe_viz": 1.6237800121307373,
+    "err_first": 0.819442629814148,
+    "err_last": 1.1781961917877197,
+    "scale": 0.7275775746671689,
+    "avg_pts": 0.2969,
+    "avg_pts_dyn": 0.3008
+   },
+   "point4d": {
+    "epe_viz": 0.6532386541366577,
+    "err_first": 0.5157678723335266,
+    "err_last": 0.6422020792961121,
+    "scale": 22.818432388222902,
+    "avg_pts": 0.5687,
+    "avg_pts_dyn": 0.54
+   }
+  }
+ },
+ {
+  "name": "sfc5_s39_w0_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S39_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 7741,
+  "mp4_bytes": 3325216,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.9447816610336304,
+    "err_first": 0.30872592329978943,
+    "err_last": 1.625840425491333,
+    "scale": 4.870467414454994,
+    "avg_pts": 0.2573,
+    "avg_pts_dyn": 0.2899
+   },
+   "traceanything": {
+    "epe_viz": 2.8330044746398926,
+    "err_first": 0.3554378151893616,
+    "err_last": 2.878767490386963,
+    "scale": 42.39410140774455,
+    "avg_pts": 0.1489,
+    "avg_pts_dyn": 0.1857
+   },
+   "any4d": {
+    "epe_viz": 1.390185832977295,
+    "err_first": 0.18797439336776733,
+    "err_last": 0.9050166606903076,
+    "scale": 0.606722574167578,
+    "avg_pts": 0.3628,
+    "avg_pts_dyn": 0.3638
+   },
+   "point4d": {
+    "epe_viz": 1.0206241607666016,
+    "err_first": 0.20705480873584747,
+    "err_last": 0.5820821523666382,
+    "scale": 4.627069661988372,
+    "avg_pts": 0.3856,
+    "avg_pts_dyn": 0.359
+   }
+  }
+ },
+ {
+  "name": "sfc5_s48_w0_cam1",
+  "prefix": "SFC5",
+  "world": "SFC5_S48_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 1,
+  "cam_mode": "static",
+  "n_points": 3311,
+  "mp4_bytes": 2065137,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.5270887613296509,
+    "err_first": 0.3237464725971222,
+    "err_last": 0.3364982604980469,
+    "scale": 8.94649005210381,
+    "avg_pts": 0.5305,
+    "avg_pts_dyn": 0.5383
+   },
+   "traceanything": {
+    "epe_viz": 2.756283760070801,
+    "err_first": 2.5621395111083984,
+    "err_last": 3.067896842956543,
+    "scale": 74.40603979052669,
+    "avg_pts": 0.3242,
+    "avg_pts_dyn": 0.3256
+   },
+   "any4d": {
+    "epe_viz": 1.0115528106689453,
+    "err_first": 0.26521554589271545,
+    "err_last": 2.0209360122680664,
+    "scale": 0.6410754474942556,
+    "avg_pts": 0.3158,
+    "avg_pts_dyn": 0.2483
+   },
+   "point4d": {
+    "epe_viz": 0.7016429901123047,
+    "err_first": 0.5274534821510315,
+    "err_last": 1.2675291299819946,
+    "scale": 8.964893949839496,
+    "avg_pts": 0.4565,
+    "avg_pts_dyn": 0.445
+   }
+  }
+ },
+ {
+  "name": "sfc5_s48_w1_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S48_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 6264,
+  "mp4_bytes": 2940495,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.857284426689148,
+    "err_first": 0.19470246136188507,
+    "err_last": 0.4181598424911499,
+    "scale": 5.24940863794561,
+    "avg_pts": 0.4017,
+    "avg_pts_dyn": 0.3859
+   },
+   "traceanything": {
+    "epe_viz": 3.0577547550201416,
+    "err_first": 3.810016393661499,
+    "err_last": 4.596342086791992,
+    "scale": 31.939566447460702,
+    "avg_pts": 0.11,
+    "avg_pts_dyn": 0.1229
+   },
+   "any4d": {
+    "epe_viz": 0.7756742835044861,
+    "err_first": 0.29875364899635315,
+    "err_last": 0.7637683749198914,
+    "scale": 0.8794427959704368,
+    "avg_pts": 0.4166,
+    "avg_pts_dyn": 0.4394
+   },
+   "point4d": {
+    "epe_viz": 0.5502036213874817,
+    "err_first": 0.19301851093769073,
+    "err_last": 0.2677677273750305,
+    "scale": 5.433839196435355,
+    "avg_pts": 0.5075,
+    "avg_pts_dyn": 0.5076
+   }
+  }
+ },
+ {
+  "name": "sfc5_s49_w1_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S49_ROCKETBOX_H1M2/WORLD_00000001",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 7994,
+  "mp4_bytes": 3860612,
+  "models": {
+   "4rc": {
+    "epe_viz": 1.1741371154785156,
+    "err_first": 0.5054670572280884,
+    "err_last": 1.4353413581848145,
+    "scale": 7.332813144674977,
+    "avg_pts": 0.2824,
+    "avg_pts_dyn": 0.2961
+   },
+   "traceanything": {
+    "epe_viz": 2.77486515045166,
+    "err_first": 1.4990843534469604,
+    "err_last": 3.2277839183807373,
+    "scale": 54.63273562781208,
+    "avg_pts": 0.0479,
+    "avg_pts_dyn": 0.0784
+   },
+   "any4d": {
+    "epe_viz": 0.9198586940765381,
+    "err_first": 0.38358816504478455,
+    "err_last": 1.035497784614563,
+    "scale": 0.6887382153659309,
+    "avg_pts": 0.3875,
+    "avg_pts_dyn": 0.4061
+   },
+   "point4d": {
+    "epe_viz": 0.9547920227050781,
+    "err_first": 0.33804774284362793,
+    "err_last": 1.0864652395248413,
+    "scale": 6.482638860014681,
+    "avg_pts": 0.3228,
+    "avg_pts_dyn": 0.2875
+   }
+  }
+ },
+ {
+  "name": "sfc5_s53_w0_cam0",
+  "prefix": "SFC5",
+  "world": "SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000",
+  "cam": 0,
+  "cam_mode": "follow",
+  "n_points": 6986,
+  "mp4_bytes": 3003095,
+  "models": {
+   "4rc": {
+    "epe_viz": 0.6702503561973572,
+    "err_first": 0.17579339444637299,
+    "err_last": 0.3740958571434021,
+    "scale": 5.199840639990826,
+    "avg_pts": 0.4149,
+    "avg_pts_dyn": 0.4618
+   },
+   "traceanything": {
+    "epe_viz": 1.9840397834777832,
+    "err_first": 2.343505620956421,
+    "err_last": 4.52707052230835,
+    "scale": 46.5203180873232,
+    "avg_pts": 0.0875,
+    "avg_pts_dyn": 0.132
+   },
+   "any4d": {
+    "epe_viz": 0.5479745864868164,
+    "err_first": 0.0985570177435875,
+    "err_last": 0.34208381175994873,
+    "scale": 0.6154129399972504,
+    "avg_pts": 0.4885,
+    "avg_pts_dyn": 0.5311
+   },
+   "point4d": {
+    "epe_viz": 1.2094684839248657,
+    "err_first": 0.08823182433843613,
+    "err_last": 3.3316409587860107,
+    "scale": 4.47936899581211,
+    "avg_pts": 0.2617,
+    "avg_pts_dyn": 0.2505
+   }
+  }
+ }
+]
