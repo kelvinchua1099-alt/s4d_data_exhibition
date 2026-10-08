@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focal Length Check</title>
+<meta name="description" content="点追踪可视化用真值焦距还是模型自估焦距：6 段 × 4 模型对比。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--ok:#7bd88f;--warn:#ffcf66;--bad:#ff7b72}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--ok:#1f8a4c;--warn:#b47a00;--bad:#c0392b}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--ok:#1f8a4c;--warn:#b47a00;--bad:#c0392b}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:36px 0 24px;border-bottom:1px solid var(--line)}
+header.hero h1{font-size:clamp(26px,4vw,40px);margin:8px 0}
+header.hero p.sub{color:var(--muted);margin:0 0 8px;font-size:16px;max-width:960px}
+section{padding:32px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:22px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 16px;max-width:960px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th{background:var(--panel2);font-weight:600}tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto;margin-bottom:18px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.hi{color:var(--ok)}.mid{color:var(--warn)}.lo{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(540px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card video,.card img{width:100%;display:block;aspect-ratio:960/1350;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.card table{font-size:13px}
+footer{padding:24px 0 40px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <a href="index.html">← S4D Data Exhibition</a> · <a href="point_track_models.html">四模型对比页</a>
+  <h1>可视化该用谁的焦距？</h1>
+  <p class="sub">问题：<a href="point_track_models.html">点追踪对比页</a>里各模型的预测是用真值相机投影的，模型自己估的焦距从来没用过。这一页在同一份预测上只换焦距：预测照旧整段 Sim(3) 对齐到真值、用真值外参投影，左列用真值内参，右列换成模型自估内参（换算到 1280×720），看投影落点和 2D 重投影误差怎么变。</p>
+</div></header>
+
+<section><div class="wrap">
+  <h2>先回答原问题</h2>
+  <div class="note"><b>4RC 的 eval 本来就是这么写的。</b>仓库的 <code>track_eval.py</code> 只拿 <code>pred["track"]</code>（T,H,W,3）打分，Sim(3) 对齐后在米制阈值下计分；它自带的 <code>visualize_results</code> 也是用 npz 里的真值 <code>extrinsics_w2c</code> 和 <code>fx_fy_cx_cy</code> 投影。模型估的内参（4RC 的 <code>intrinsic</code>、Point4D 的 <code>intrinsics</code>、Any4D 的 ray_directions）在评测和可视化里都没有被读取，之前也没有存盘。本页的模型内参是用 <code>extract_model_intrinsics.py</code> 重新前向取出来的（同样的预处理和分辨率）。</div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>模型</th><th>内参从哪来</th><th>输入分辨率</th></tr></thead>
+    <tbody><tr><td>4RC</td><td>相机头 (pose_enc → K)</td><td>504×280</td></tr><tr><td>TraceAnything</td><td>无相机头：第 0 帧点图最小二乘拟合</td><td>512×288</td></tr><tr><td>Any4D</td><td>ray_directions -> intrinsics (manual)</td><td>518×294</td></tr><tr><td>Point4D</td><td>相机头 (pose_enc → K)</td><td>518×294</td></tr></tbody>
+  </table></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>6 段 × 4 模型</h2>
+  <p class="lead">fx 都换算到 1280×720，括号里是模型值 / 真值。"重投影"是 Sim(3) 对齐后的预测投到每帧、与真值像素位置的距离中位数（只算真值可见且在相机前方的点，均值被离群点带到几百像素，见 meta.json），单位像素；"→" 左边用真值内参、右边换成模型内参。"t=0" 只看第 0 帧（query 帧）。</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>段</th><th>相机</th><th class="num">fx 真值</th><th class="num">4RC<br><span style="color:var(--muted);font-weight:400">fx 模型 (比) · 重投影中位数 全段 / t=0</span></th><th class="num">TraceAnything<br><span style="color:var(--muted);font-weight:400">fx 模型 (比) · 重投影中位数 全段 / t=0</span></th><th class="num">Any4D<br><span style="color:var(--muted);font-weight:400">fx 模型 (比) · 重投影中位数 全段 / t=0</span></th><th class="num">Point4D<br><span style="color:var(--muted);font-weight:400">fx 模型 (比) · 重投影中位数 全段 / t=0</span></th></tr></thead>
+    <tbody><tr><td><code>a3_s32_w5_cam1</code><br><span style="color:var(--muted);font-size:12px">Sicka Ancient Kit · 场景 3</span></td><td>静态</td><td class="num">1545</td><td class="num"><span class="hi">1502 (0.97×)</span><br>5 → 14 px / 4 → 18 px</td><td class="num"><span class="lo">886 (0.57×)</span><br>118 → 262 px / 104 → 284 px</td><td class="num"><span class="mid">1222 (0.79×)</span><br>105 → 123 px / 22 → 135 px</td><td class="num"><span class="hi">1544 (1.00×)</span><br>6 → 6 px / 6 → 5 px</td></tr><tr><td><code>sfc5_s36_w3_cam1</code><br><span style="color:var(--muted);font-size:12px">Sicka Scifi Interior · 5 位群众</span></td><td>静态</td><td class="num">1545</td><td class="num"><span class="hi">1524 (0.99×)</span><br>20 → 20 px / 11 → 13 px</td><td class="num"><span class="lo">695 (0.45×)</span><br>222 → 185 px / 291 → 195 px</td><td class="num"><span class="mid">1145 (0.74×)</span><br>74 → 91 px / 20 → 57 px</td><td class="num"><span class="hi">1561 (1.01×)</span><br>16 → 17 px / 8 → 9 px</td></tr><tr><td><code>nq_s9_w2_cam1</code><br><span style="color:var(--muted);font-size:12px">Namaqualand</span></td><td>静态</td><td class="num">1545</td><td class="num"><span class="lo">789 (0.51×)</span><br>39 → 213 px / 21 → 216 px</td><td class="num"><span class="lo">943 (0.61×)</span><br>110 → 189 px / 115 → 104 px</td><td class="num"><span class="mid">1121 (0.73×)</span><br>85 → 154 px / 49 → 152 px</td><td class="num"><span class="hi">1591 (1.03×)</span><br>69 → 71 px / 24 → 31 px</td></tr><tr><td><code>fa_s10_w0_cam0</code><br><span style="color:var(--muted);font-size:12px">Factory Pack</span></td><td>跟拍</td><td class="num">885</td><td class="num"><span class="hi">837 (0.95×)</span><br>123 → 117 px / 35 → 36 px</td><td class="num"><span class="lo">461 (0.52×)</span><br>2422 → 1298 px / 995 → 529 px</td><td class="num"><span class="hi">947 (1.07×)</span><br>127 → 137 px / 143 → 147 px</td><td class="num"><span class="hi">901 (1.02×)</span><br>64 → 65 px / 58 → 59 px</td></tr><tr><td><code>ruc5_s23_w0_cam0</code><br><span style="color:var(--muted);font-size:12px">Modular Rural Cabin · 5 位群众</span></td><td>跟拍</td><td class="num">654</td><td class="num"><span class="hi">657 (1.00×)</span><br>70 → 71 px / 27 → 27 px</td><td class="num"><span class="hi">602 (0.92×)</span><br>125 → 119 px / 112 → 106 px</td><td class="num"><span class="mid">810 (1.24×)</span><br>37 → 65 px / 7 → 40 px</td><td class="num"><span class="hi">642 (0.98×)</span><br>48 → 49 px / 18 → 19 px</td></tr><tr><td><code>a2_s25_w3_cam0</code><br><span style="color:var(--muted);font-size:12px">Sicka Ancient Kit · 场景 2</span></td><td>跟拍</td><td class="num">748</td><td class="num"><span class="hi">766 (1.02×)</span><br>340 → 348 px / 57 → 69 px</td><td class="num"><span class="mid">574 (0.77×)</span><br>1071 → 800 px / 116 → 175 px</td><td class="num"><span class="hi">784 (1.05×)</span><br>1078 → 1128 px / 123 → 140 px</td><td class="num"><span class="hi">755 (1.01×)</span><br>499 → 502 px / 39 → 43 px</td></tr></tbody>
+  </table></div>
+  <p class="lead">真值焦距：静态机位 1545 px（水平视场 45°），跟拍机位 654~885 px（视场 72~91°，按路线/场景不同）。</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>视频</h2>
+  <p class="lead">每段 5 行 × 2 列：第 0 行左 GT、右本段数字；之后每行一个模型，左列真值焦距、右列模型焦距。最多 300 条轨迹，拖尾 6 帧，颜色按 query 点在第 0 帧的横坐标。点击播放。</p>
+  <div class="grid"><div class="card"><video controls preload="metadata" muted loop playsinline src="media/focal_compare/a3_s32_w5_cam1.mp4"></video><div class="body"><h3>a3_s32_w5_cam1</h3><div class="map">Sicka Ancient Kit · 场景 3 · 静态 · 2290 query 点 · fx 真值 1545</div><table><thead><tr><th>模型</th><th class="num">fx 模型</th><th class="num">重投影中位数 真值 K → 模型 K</th></tr></thead><tbody><tr><td>4RC</td><td class="num">1502 (0.97×)</td><td class="num">5 → 14 px</td></tr><tr><td>TraceAnything</td><td class="num">886 (0.57×)</td><td class="num">118 → 262 px</td></tr><tr><td>Any4D</td><td class="num">1222 (0.79×)</td><td class="num">105 → 123 px</td></tr><tr><td>Point4D</td><td class="num">1544 (1.00×)</td><td class="num">6 → 6 px</td></tr></tbody></table></div></div><div class="card"><video controls preload="metadata" muted loop playsinline src="media/focal_compare/sfc5_s36_w3_cam1.mp4"></video><div class="body"><h3>sfc5_s36_w3_cam1</h3><div class="map">Sicka Scifi Interior · 5 位群众 · 静态 · 5053 query 点 · fx 真值 1545</div><table><thead><tr><th>模型</th><th class="num">fx 模型</th><th class="num">重投影中位数 真值 K → 模型 K</th></tr></thead><tbody><tr><td>4RC</td><td class="num">1524 (0.99×)</td><td class="num">20 → 20 px</td></tr><tr><td>TraceAnything</td><td class="num">695 (0.45×)</td><td class="num">222 → 185 px</td></tr><tr><td>Any4D</td><td class="num">1145 (0.74×)</td><td class="num">74 → 91 px</td></tr><tr><td>Point4D</td><td class="num">1561 (1.01×)</td><td class="num">16 → 17 px</td></tr></tbody></table></div></div><div class="card"><video controls preload="metadata" muted loop playsinline src="media/focal_compare/nq_s9_w2_cam1.mp4"></video><div class="body"><h3>nq_s9_w2_cam1</h3><div class="map">Namaqualand · 静态 · 1512 query 点 · fx 真值 1545</div><table><thead><tr><th>模型</th><th class="num">fx 模型</th><th class="num">重投影中位数 真值 K → 模型 K</th></tr></thead><tbody><tr><td>4RC</td><td class="num">789 (0.51×)</td><td class="num">39 → 213 px</td></tr><tr><td>TraceAnything</td><td class="num">943 (0.61×)</td><td class="num">110 → 189 px</td></tr><tr><td>Any4D</td><td class="num">1121 (0.73×)</td><td class="num">85 → 154 px</td></tr><tr><td>Point4D</td><td class="num">1591 (1.03×)</td><td class="num">69 → 71 px</td></tr></tbody></table></div></div><div class="card"><video controls preload="metadata" muted loop playsinline src="media/focal_compare/fa_s10_w0_cam0.mp4"></video><div class="body"><h3>fa_s10_w0_cam0</h3><div class="map">Factory Pack · 跟拍 · 4694 query 点 · fx 真值 885</div><table><thead><tr><th>模型</th><th class="num">fx 模型</th><th class="num">重投影中位数 真值 K → 模型 K</th></tr></thead><tbody><tr><td>4RC</td><td class="num">837 (0.95×)</td><td class="num">123 → 117 px</td></tr><tr><td>TraceAnything</td><td class="num">461 (0.52×)</td><td class="num">2422 → 1298 px</td></tr><tr><td>Any4D</td><td class="num">947 (1.07×)</td><td class="num">127 → 137 px</td></tr><tr><td>Point4D</td><td class="num">901 (1.02×)</td><td class="num">64 → 65 px</td></tr></tbody></table></div></div><div class="card"><video controls preload="metadata" muted loop playsinline src="media/focal_compare/ruc5_s23_w0_cam0.mp4"></video><div class="body"><h3>ruc5_s23_w0_cam0</h3><div class="map">Modular Rural Cabin · 5 位群众 · 跟拍 · 5820 query 点 · fx 真值 654</div><table><thead><tr><th>模型</th><th class="num">fx 模型</th><th class="num">重投影中位数 真值 K → 模型 K</th></tr></thead><tbody><tr><td>4RC</td><td class="num">657 (1.00×)</td><td class="num">70 → 71 px</td></tr><tr><td>TraceAnything</td><td class="num">602 (0.92×)</td><td class="num">125 → 119 px</td></tr><tr><td>Any4D</td><td class="num">810 (1.24×)</td><td class="num">37 → 65 px</td></tr><tr><td>Point4D</td><td class="num">642 (0.98×)</td><td class="num">48 → 49 px</td></tr></tbody></table></div></div><div class="card"><video controls preload="metadata" muted loop playsinline src="media/focal_compare/a2_s25_w3_cam0.mp4"></video><div class="body"><h3>a2_s25_w3_cam0</h3><div class="map">Sicka Ancient Kit · 场景 2 · 跟拍 · 3751 query 点 · fx 真值 748</div><table><thead><tr><th>模型</th><th class="num">fx 模型</th><th class="num">重投影中位数 真值 K → 模型 K</th></tr></thead><tbody><tr><td>4RC</td><td class="num">766 (1.02×)</td><td class="num">340 → 348 px</td></tr><tr><td>TraceAnything</td><td class="num">574 (0.77×)</td><td class="num">1071 → 800 px</td></tr><tr><td>Any4D</td><td class="num">784 (1.05×)</td><td class="num">1078 → 1128 px</td></tr><tr><td>Point4D</td><td class="num">755 (1.01×)</td><td class="num">499 → 502 px</td></tr></tbody></table></div></div></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>结论</h2>
+  <div class="note"><b>有相机头的模型（4RC、Point4D）估的焦距大多和真值一致。</b>Point4D 六段全在 ±3% 内；4RC 五段在 ±5% 内，但 <code>nq_s9_w2_cam1</code>（静态长焦 1545 px）估成 789 px，正好一半。Any4D 的 ray_directions 在三段静态长焦上系统性偏小（0.73~0.79×），跟拍段偏大（1.05~1.24×）。TraceAnything 没有相机头，用第 0 帧点图拟合针孔模型，残差 1~53 px，拟出来的焦距 0.45~0.92× 且跟拍段 fx/fy 差到 1.5 倍，说明它的点图本身就不是一个一致的针孔相机看出来的。</div>
+<div class="note"><b>在"Sim(3) 对齐 + 真值外参"这条链路里换成模型焦距不会让投影更贴真值。</b>焦距估对的段（比值 ≈1）换不换几乎没差（重投影中位数差在 1~2 px）；焦距估偏的段换了反而更差（4RC 的 nq_s9：38 → 213 px；Any4D 的三段静态：+18~70 px）。原因是对齐是在 3D 里按真值做的，点已经落在真值世界里，再用另一套内参投影只是把像素位置整体缩放，不会抵消模型几何本身的畸变。TraceAnything 均值下降只是因为更小的焦距把离群点拉回画面，中位数并没有变好。</div>
+<div class="note"><b>所以现在对比页的画法（真值相机投影 Sim(3) 对齐后的预测）和评测口径是一致的，不需要改。</b>如果想看"模型自己眼里的投影是否贴图"，正确做法是不做 Sim(3)、用模型自己的外参 + 内参投影原始预测；这需要把各模型的逐帧外参也存下来（4RC / Point4D / Any4D 都有，TraceAnything 没有）。另外 4RC 在 nq_s9 这种长焦静态段把焦距估成一半，意味着它的 3D 几何在深度方向被压了一半，这正是它在静态长焦段 EPE 偏大的一个来源。</div>
+</div></section>
+<footer><div class="wrap">脚本：<code>experiment/extract_model_intrinsics.py</code>（取内参）、<code>experiment/viz_focal_compare.py</code>（出视频）、<code>experiment/build_focal_compare_page.py</code>（本页）。数据与预测同四模型对比页。</div></footer>
+</body></html>
