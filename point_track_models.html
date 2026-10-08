@@ -67,6 +67,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 .ctl select,.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
 .ctl button:hover,.ctl select:hover{border-color:var(--accent)}
 .ctl .count{color:var(--muted)}
+.btn3d{float:right;background:var(--panel2);color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn3d:hover{border-color:var(--accent)}
 @media (max-width:600px){ .grid{grid-template-columns:1fr} .kv{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
@@ -110,7 +112,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 <section id="videos">
   <div class="wrap">
     <h2>全部 100 段</h2>
-    <p class="lead">每段最多画 300 条轨迹，颜色按 query 点在第 0 帧的横坐标；拖尾为最近 6 帧。GT 格：实心 = 可见，空心 = 被遮挡。各模型格：预测经 Sim(3) 对齐到真值后用真值相机投影，标题栏是该帧的平均 3D 误差。视频默认不下载，点击播放。</p>
+    <p class="lead">每段最多画 300 条轨迹，颜色按 query 点在第 0 帧的横坐标；拖尾为最近 6 帧。GT 格：实心 = 可见，空心 = 被遮挡。各模型格：预测经 Sim(3) 对齐到真值后用真值相机投影，标题栏是该帧的平均 3D 误差。视频默认不下载，点击播放。每张卡右上角的 <b>3D</b> 打开同一段的交互式 3D 查看器：GT 与四个模型对齐后的轨迹（同样的 300 条）、GT 相机路径与当前帧视锥，可切到 GT 相机视角逐帧看。</p>
     <div class="ctl">
       <label>地图 <select id="fMap"><option value="">全部</option></select></label>
       <label>相机 <select id="fCam"><option value="">全部</option><option value="0">跟拍</option><option value="1">静态</option></select></label>
@@ -135,9 +137,280 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
   </div>
 </section>
 
+<!-- 3D 查看器：由 build_point_track_models_page.py 注入 point_track_models.html。数据来自 export_point_track_3d.py 的 media/point_track_3d/<name>.bin -->
+<style>
+#v3d{position:fixed;inset:0;z-index:50;background:#0b0d12;color:#e8eaf0;display:flex;flex-direction:column;font-size:13px}
+#v3d[hidden]{display:none}
+#v3d .bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:8px 12px;border-bottom:1px solid #2a2f3a;background:#13161d}
+#v3d .bar label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;cursor:pointer}
+#v3d .bar .sw{display:inline-block;width:10px;height:10px;border-radius:2px}
+#v3d .bar button,#v3d .bar select{background:#1e222b;color:#e8eaf0;border:1px solid #2a2f3a;border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer}
+#v3d .bar button:hover,#v3d .bar select:hover{border-color:#5cc8ff}
+#v3d .bar button.on{border-color:#5cc8ff;color:#5cc8ff}
+#v3d .bar h3{margin:0;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+#v3d .bar .sp{flex:1}
+#v3d .stage{flex:1;position:relative;min-height:0}
+#v3d canvas{display:block;width:100%;height:100%}
+#v3d .hud{position:absolute;left:12px;top:10px;background:rgba(11,13,18,.72);border:1px solid #2a2f3a;border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums;pointer-events:none;line-height:1.5}
+#v3d .hud .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-0.5px}
+#v3d .hud .dim{color:#9aa3b2}
+#v3d .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa3b2;pointer-events:none}
+#v3d .foot{display:flex;gap:12px;align-items:center;padding:8px 12px;border-top:1px solid #2a2f3a;background:#13161d}
+#v3d .foot input[type=range]{flex:1;min-width:0}
+#v3d .foot .t{font-variant-numeric:tabular-nums;white-space:nowrap;min-width:5.5em}
+#v3d .help{color:#9aa3b2;white-space:nowrap}
+@media (max-width:700px){#v3d .help{display:none}}
+</style>
+<div id="v3d" hidden>
+  <div class="bar">
+    <h3 id="v3dName">—</h3>
+    <span id="v3dSets"></span>
+    <label>着色 <select id="v3dColor"><option value="set">按模型</option><option value="track">按轨迹</option></select></label>
+    <label>拖尾 <select id="v3dTrail"><option value="0">无</option><option value="6" selected>6 帧</option><option value="16">16 帧</option><option value="64">全程</option></select></label>
+    <label>点大小 <input type="range" id="v3dSize" min="2" max="14" value="6" style="width:70px"></label>
+    <label><input type="checkbox" id="v3dOcc" checked> 画被遮挡的 GT 点</label>
+    <button id="v3dCam">相机视角</button>
+    <button id="v3dReset">复位视角</button>
+    <span class="sp"></span>
+    <span class="help">左键旋转 · 右键平移 · 滚轮缩放 · 空格播放/暂停 · ←→ 逐帧 · Esc 关闭</span>
+    <button id="v3dClose">关闭</button>
+  </div>
+  <div class="stage"><canvas id="v3dCanvas"></canvas><div class="hud" id="v3dHud"></div><div class="msg" id="v3dMsg"></div></div>
+  <div class="foot">
+    <button id="v3dPlay">暂停</button>
+    <span class="t" id="v3dT">t = 00 / 63</span>
+    <input type="range" id="v3dFrame" min="0" max="63" value="0">
+    <label>速度 <select id="v3dSpeed"><option value="4">4 fps</option><option value="7.5" selected>7.5 fps</option><option value="15">15 fps</option></select></label>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const V3D = (() => {
+  const COLORS = { gt: 0xffffff, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0 };
+  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D" };
+  const FAR = 1e5, el = id => document.getElementById(id);
+  let renderer, scene, camera, controls, grid, frustum, camPath, raf = null;
+  let D = null, frame = 0, playing = true, lastTick = 0, followCam = false;
+  let pts = {}, trails = {}, enabled = {};
+
+  function parse(buf) {
+    const dv = new DataView(buf);
+    if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== "PT3D") throw new Error("bad magic");
+    const hl = dv.getUint32(4, true);
+    const head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, hl)));
+    let off = 8 + hl;
+    const S = head.sets.length, T = head.T, N = head.N;
+    // 各块的偏移不保证 4 字节对齐，typed array 一律从 slice 建
+    const q = new Int16Array(buf.slice(off, off + S * T * N * 6)); off += S * T * N * 6;
+    const c2w = new Float32Array(buf.slice(off, off + T * 64)); off += T * 64;
+    const vis = new Uint8Array(buf.slice(off, off + T * N)); off += T * N;
+    const K = new Float32Array(buf.slice(off, off + 24));
+    // cm -> m，并把 OpenCV（x 右 y 下 z 前）换成 three（y 上 z 向观者）：(x, -y, -z)
+    const xyz = new Float32Array(S * T * N * 3);
+    for (let i = 0; i < S * T * N; i++) {
+      const a = q[i * 3], b = q[i * 3 + 1], c = q[i * 3 + 2];
+      if (a === -32768 || b === -32768 || c === -32768) { xyz[i * 3] = xyz[i * 3 + 1] = xyz[i * 3 + 2] = NaN; }
+      else { xyz[i * 3] = a / 100; xyz[i * 3 + 1] = -b / 100; xyz[i * 3 + 2] = -c / 100; }
+    }
+    const cams = [];
+    for (let t = 0; t < T; t++) {
+      const m = new THREE.Matrix4().fromArray(c2w.subarray(t * 16, t * 16 + 16)).transpose(); // 行主序 -> three 列主序
+      m.elements[12] /= 100; m.elements[13] /= 100; m.elements[14] /= 100;
+      const F = new THREE.Matrix4().makeScale(1, -1, -1);
+      cams.push(new THREE.Matrix4().multiplyMatrices(F, m).multiply(F));
+    }
+    return { head, S, T, N, xyz, vis, cams, fx: K[0], fy: K[1], W: K[4], H: K[5] };
+  }
+
+  function init() {
+    if (renderer) return;
+    const cv = el("v3dCanvas");
+    renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0b0d12);
+    camera = new THREE.PerspectiveCamera(50, 1, 0.05, 2000);
+    controls = new THREE.OrbitControls(camera, cv);
+    controls.enableDamping = true; controls.dampingFactor = 0.1;
+    new ResizeObserver(resize).observe(cv.parentElement);
+    el("v3dClose").onclick = close;
+    el("v3dPlay").onclick = () => setPlaying(!playing);
+    el("v3dFrame").oninput = e => { if (!D) return; setPlaying(false); setFrame(+e.target.value); };
+    el("v3dColor").onchange = () => D && recolor(); el("v3dOcc").onchange = () => D && setFrame(frame);
+    el("v3dTrail").onchange = () => D && setFrame(frame);
+    el("v3dSize").oninput = e => { for (const k in pts) pts[k].material.size = (k === "gt" ? 1.2 : 1) * e.target.value / 100; };
+    el("v3dCam").onclick = () => { if (!D) return; followCam = !followCam; el("v3dCam").classList.toggle("on", followCam); controls.enabled = !followCam; if (!followCam) resetView(); else setFrame(frame); };
+    el("v3dReset").onclick = () => { if (!D) return; followCam = false; el("v3dCam").classList.remove("on"); controls.enabled = true; resetView(); };
+    addEventListener("keydown", e => {
+      if (el("v3d").hidden || !D) return;
+      if (e.key === "Escape") close();
+      else if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+      else if (e.key === "ArrowRight") { setPlaying(false); setFrame((frame + 1) % D.T); }
+      else if (e.key === "ArrowLeft") { setPlaying(false); setFrame((frame - 1 + D.T) % D.T); }
+    });
+  }
+
+  function resize() {
+    const cv = el("v3dCanvas"), w = cv.parentElement.clientWidth, h = cv.parentElement.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+
+  function clearScene() {
+    for (const k in pts) { scene.remove(pts[k]); pts[k].geometry.dispose(); pts[k].material.dispose(); }
+    for (const k in trails) { scene.remove(trails[k]); trails[k].geometry.dispose(); trails[k].material.dispose(); }
+    pts = {}; trails = {};
+    for (const o of [grid, frustum, camPath]) if (o) { scene.remove(o); o.geometry.dispose(); o.material.dispose(); }
+    grid = frustum = camPath = null;
+  }
+
+  function build() {
+    clearScene();
+    const { S, T, N, head } = D, size = +el("v3dSize").value / 100;
+    const setsEl = el("v3dSets"); setsEl.innerHTML = "";
+    head.sets.forEach((k, s) => {
+      if (!head.have[s]) return;
+      enabled[k] = enabled[k] !== false;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+      g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+      const p = new THREE.Points(g, new THREE.PointsMaterial({ size: (k === "gt" ? 1.2 : 1) * size, vertexColors: true, sizeAttenuation: true }));
+      p.frustumCulled = false; scene.add(p); pts[k] = p;
+      const tg = new THREE.BufferGeometry();
+      tg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 63 * 2 * 3), 3));
+      tg.setAttribute("color", new THREE.BufferAttribute(new Float32Array(N * 63 * 2 * 3), 3));
+      const l = new THREE.LineSegments(tg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55 }));
+      l.frustumCulled = false; scene.add(l); trails[k] = l;
+      const lab = document.createElement("label");
+      lab.innerHTML = `<input type="checkbox" ${enabled[k] ? "checked" : ""}> <span class="sw" style="background:#${COLORS[k].toString(16).padStart(6, "0")}"></span>${NAMES[k] || k}`;
+      lab.querySelector("input").onchange = e => { enabled[k] = e.target.checked; pts[k].visible = trails[k].visible = e.target.checked; };
+      pts[k].visible = trails[k].visible = enabled[k];
+      setsEl.appendChild(lab);
+    });
+    // 相机路径与当前帧视锥
+    const cp = new Float32Array(T * 3);
+    for (let t = 0; t < T; t++) { const e = D.cams[t].elements; cp[t * 3] = e[12]; cp[t * 3 + 1] = e[13]; cp[t * 3 + 2] = e[14]; }
+    camPath = new THREE.Line(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(cp, 3)), new THREE.LineBasicMaterial({ color: 0x9aa3b2, transparent: true, opacity: 0.6 }));
+    camPath.frustumCulled = false; scene.add(camPath);
+    const d = 0.6, hx = d * D.W / (2 * D.fx), hy = d * D.H / (2 * D.fy);
+    const c = [[0, 0, 0], [hx, hy, -d], [-hx, hy, -d], [-hx, -hy, -d], [hx, -hy, -d]];
+    const seg = [0, 1, 0, 2, 0, 3, 0, 4, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2]; // 最后一条重复上边，画粗一点代表"上"
+    const fv = new Float32Array(seg.length * 3); seg.forEach((i, j) => fv.set(c[i], j * 3));
+    frustum = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(fv, 3)), new THREE.LineBasicMaterial({ color: 0xffcf66 }));
+    frustum.matrixAutoUpdate = false; frustum.frustumCulled = false; scene.add(frustum);
+    // 地面网格：GT 第 0 帧最低点当地面
+    let ymin = Infinity, cx = 0, cz = 0, n = 0;
+    for (let i = 0; i < N; i++) { const y = D.xyz[i * 3 + 1]; if (isFinite(y)) { ymin = Math.min(ymin, y); cx += D.xyz[i * 3]; cz += D.xyz[i * 3 + 2]; n++; } }
+    if (n) { cx /= n; cz /= n; }
+    grid = new THREE.GridHelper(400, 80, 0x2a2f3a, 0x1e222b);
+    grid.position.set(Math.round(cx), isFinite(ymin) ? ymin : 0, Math.round(cz)); scene.add(grid);
+    D.center = new THREE.Vector3(cx, isFinite(ymin) ? ymin + 1 : 0, cz);
+    recolor();
+    resetView();
+    setFrame(0);
+  }
+
+  function resetView() {
+    // 从第 0 帧相机的位置稍微抬高后退看向主体
+    const c = D.center, e = D.cams[0].elements, cam0 = new THREE.Vector3(e[12], e[13], e[14]);
+    const dir = new THREE.Vector3().subVectors(c, cam0), dist = Math.max(dir.length(), 3);
+    dir.normalize();
+    camera.position.copy(cam0).addScaledVector(dir, -dist * 0.35).add(new THREE.Vector3(0, dist * 0.45, 0));
+    controls.target.copy(c); camera.fov = 50; camera.updateProjectionMatrix(); controls.update();
+  }
+
+  function recolor() {
+    const byTrack = el("v3dColor").value === "track", { N, head } = D;
+    const u = head.track_u0, umin = Math.min(...u), ur = Math.max(1e-6, Math.max(...u) - umin), tmp = new THREE.Color();
+    for (const k in pts) {
+      pts[k].userData.full = null;
+      const col = pts[k].geometry.attributes.color.array, tcol = trails[k].geometry.attributes.color.array;
+      for (let i = 0; i < N; i++) {
+        if (byTrack) tmp.setHSL((u[i] - umin) / ur * 0.83, 1, k === "gt" ? 0.75 : 0.5); else tmp.setHex(COLORS[k]);
+        col.set([tmp.r, tmp.g, tmp.b], i * 3);
+        for (let j = 0; j < 63 * 2; j++) tcol.set([tmp.r, tmp.g, tmp.b], (i * 126 + j) * 3);
+      }
+      pts[k].geometry.attributes.color.needsUpdate = true; trails[k].geometry.attributes.color.needsUpdate = true;
+    }
+    setFrame(frame);
+  }
+
+  function setFrame(t) {
+    frame = t; const { N, T, head, xyz, vis } = D, trailN = +el("v3dTrail").value, occ = el("v3dOcc").checked;
+    el("v3dFrame").value = t; el("v3dT").textContent = `t = ${String(t).padStart(2, "0")} / ${T - 1}`;
+    head.sets.forEach((k, s) => {
+      if (!pts[k]) return;
+      const pos = pts[k].geometry.attributes.position.array, col = pts[k].geometry.attributes.color;
+      const base = (s * T + t) * N * 3;
+      for (let i = 0; i < N; i++) {
+        const x = xyz[base + i * 3], hide = !isFinite(x) || (k === "gt" && !occ && !vis[t * N + i]);
+        if (hide) pos.set([FAR, FAR, FAR], i * 3); else pos.set([x, xyz[base + i * 3 + 1], xyz[base + i * 3 + 2]], i * 3);
+      }
+      pts[k].geometry.attributes.position.needsUpdate = true;
+      if (k === "gt") { // 被遮挡的 GT 点压暗
+        const c = col.array; if (!pts[k].userData.full) pts[k].userData.full = Float32Array.from(c);
+        const full = pts[k].userData.full;
+        for (let i = 0; i < N; i++) { const f = vis[t * N + i] ? 1 : 0.3; c[i * 3] = full[i * 3] * f; c[i * 3 + 1] = full[i * 3 + 1] * f; c[i * 3 + 2] = full[i * 3 + 2] * f; }
+        col.needsUpdate = true;
+      }
+      const tp = trails[k].geometry.attributes.position.array; let m = 0;
+      const t0 = Math.max(0, t - trailN);
+      for (let i = 0; i < N; i++) for (let u = t0; u < t; u++) {
+        const a = (s * T + u) * N * 3 + i * 3, b = (s * T + u + 1) * N * 3 + i * 3;
+        if (!isFinite(xyz[a]) || !isFinite(xyz[b])) continue;
+        tp.set([xyz[a], xyz[a + 1], xyz[a + 2], xyz[b], xyz[b + 1], xyz[b + 2]], m * 6); m++;
+      }
+      trails[k].geometry.setDrawRange(0, m * 2); trails[k].geometry.attributes.position.needsUpdate = true;
+    });
+    frustum.matrix.copy(D.cams[t]);
+    if (followCam) {
+      const m = D.cams[t]; camera.position.setFromMatrixPosition(m); camera.quaternion.setFromRotationMatrix(m);
+      camera.fov = 2 * Math.atan(D.H / (2 * D.fy)) * 180 / Math.PI; camera.updateProjectionMatrix();
+    }
+    const hud = [`<span class="dim">${head.n_query} query 点，画 ${N} 条 · 第 0 帧相机系，米 · 黄色视锥 = GT 相机</span>`];
+    for (const k of head.sets) if (head.err_per_frame[k]) hud.push(`<span class="sw" style="background:#${COLORS[k].toString(16).padStart(6, "0")}"></span>${NAMES[k]} <span class="dim">误差</span> ${head.err_per_frame[k][t].toFixed(2)} m <span class="dim">· Sim(3) 尺度 ${head.sim3_scale[k].toFixed(2)}</span>`);
+    el("v3dHud").innerHTML = hud.join("<br>");
+  }
+
+  function setPlaying(p) { playing = p; el("v3dPlay").textContent = p ? "暂停" : "播放"; }
+
+  function loop(ts) {
+    raf = requestAnimationFrame(loop);
+    if (D && playing && ts - lastTick > 1000 / +el("v3dSpeed").value) { lastTick = ts; setFrame((frame + 1) % D.T); }
+    if (controls.enabled) controls.update();
+    renderer.render(scene, camera);
+  }
+
+  async function open(name) {
+    init(); D = null;
+    el("v3d").hidden = false; document.body.style.overflow = "hidden";
+    el("v3dName").textContent = name; el("v3dMsg").textContent = "加载中…"; el("v3dHud").innerHTML = "";
+    resize();
+    if (!raf) raf = requestAnimationFrame(loop);
+    try {
+      const r = await fetch(`media/point_track_3d/${name}.bin`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      D = parse(await r.arrayBuffer());
+      el("v3dMsg").textContent = "";
+      followCam = false; el("v3dCam").classList.remove("on"); controls.enabled = true;
+      build(); setPlaying(true);
+    } catch (e) {
+      el("v3dMsg").textContent = `加载 media/point_track_3d/${name}.bin 失败：${e.message}（本地打开 html 文件时 fetch 会被浏览器拦住，请用 http 服务或 GitHub Pages 打开）`;
+    }
+  }
+
+  function close() {
+    el("v3d").hidden = true; document.body.style.overflow = "";
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+  }
+
+  return { open, close };
+})();
+</script>
+
 <footer>
   <div class="wrap">
-    评测于 2026-10-07。数据与打分代码同 <a href="point_track.html">4RC 页</a>：<code>--num_frames 64 --align sim3 --seed 42</code>。视频 1440×540（六个 480×270 面板），H.264。
+    评测于 2026-10-07。数据与打分代码同 <a href="point_track.html">4RC 页</a>：<code>--num_frames 64 --align sim3 --seed 42</code>。视频 1440×540（六个 480×270 面板），H.264。3D 查看器数据 <code>media/point_track_3d/*.bin</code>（int16 厘米，每段约 0.6 MB，点开才加载）。
   </div>
 </footer>
 
@@ -171,7 +444,7 @@ function render() {
     <div class="card">
       <video preload="none" controls loop muted playsinline poster="media/point_track_models/${r.name}.jpg" src="media/point_track_models/${r.name}.mp4"></video>
       <div class="body">
-        <h3>${r.name}<span class="tag">${camName(r.cam)}</span><span class="tag">${r.n_points} query 点</span></h3>
+        <h3>${r.name}<span class="tag">${camName(r.cam)}</span><span class="tag">${r.n_points} query 点</span><button class="btn3d" data-name="${r.name}">3D</button></h3>
         <div class="map">${MAPS[r.prefix] || r.prefix} · ${r.world}</div>
         <div class="kv">` + MODELS.map(mm => `<div><span>${mm.name}</span><span class="${cls(r.models[mm.key].avg_pts)}">${f3(r.models[mm.key].avg_pts)}</span><span class="epe">EPE ${f2(r.models[mm.key].epe_viz)} m</span></div>`).join("") + `
         </div>
@@ -180,6 +453,7 @@ function render() {
   document.getElementById("count").textContent = `${rows.length} 段`;
 }
 ["fMap", "fCam", "fSort"].forEach(id => document.getElementById(id).addEventListener("change", render));
+grid.addEventListener("click", e => { const b = e.target.closest(".btn3d"); if (b) V3D.open(b.dataset.name); });
 render();
 document.getElementById("playAll").onclick = () => document.querySelectorAll("#grid video").forEach(v => {
   const r = v.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) v.play().catch(()=>{});
