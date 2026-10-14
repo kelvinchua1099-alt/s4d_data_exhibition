@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Overfit Check</title>
+<meta name="description" content="s4d_train 过拟合检查：4 个样本 × 2000 步，GT 与预测轨迹投影对比。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:36px 0 24px;border-bottom:1px solid var(--line)}
+header.hero h1{font-size:clamp(26px,4vw,40px);margin:8px 0}
+header.hero p.sub{color:var(--muted);margin:0 0 8px;font-size:16px;max-width:960px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:32px 0;border-bottom:1px solid var(--line)}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 16px}
+.note b{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(540px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:16/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 8px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.ctl{display:flex;gap:10px;align-items:center;margin:0 0 16px;font-size:13px;color:var(--muted)}
+.ctl select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+footer{padding:24px 0 40px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <a href="index.html">← S4D Data Exhibition</a>
+  <h1>s4d_train 过拟合检查</h1>
+  <p class="sub">VGGT-Omega + motion head 全量微调，只用 4 个训练样本（每个 12 帧、64 个前景 query 点、链式追踪 11 跳）训练 2000 步，再用同一批样本前向，验证训练管线能不能把它们拟合住。可视化用 s4d 原有的 <code>eval/eval_track/tapvid3d_utils.visualize_results</code>。</p>
+  <div class="stats">
+    <div class="stat"><b>4</b><span>训练样本</span></div>
+    <div class="stat"><b>2000</b><span>优化步数</span></div>
+    <div class="stat"><b>18.6 cm</b><span>平均 3D 误差（全部帧）</span></div>
+    <div class="stat"><b>334.54 px</b><span>平均 2D 投影误差（512×288）</span></div>
+  </div>
+</div></header>
+<section><div class="wrap">
+  <p class="note"><b>绿</b> = 网格真值轨迹，<b>红</b> = 预测，各带前 8 帧的拖尾；两者都在第 0 帧相机系里，用真值相机投影到每一帧。
+  前向方式与训练相同：链的起点用真值 3D query、投影用真值相机（teacher forcing），所以这里看的是 loss 拟合到的东西，不是纯推理。
+  第 0 帧画的是 self-query（模型直接回归 query 像素的 3D 位置）。视频 12 帧、原始 15 fps，默认放慢播放。</p>
+  <div class="ctl">播放速度 <select id="rate"><option value="0.25" selected>0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option></select></div>
+  <div class="grid">
+    <div class="card">
+      <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/00_cam0_s000.jpg" src="media/overfit/00_cam0_s000.mp4"></video>
+      <div class="body">
+        <h3>00_cam0_s000</h3>
+        <div class="kv">
+          <div><span>3D 误差</span><span>16.3 cm</span></div>
+          <div><span>末帧 3D</span><span>24.2 cm</span></div>
+          <div><span>2D 误差</span><span>11.75 px</span></div>
+          <div><span>末帧 2D</span><span>18.52 px</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/01_cam0_s008.jpg" src="media/overfit/01_cam0_s008.mp4"></video>
+      <div class="body">
+        <h3>01_cam0_s008</h3>
+        <div class="kv">
+          <div><span>3D 误差</span><span>25.9 cm</span></div>
+          <div><span>末帧 3D</span><span>41.5 cm</span></div>
+          <div><span>2D 误差</span><span>1139.89 px</span></div>
+          <div><span>末帧 2D</span><span>31.95 px</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/02_cam0_s016.jpg" src="media/overfit/02_cam0_s016.mp4"></video>
+      <div class="body">
+        <h3>02_cam0_s016</h3>
+        <div class="kv">
+          <div><span>3D 误差</span><span>15.3 cm</span></div>
+          <div><span>末帧 3D</span><span>23.7 cm</span></div>
+          <div><span>2D 误差</span><span>175.45 px</span></div>
+          <div><span>末帧 2D</span><span>20.79 px</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/03_cam0_s024.jpg" src="media/overfit/03_cam0_s024.mp4"></video>
+      <div class="body">
+        <h3>03_cam0_s024</h3>
+        <div class="kv">
+          <div><span>3D 误差</span><span>17.1 cm</span></div>
+          <div><span>末帧 3D</span><span>28.3 cm</span></div>
+          <div><span>2D 误差</span><span>11.07 px</span></div>
+          <div><span>末帧 2D</span><span>13.81 px</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+<footer><div class="wrap">
+  checkpoint <code>epoch2000-step00002000.pt</code>，config <code>configs/overfit.yaml</code>。3D 误差按样本的 global 尺度换回厘米；2D 误差为投影点 L2 距离。生成于 2026-10-14。
+</div></footer>
+<script>
+const rate = document.getElementById('rate');
+const apply = () => document.querySelectorAll('video').forEach(v => { v.defaultPlaybackRate = v.playbackRate = +rate.value; });
+rate.addEventListener('change', apply);
+document.querySelectorAll('video').forEach(v => v.addEventListener('loadedmetadata', apply));
+apply();
+</script>
+</body>
+</html>
