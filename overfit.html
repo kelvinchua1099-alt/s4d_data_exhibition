@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>S4D Overfit Check</title>
-<meta name="description" content="s4d_train 过拟合检查：4 个样本 × 2000 步，GT 与预测轨迹左右对比视频。">
+<meta name="description" content="s4d_train 过拟合检查：8 个样本 × 4000 步，GT 与预测轨迹左右对比视频。">
 <style>
 :root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
@@ -55,12 +55,12 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
   <div class="wrap">
     <a class="back" href="index.html">← S4D Data Exhibition</a>
     <h1>s4d_train 过拟合检查</h1>
-    <p class="sub">VGGT-Omega + motion head 全量微调，只用 4 个训练样本训练 2000 步，再用同一批样本前向，验证训练管线能不能把它们拟合住。每段视频左边是网格真值轨迹，右边是模型预测。</p>
+    <p class="sub">VGGT-Omega + motion head 全量微调，只用 8 个训练样本训练 4000 步，再用同一批样本前向，验证训练管线能不能把它们拟合住。每段视频左边是网格真值轨迹，右边是模型预测。</p>
     <div class="stats">
-      <div class="stat"><b>4</b><span>训练样本（A2_S10 世界 0）</span></div>
-      <div class="stat"><b>2000</b><span>优化步数</span></div>
-      <div class="stat"><b>18.6 cm</b><span>平均 3D 误差（全部帧、全部 query）</span></div>
-      <div class="stat"><b>7.81 px</b><span>2D 投影误差中位数（各样本平均，512×288）</span></div>
+      <div class="stat"><b>8</b><span>训练样本（A2_S10 世界 0）</span></div>
+      <div class="stat"><b>4000</b><span>优化步数</span></div>
+      <div class="stat"><b>12.8 cm</b><span>平均 3D 误差（全部帧、全部 query）</span></div>
+      <div class="stat"><b>5.76 px</b><span>2D 投影误差中位数（各样本平均，512×288）</span></div>
     </div>
   </div>
 </header>
@@ -70,10 +70,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <div class="tablewrap"><table>
       <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
       <tbody>
-        <tr><td>样本</td><td>一个样本 = 一个世界的一台相机从起始帧开始的 12 帧片段；预处理时源视频每 17 帧取 1 帧（30 fps → 1.76 fps，相邻两帧约 0.57 s），画面 512×288</td></tr>
-        <tr><td>query 点</td><td>片段第 0 帧前景 mask 内固定种子取 64 个像素，按深度反投影到 3D</td></tr>
+        <tr><td>样本</td><td>一个样本 = 一个世界的一台相机从起始帧开始的 12 帧片段；预处理时源视频每 4 帧取 1 帧（30 fps → 7.50 fps，相邻两帧约 0.13 s），画面 512×288</td></tr>
+        <tr><td>query 点</td><td>训练时片段第 0 帧前景 mask 内随机取 64 个像素；出视频时同样方式固定种子取 300 个（和 Point Tracking 页一样的密度，不是训练用的那批点），按深度反投影到 3D</td></tr>
         <tr><td>真值轨迹</td><td>每个 query 点挂到最近的网格三角形上随网格逐帧搬运，表达在第 0 帧相机系里</td></tr>
-        <tr><td>前向</td><td>与训练相同：链式追踪 11 跳（0 → 1 → … → 11），链的起点用真值 3D query、投影用真值相机（teacher forcing）。看的是 loss 拟合到的东西，不是纯推理</td></tr>
+        <tr><td>前向</td><td>与训练相同：链式追踪 11 跳（0 → 1 → … → 11），链的起点用真值 3D query、投影用真值相机（teacher forcing）。看的是 loss 拟合到的东西在同一片段更密的 query 上的表现，不是纯推理</td></tr>
         <tr><td>画法</td><td>同 <a href="point_track.html">Point Tracking 页</a>：颜色按 query 点在第 0 帧的横坐标；左 GT 实心 = 可见、空心 = 被遮挡；右为预测，标题栏是该帧平均 3D 误差。两边都用真值相机投影。预测与真值同尺度，不做 Sim(3) 对齐</td></tr>
       </tbody>
     </table></div>
@@ -81,8 +81,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 </section>
 <section id="videos">
   <div class="wrap">
-    <h2>全部 4 个样本</h2>
-    <p class="lead">视频按实时速度播放（1.76 fps，12 帧约 6.8 s），拖尾为最近 2 帧（约 1.1 s）。第 0 帧画的是 self-query（模型直接回归 query 像素的 3D 位置）。</p>
+    <h2>全部 8 个样本</h2>
+    <p class="lead">视频按实时速度播放（7.50 fps，12 帧约 1.6 s），拖尾为最近 2 帧（约 0.3 s）。第 0 帧画的是 self-query（模型直接回归 query 像素的 3D 位置）。</p>
     <div class="ctl"><button id="playAll">全部播放</button><button id="pauseAll">全部暂停</button><button id="theme">切换深浅色</button></div>
     <div class="grid">
       <div class="card">
@@ -91,10 +91,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>00_cam0_s000<span class="tag">跟拍</span></h3>
           <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 0</div>
           <div class="kv">
-            <div><span>3D 误差</span><span>16.3 cm</span></div>
-            <div><span>末帧 3D</span><span>24.2 cm</span></div>
-            <div><span>2D 误差中位</span><span>8.43 px</span></div>
-            <div><span>query 点</span><span>64</span></div>
+            <div><span>3D 误差</span><span>12.9 cm</span></div>
+            <div><span>末帧 3D</span><span>16.8 cm</span></div>
+            <div><span>2D 误差中位</span><span>5.47 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
           </div>
         </div>
       </div>
@@ -104,10 +104,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>01_cam0_s008<span class="tag">跟拍</span></h3>
           <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 8</div>
           <div class="kv">
-            <div><span>3D 误差</span><span>25.9 cm</span></div>
-            <div><span>末帧 3D</span><span>41.5 cm</span></div>
-            <div><span>2D 误差中位</span><span>10.56 px</span></div>
-            <div><span>query 点</span><span>64</span></div>
+            <div><span>3D 误差</span><span>9.6 cm</span></div>
+            <div><span>末帧 3D</span><span>13.6 cm</span></div>
+            <div><span>2D 误差中位</span><span>4.70 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
           </div>
         </div>
       </div>
@@ -117,10 +117,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>02_cam0_s016<span class="tag">跟拍</span></h3>
           <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 16</div>
           <div class="kv">
-            <div><span>3D 误差</span><span>15.3 cm</span></div>
-            <div><span>末帧 3D</span><span>23.7 cm</span></div>
-            <div><span>2D 误差中位</span><span>5.93 px</span></div>
-            <div><span>query 点</span><span>64</span></div>
+            <div><span>3D 误差</span><span>8.4 cm</span></div>
+            <div><span>末帧 3D</span><span>13.0 cm</span></div>
+            <div><span>2D 误差中位</span><span>4.37 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
           </div>
         </div>
       </div>
@@ -130,10 +130,62 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>03_cam0_s024<span class="tag">跟拍</span></h3>
           <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 24</div>
           <div class="kv">
-            <div><span>3D 误差</span><span>17.1 cm</span></div>
-            <div><span>末帧 3D</span><span>28.3 cm</span></div>
-            <div><span>2D 误差中位</span><span>6.33 px</span></div>
-            <div><span>query 点</span><span>64</span></div>
+            <div><span>3D 误差</span><span>9.5 cm</span></div>
+            <div><span>末帧 3D</span><span>15.2 cm</span></div>
+            <div><span>2D 误差中位</span><span>4.90 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/04_cam0_s032.jpg" src="media/overfit/04_cam0_s032.mp4"></video>
+        <div class="body">
+          <h3>04_cam0_s032<span class="tag">跟拍</span></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 32</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>19.9 cm</span></div>
+            <div><span>末帧 3D</span><span>28.1 cm</span></div>
+            <div><span>2D 误差中位</span><span>8.15 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/05_cam0_s040.jpg" src="media/overfit/05_cam0_s040.mp4"></video>
+        <div class="body">
+          <h3>05_cam0_s040<span class="tag">跟拍</span></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 40</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>16.5 cm</span></div>
+            <div><span>末帧 3D</span><span>23.4 cm</span></div>
+            <div><span>2D 误差中位</span><span>8.40 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/06_cam0_s048.jpg" src="media/overfit/06_cam0_s048.mp4"></video>
+        <div class="body">
+          <h3>06_cam0_s048<span class="tag">跟拍</span></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 48</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>11.2 cm</span></div>
+            <div><span>末帧 3D</span><span>19.4 cm</span></div>
+            <div><span>2D 误差中位</span><span>4.08 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/overfit/07_cam0_s056.jpg" src="media/overfit/07_cam0_s056.mp4"></video>
+        <div class="body">
+          <h3>07_cam0_s056<span class="tag">跟拍</span></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 56</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>14.5 cm</span></div>
+            <div><span>末帧 3D</span><span>15.7 cm</span></div>
+            <div><span>2D 误差中位</span><span>5.99 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
           </div>
         </div>
       </div>
@@ -149,7 +201,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 </section>
 <footer>
   <div class="wrap">
-    checkpoint <code>epoch2000-step00002000.pt</code>，config <code>configs/overfit.yaml (max_samples: 4)</code>。3D 误差按样本的 global 尺度换回厘米。视频 1280×360（两个 640×360 面板），H.264。生成于 2026-10-14。
+    checkpoint <code>epoch4000-step00004000.pt</code>，config <code>configs/overfit.yaml</code>。3D 误差按样本的 global 尺度换回厘米。视频 1280×360（两个 640×360 面板），H.264。生成于 2026-10-15。
   </div>
 </footer>
 <script>
