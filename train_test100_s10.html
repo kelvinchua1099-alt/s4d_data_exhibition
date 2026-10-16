@@ -1,0 +1,1614 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Test100 Compare</title>
+<meta name="description" content="s4d_train 测试集抽 100 段、每 10 帧取 1 帧共 12 帧，s4d_train / 4RC / Point4D 的 3D 点追踪对比，每段带 3D 查看器。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+<style>
+.cmp{grid-template-columns:repeat(auto-fill,minmax(min(440px,100%),1fr))}
+.cmp .card img{width:100%;display:block;aspect-ratio:16/9;background:#000;cursor:pointer}
+.cmp .kv{grid-template-columns:repeat(3,1fr);gap:4px 6px}
+.cmp .kv div{padding-left:6px;min-width:0}.cmp .kv div span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp .best{color:var(--accent)}
+.cmp .card[data-cam="1"]{display:none}.cmp.all .card[data-cam="1"]{display:flex}
+.cmp.static .card[data-cam="0"]{display:none}.cmp.static .card[data-cam="1"]{display:flex}
+.btn3d{float:right;background:var(--panel2);color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn3d:hover{border-color:var(--accent)}
+.ctl button.on{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="index.html">← S4D Data Exhibition</a>
+    <h1>s4d_train vs 4RC / Point4D · 测试集 100 段 · 每 10 帧取 1 帧</h1>
+    <p class="sub">从 s4d_train 的测试集划分（360 段、212 个世界，世界与训练集不重叠）里固定种子抽 100 段，每段从源帧 0 起每 10 帧取 1 帧、共 12 帧（30 fps → 3 fps，约 3.7 s）。三个模型吃同样的 12 帧，用 4RC 的 sparse 点追踪评测打分，每段可开 3D 查看器看 GT 与三条对齐后的预测轨迹。</p>
+    <div class="stats">
+      <div class="stat"><b>100</b><span>测试段（92 个世界，跟拍 50 / 静态 50）</span></div>
+      <div class="stat"><b>12</b><span>帧 / 段（源帧 0, 10, …, 110）</span></div>
+      <div class="stat"><b>48</b><span>s4d_train 单段最佳的段数</span></div>
+      <div class="stat"><b>3001</b><span>平均 query 点数 / 段</span></div>
+    </div>
+  </div>
+</header>
+<section id="protocol">
+  <div class="wrap">
+    <h2>约定</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>抽样</td><td><code>splits/test.txt</code> 的 360 段固定种子 0 打乱后按顺序转换，第 0 帧前景点不足 50 的段跳过（2 段），凑满 100 段；同一世界的两台相机可能都被抽中</td></tr>
+        <tr><td>帧</td><td>源帧 0, 10, 20, …, 110，共 12 帧，1280×720。和 <a href="train.html">train 页</a>的 12 帧对比（sample100，源帧 0–44、步长 4）不是同一份数据，分数不能跨页比</td></tr>
+        <tr><td>query 点</td><td>第 0 帧前景 mask 内每 4 像素取 1 个，按深度反投影；真值轨迹按最近三角形随网格搬运，表达在第 0 帧相机系，米制</td></tr>
+        <tr><td>s4d_train</td><td>checkpoint <code>train_1015-061056/epoch014-step00032000.pt</code>，纯推理：不给真值 query 3D、不给真值相机，链从模型自己对 query 像素的 3D 估计出发，下一跳位置用 camera_head 预测的相机投影；输入缩到 512×288。训练时相邻帧的源帧间隔是 15–20，这里是 10</td></tr>
+        <tr><td>4RC / Point4D</td><td>同 <a href="point_track_models.html">四模型对比页</a>：4RC 输入 512 长边 patch 14，第 0 帧每像素逐帧 3D；Point4D 输入 518×294，<code>track_long_video</code> 单块</td></tr>
+        <tr><td>打分</td><td>4RC 的 <code>track_eval.py</code>：整段所有点所有帧一次 Sim(3) RANSAC 对齐，avg_pts = 误差在 0.1 / 0.3 / 0.5 / 1.0 m 内的比例取平均；dyn 只算总运动 > 0.01 m 的点；seed 42</td></tr>
+        <tr><td>3D 查看器</td><td>GT（白）与各模型 Sim(3) 对齐后的轨迹，每段最多 300 条（等距抽样）、GT 相机视锥，坐标系为第 0 帧相机系，可按模型 / 轨迹着色、拖尾、逐帧</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="summary">
+  <div class="wrap">
+    <h2>汇总</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>模型</th><th>avg_pts<br><small>全部 100 段</small></th><th>avg_pts_dyn</th><th>avg_pts<br><small>跟拍 50 段</small></th><th>avg_pts<br><small>静态 50 段</small></th><th>EPE (m)<br><small>Sim(3) 后</small></th><th>单段最佳</th></tr></thead>
+      <tbody>
+        <tr><td>s4d_train</td><td><b>0.405</b></td><td><b>0.397</b></td><td><b>0.417</b></td><td>0.394</td><td><b>1.852</b></td><td>48</td></tr>
+        <tr><td>4RC</td><td>0.312</td><td>0.317</td><td>0.242</td><td>0.383</td><td>2.902</td><td>15</td></tr>
+        <tr><td>Point4D</td><td>0.381</td><td>0.376</td><td>0.358</td><td><b>0.403</b></td><td>2.412</td><td>37</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:14px">avg_pts 阈值是固定米制、按整段对齐后算的，只在本页内比较。EPE 来自各模型评测输出的汇总文件（全部段平均）。</p>
+  </div>
+</section>
+<section id="cards">
+  <div class="wrap">
+    <h2>每段结果</h2>
+    <p class="lead">封面是第 0 帧（翻回正向），点封面或 <b>3D</b> 打开查看器。数值是该段各模型的 avg_pts，蓝色为该段最高。</p>
+    <div class="ctl"><button id="cmpFollow" class="on">跟拍 50 段</button><button id="cmpStatic">静态 50 段</button><button id="cmpAll">全部 100 段</button><button id="theme">切换深浅色</button></div>
+    <div class="grid cmp" id="cmpGrid">
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s10_w3_cam1.jpg" alt="a2_s10_w3_cam1" data-name="a2_s10_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s10_w3_cam1">3D</button></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1135 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.487</span></div>
+            <div><span>4RC</span><span>0.387</span></div>
+            <div><span>Point4D</span><span>0.462</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s11_w2_cam1.jpg" alt="a2_s11_w2_cam1" data-name="a2_s11_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s11_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s11_w2_cam1">3D</button></h3>
+          <div class="map">A2_S11_ROCKETBOX_H1M2/WORLD_00000002 · 578 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.107</span></div>
+            <div><span>4RC</span><span class=best>0.315</span></div>
+            <div><span>Point4D</span><span>0.134</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s24_w3_cam1.jpg" alt="a2_s24_w3_cam1" data-name="a2_s24_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s24_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s24_w3_cam1">3D</button></h3>
+          <div class="map">A2_S24_ROCKETBOX_H1M2/WORLD_00000003 · 918 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.229</span></div>
+            <div><span>4RC</span><span>0.199</span></div>
+            <div><span>Point4D</span><span class=best>0.239</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/a2_s25_w4_cam0.jpg" alt="a2_s25_w4_cam0" data-name="a2_s25_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>a2_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s25_w4_cam0">3D</button></h3>
+          <div class="map">A2_S25_ROCKETBOX_H1M2/WORLD_00000004 · 5438 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.191</span></div>
+            <div><span>4RC</span><span>0.074</span></div>
+            <div><span>Point4D</span><span>0.132</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s26_w4_cam1.jpg" alt="a2_s26_w4_cam1" data-name="a2_s26_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s26_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s26_w4_cam1">3D</button></h3>
+          <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000004 · 1092 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.173</span></div>
+            <div><span>4RC</span><span>0.210</span></div>
+            <div><span>Point4D</span><span class=best>0.269</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/a2_s26_w7_cam0.jpg" alt="a2_s26_w7_cam0" data-name="a2_s26_w7_cam0" loading="lazy">
+        <div class="body">
+          <h3>a2_s26_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s26_w7_cam0">3D</button></h3>
+          <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1674 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.713</span></div>
+            <div><span>4RC</span><span>0.528</span></div>
+            <div><span>Point4D</span><span>0.671</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s27_w1_cam1.jpg" alt="a2_s27_w1_cam1" data-name="a2_s27_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s27_w1_cam1">3D</button></h3>
+          <div class="map">A2_S27_ROCKETBOX_H1M2/WORLD_00000001 · 1270 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.221</span></div>
+            <div><span>4RC</span><span>0.170</span></div>
+            <div><span>Point4D</span><span>0.138</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/a2_s28_w3_cam0.jpg" alt="a2_s28_w3_cam0" data-name="a2_s28_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>a2_s28_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s28_w3_cam0">3D</button></h3>
+          <div class="map">A2_S28_ROCKETBOX_H1M2/WORLD_00000003 · 1298 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.257</span></div>
+            <div><span>4RC</span><span>0.100</span></div>
+            <div><span>Point4D</span><span class=best>0.373</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s30_w2_cam1.jpg" alt="a2_s30_w2_cam1" data-name="a2_s30_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s30_w2_cam1">3D</button></h3>
+          <div class="map">A2_S30_ROCKETBOX_H1M2/WORLD_00000002 · 3620 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.431</span></div>
+            <div><span>4RC</span><span>0.388</span></div>
+            <div><span>Point4D</span><span>0.366</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a2_s8_w0_cam1.jpg" alt="a2_s8_w0_cam1" data-name="a2_s8_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s8_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s8_w0_cam1">3D</button></h3>
+          <div class="map">A2_S8_ROCKETBOX_H1M2/WORLD_00000000 · 746 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.386</span></div>
+            <div><span>4RC</span><span>0.238</span></div>
+            <div><span>Point4D</span><span>0.201</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a3_s11_w7_cam1.jpg" alt="a3_s11_w7_cam1" data-name="a3_s11_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s11_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s11_w7_cam1">3D</button></h3>
+          <div class="map">A3_S11_ROCKETBOX_H1M2/WORLD_00000007 · 1328 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.477</span></div>
+            <div><span>4RC</span><span class=best>0.518</span></div>
+            <div><span>Point4D</span><span>0.473</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/a3_s12_w3_cam0.jpg" alt="a3_s12_w3_cam0" data-name="a3_s12_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>a3_s12_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s12_w3_cam0">3D</button></h3>
+          <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000003 · 2522 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.351</span></div>
+            <div><span>4RC</span><span>0.309</span></div>
+            <div><span>Point4D</span><span>0.092</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a3_s12_w6_cam1.jpg" alt="a3_s12_w6_cam1" data-name="a3_s12_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s12_w6_cam1">3D</button></h3>
+          <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000006 · 637 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.216</span></div>
+            <div><span>4RC</span><span class=best>0.218</span></div>
+            <div><span>Point4D</span><span>0.213</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a3_s14_w0_cam1.jpg" alt="a3_s14_w0_cam1" data-name="a3_s14_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s14_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w0_cam1">3D</button></h3>
+          <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000000 · 1033 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.511</span></div>
+            <div><span>4RC</span><span class=best>0.823</span></div>
+            <div><span>Point4D</span><span>0.817</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a3_s14_w4_cam1.jpg" alt="a3_s14_w4_cam1" data-name="a3_s14_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s14_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w4_cam1">3D</button></h3>
+          <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000004 · 3015 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.480</span></div>
+            <div><span>4RC</span><span>0.461</span></div>
+            <div><span>Point4D</span><span class=best>0.553</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/a3_s26_w0_cam0.jpg" alt="a3_s26_w0_cam0" data-name="a3_s26_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>a3_s26_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s26_w0_cam0">3D</button></h3>
+          <div class="map">A3_S26_ROCKETBOX_H1M2/WORLD_00000000 · 4896 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.338</span></div>
+            <div><span>4RC</span><span>0.453</span></div>
+            <div><span>Point4D</span><span class=best>0.512</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/a3_s29_w1_cam1.jpg" alt="a3_s29_w1_cam1" data-name="a3_s29_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s29_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s29_w1_cam1">3D</button></h3>
+          <div class="map">A3_S29_ROCKETBOX_H1M2/WORLD_00000001 · 419 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.196</span></div>
+            <div><span>4RC</span><span>0.138</span></div>
+            <div><span>Point4D</span><span class=best>0.297</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/a3_s33_w2_cam0.jpg" alt="a3_s33_w2_cam0" data-name="a3_s33_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>a3_s33_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s33_w2_cam0">3D</button></h3>
+          <div class="map">A3_S33_ROCKETBOX_H1M2/WORLD_00000002 · 2148 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.496</span></div>
+            <div><span>4RC</span><span>0.278</span></div>
+            <div><span>Point4D</span><span>0.311</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s10_w2_cam1.jpg" alt="fa_s10_w2_cam1" data-name="fa_s10_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s10_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w2_cam1">3D</button></h3>
+          <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000002 · 4118 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.298</span></div>
+            <div><span>4RC</span><span class=best>0.638</span></div>
+            <div><span>Point4D</span><span>0.426</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s10_w3_cam1.jpg" alt="fa_s10_w3_cam1" data-name="fa_s10_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w3_cam1">3D</button></h3>
+          <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1117 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.395</span></div>
+            <div><span>4RC</span><span>0.350</span></div>
+            <div><span>Point4D</span><span>0.372</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s10_w7_cam0.jpg" alt="fa_s10_w7_cam0" data-name="fa_s10_w7_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s10_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s10_w7_cam0">3D</button></h3>
+          <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000007 · 4040 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.642</span></div>
+            <div><span>4RC</span><span>0.156</span></div>
+            <div><span>Point4D</span><span>0.601</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s12_w1_cam1.jpg" alt="fa_s12_w1_cam1" data-name="fa_s12_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s12_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w1_cam1">3D</button></h3>
+          <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000001 · 457 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.362</span></div>
+            <div><span>4RC</span><span>0.188</span></div>
+            <div><span>Point4D</span><span class=best>0.374</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s12_w6_cam0.jpg" alt="fa_s12_w6_cam0" data-name="fa_s12_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s12_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s12_w6_cam0">3D</button></h3>
+          <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 1888 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.076</span></div>
+            <div><span>4RC</span><span>0.063</span></div>
+            <div><span>Point4D</span><span class=best>0.297</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s12_w6_cam1.jpg" alt="fa_s12_w6_cam1" data-name="fa_s12_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w6_cam1">3D</button></h3>
+          <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 430 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.085</span></div>
+            <div><span>4RC</span><span>0.063</span></div>
+            <div><span>Point4D</span><span>0.077</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s23_w5_cam1.jpg" alt="fa_s23_w5_cam1" data-name="fa_s23_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s23_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w5_cam1">3D</button></h3>
+          <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000005 · 672 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.300</span></div>
+            <div><span>4RC</span><span>0.394</span></div>
+            <div><span>Point4D</span><span class=best>0.646</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s23_w6_cam0.jpg" alt="fa_s23_w6_cam0" data-name="fa_s23_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s23_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s23_w6_cam0">3D</button></h3>
+          <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 2564 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.279</span></div>
+            <div><span>4RC</span><span>0.054</span></div>
+            <div><span>Point4D</span><span class=best>0.284</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s23_w6_cam1.jpg" alt="fa_s23_w6_cam1" data-name="fa_s23_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s23_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w6_cam1">3D</button></h3>
+          <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 872 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.232</span></div>
+            <div><span>4RC</span><span class=best>0.253</span></div>
+            <div><span>Point4D</span><span>0.137</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s26_w1_cam0.jpg" alt="fa_s26_w1_cam0" data-name="fa_s26_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s26_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w1_cam0">3D</button></h3>
+          <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000001 · 1590 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.410</span></div>
+            <div><span>4RC</span><span>0.074</span></div>
+            <div><span>Point4D</span><span>0.354</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s26_w4_cam0.jpg" alt="fa_s26_w4_cam0" data-name="fa_s26_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s26_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w4_cam0">3D</button></h3>
+          <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000004 · 3890 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.324</span></div>
+            <div><span>4RC</span><span>0.348</span></div>
+            <div><span>Point4D</span><span class=best>0.493</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s26_w7_cam1.jpg" alt="fa_s26_w7_cam1" data-name="fa_s26_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s26_w7_cam1">3D</button></h3>
+          <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1694 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.645</span></div>
+            <div><span>4RC</span><span>0.419</span></div>
+            <div><span>Point4D</span><span>0.641</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s30_w0_cam0.jpg" alt="fa_s30_w0_cam0" data-name="fa_s30_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s30_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s30_w0_cam0">3D</button></h3>
+          <div class="map">FA_S30_ROCKETBOX_H1M2/WORLD_00000000 · 2682 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.584</span></div>
+            <div><span>4RC</span><span>0.270</span></div>
+            <div><span>Point4D</span><span>0.505</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s32_w2_cam0.jpg" alt="fa_s32_w2_cam0" data-name="fa_s32_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w2_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 2069 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.150</span></div>
+            <div><span>4RC</span><span class=best>0.236</span></div>
+            <div><span>Point4D</span><span>0.213</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fa_s32_w2_cam1.jpg" alt="fa_s32_w2_cam1" data-name="fa_s32_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s32_w2_cam1">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 1793 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.215</span></div>
+            <div><span>4RC</span><span>0.286</span></div>
+            <div><span>Point4D</span><span class=best>0.400</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s32_w4_cam0.jpg" alt="fa_s32_w4_cam0" data-name="fa_s32_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w4_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000004 · 2898 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.370</span></div>
+            <div><span>4RC</span><span>0.077</span></div>
+            <div><span>Point4D</span><span>0.065</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s32_w5_cam0.jpg" alt="fa_s32_w5_cam0" data-name="fa_s32_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w5_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000005 · 2430 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.852</span></div>
+            <div><span>4RC</span><span>0.166</span></div>
+            <div><span>Point4D</span><span>0.815</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s32_w6_cam0.jpg" alt="fa_s32_w6_cam0" data-name="fa_s32_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w6_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000006 · 3551 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.276</span></div>
+            <div><span>4RC</span><span>0.211</span></div>
+            <div><span>Point4D</span><span>0.211</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fa_s33_w6_cam0.jpg" alt="fa_s33_w6_cam0" data-name="fa_s33_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s33_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s33_w6_cam0">3D</button></h3>
+          <div class="map">FA_S33_ROCKETBOX_H1M2/WORLD_00000006 · 3207 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.128</span></div>
+            <div><span>4RC</span><span class=best>0.318</span></div>
+            <div><span>Point4D</span><span>0.308</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fv_s27_w1_cam1.jpg" alt="fv_s27_w1_cam1" data-name="fv_s27_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s27_w1_cam1">3D</button></h3>
+          <div class="map">FV_S27_ROCKETBOX_H1M2/WORLD_00000001 · 928 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.201</span></div>
+            <div><span>4RC</span><span>0.412</span></div>
+            <div><span>Point4D</span><span class=best>0.500</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fv_s28_w4_cam0.jpg" alt="fv_s28_w4_cam0" data-name="fv_s28_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s28_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s28_w4_cam0">3D</button></h3>
+          <div class="map">FV_S28_ROCKETBOX_H1M2/WORLD_00000004 · 1605 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.273</span></div>
+            <div><span>4RC</span><span>0.071</span></div>
+            <div><span>Point4D</span><span>0.065</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fv_s34_w0_cam0.jpg" alt="fv_s34_w0_cam0" data-name="fv_s34_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s34_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s34_w0_cam0">3D</button></h3>
+          <div class="map">FV_S34_ROCKETBOX_H1M2/WORLD_00000000 · 2822 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.436</span></div>
+            <div><span>4RC</span><span>0.088</span></div>
+            <div><span>Point4D</span><span>0.127</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fv_s35_w3_cam0.jpg" alt="fv_s35_w3_cam0" data-name="fv_s35_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s35_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s35_w3_cam0">3D</button></h3>
+          <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000003 · 2766 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.198</span></div>
+            <div><span>4RC</span><span>0.103</span></div>
+            <div><span>Point4D</span><span class=best>0.442</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fv_s35_w4_cam1.jpg" alt="fv_s35_w4_cam1" data-name="fv_s35_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s35_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s35_w4_cam1">3D</button></h3>
+          <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000004 · 2353 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.040</span></div>
+            <div><span>4RC</span><span class=best>0.138</span></div>
+            <div><span>Point4D</span><span>0.048</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fv_s7_w2_cam0.jpg" alt="fv_s7_w2_cam0" data-name="fv_s7_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s7_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s7_w2_cam0">3D</button></h3>
+          <div class="map">FV_S7_ROCKETBOX_H1M2/WORLD_00000002 · 2999 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.104</span></div>
+            <div><span>4RC</span><span>0.051</span></div>
+            <div><span>Point4D</span><span class=best>0.353</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/fv_s8_w3_cam0.jpg" alt="fv_s8_w3_cam0" data-name="fv_s8_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s8_w3_cam0">3D</button></h3>
+          <div class="map">FV_S8_ROCKETBOX_H1M2/WORLD_00000003 · 3712 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.471</span></div>
+            <div><span>4RC</span><span>0.066</span></div>
+            <div><span>Point4D</span><span>0.374</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fv_s9_w2_cam1.jpg" alt="fv_s9_w2_cam1" data-name="fv_s9_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s9_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w2_cam1">3D</button></h3>
+          <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.403</span></div>
+            <div><span>4RC</span><span class=best>0.408</span></div>
+            <div><span>Point4D</span><span>0.336</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/fv_s9_w3_cam1.jpg" alt="fv_s9_w3_cam1" data-name="fv_s9_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s9_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w3_cam1">3D</button></h3>
+          <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000003 · 962 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.237</span></div>
+            <div><span>4RC</span><span>0.073</span></div>
+            <div><span>Point4D</span><span>0.079</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nk_s23_w3_cam0.jpg" alt="nk_s23_w3_cam0" data-name="nk_s23_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s23_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s23_w3_cam0">3D</button></h3>
+          <div class="map">NK_S23_ROCKETBOX_H1M2/WORLD_00000003 · 4330 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.358</span></div>
+            <div><span>4RC</span><span>0.338</span></div>
+            <div><span>Point4D</span><span class=best>0.404</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nk_s24_w6_cam1.jpg" alt="nk_s24_w6_cam1" data-name="nk_s24_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>nk_s24_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="nk_s24_w6_cam1">3D</button></h3>
+          <div class="map">NK_S24_ROCKETBOX_H1M2/WORLD_00000006 · 64 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.745</span></div>
+            <div><span>4RC</span><span>0.684</span></div>
+            <div><span>Point4D</span><span>0.567</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nk_s25_w3_cam0.jpg" alt="nk_s25_w3_cam0" data-name="nk_s25_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s25_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w3_cam0">3D</button></h3>
+          <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000003 · 1343 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.339</span></div>
+            <div><span>4RC</span><span>0.185</span></div>
+            <div><span>Point4D</span><span class=best>0.404</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nk_s25_w4_cam0.jpg" alt="nk_s25_w4_cam0" data-name="nk_s25_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w4_cam0">3D</button></h3>
+          <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000004 · 1712 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.216</span></div>
+            <div><span>4RC</span><span>0.163</span></div>
+            <div><span>Point4D</span><span>0.083</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nk_s27_w3_cam0.jpg" alt="nk_s27_w3_cam0" data-name="nk_s27_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s27_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s27_w3_cam0">3D</button></h3>
+          <div class="map">NK_S27_ROCKETBOX_H1M2/WORLD_00000003 · 1897 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.265</span></div>
+            <div><span>4RC</span><span>0.100</span></div>
+            <div><span>Point4D</span><span>0.250</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nk_s28_w0_cam0.jpg" alt="nk_s28_w0_cam0" data-name="nk_s28_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s28_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s28_w0_cam0">3D</button></h3>
+          <div class="map">NK_S28_ROCKETBOX_H1M2/WORLD_00000000 · 2375 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.631</span></div>
+            <div><span>4RC</span><span>0.631</span></div>
+            <div><span>Point4D</span><span class=best>0.643</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s10_w7_cam1.jpg" alt="nq_s10_w7_cam1" data-name="nq_s10_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s10_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s10_w7_cam1">3D</button></h3>
+          <div class="map">NQ_S10_ROCKETBOX_H1M2/WORLD_00000007 · 279 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.463</span></div>
+            <div><span>4RC</span><span>0.315</span></div>
+            <div><span>Point4D</span><span>0.381</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s23_w2_cam0.jpg" alt="nq_s23_w2_cam0" data-name="nq_s23_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s23_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s23_w2_cam0">3D</button></h3>
+          <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1829 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.179</span></div>
+            <div><span>4RC</span><span>0.084</span></div>
+            <div><span>Point4D</span><span>0.046</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s23_w2_cam1.jpg" alt="nq_s23_w2_cam1" data-name="nq_s23_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s23_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s23_w2_cam1">3D</button></h3>
+          <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.369</span></div>
+            <div><span>4RC</span><span class=best>0.440</span></div>
+            <div><span>Point4D</span><span>0.161</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s26_w3_cam0.jpg" alt="nq_s26_w3_cam0" data-name="nq_s26_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s26_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000003 · 719 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.403</span></div>
+            <div><span>4RC</span><span>0.048</span></div>
+            <div><span>Point4D</span><span>0.035</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s26_w6_cam0.jpg" alt="nq_s26_w6_cam0" data-name="nq_s26_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s26_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w6_cam0">3D</button></h3>
+          <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000006 · 1769 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.141</span></div>
+            <div><span>4RC</span><span class=best>0.175</span></div>
+            <div><span>Point4D</span><span>0.055</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s26_w7_cam1.jpg" alt="nq_s26_w7_cam1" data-name="nq_s26_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s26_w7_cam1">3D</button></h3>
+          <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1422 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.366</span></div>
+            <div><span>4RC</span><span>0.437</span></div>
+            <div><span>Point4D</span><span class=best>0.472</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s27_w5_cam0.jpg" alt="nq_s27_w5_cam0" data-name="nq_s27_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s27_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s27_w5_cam0">3D</button></h3>
+          <div class="map">NQ_S27_ROCKETBOX_H1M2/WORLD_00000005 · 2042 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.612</span></div>
+            <div><span>4RC</span><span>0.606</span></div>
+            <div><span>Point4D</span><span>0.428</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s28_w5_cam0.jpg" alt="nq_s28_w5_cam0" data-name="nq_s28_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s28_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s28_w5_cam0">3D</button></h3>
+          <div class="map">NQ_S28_ROCKETBOX_H1M2/WORLD_00000005 · 2504 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.463</span></div>
+            <div><span>4RC</span><span>0.133</span></div>
+            <div><span>Point4D</span><span>0.349</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s29_w7_cam0.jpg" alt="nq_s29_w7_cam0" data-name="nq_s29_w7_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s29_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s29_w7_cam0">3D</button></h3>
+          <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 3481 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.688</span></div>
+            <div><span>4RC</span><span>0.326</span></div>
+            <div><span>Point4D</span><span>0.127</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s29_w7_cam1.jpg" alt="nq_s29_w7_cam1" data-name="nq_s29_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s29_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s29_w7_cam1">3D</button></h3>
+          <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 1639 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.722</span></div>
+            <div><span>4RC</span><span>0.356</span></div>
+            <div><span>Point4D</span><span>0.520</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s30_w2_cam1.jpg" alt="nq_s30_w2_cam1" data-name="nq_s30_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s30_w2_cam1">3D</button></h3>
+          <div class="map">NQ_S30_ROCKETBOX_H1M2/WORLD_00000002 · 637 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.329</span></div>
+            <div><span>4RC</span><span>0.134</span></div>
+            <div><span>Point4D</span><span>0.085</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s31_w1_cam1.jpg" alt="nq_s31_w1_cam1" data-name="nq_s31_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s31_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s31_w1_cam1">3D</button></h3>
+          <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000001 · 654 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.341</span></div>
+            <div><span>4RC</span><span class=best>0.447</span></div>
+            <div><span>Point4D</span><span>0.395</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s31_w5_cam0.jpg" alt="nq_s31_w5_cam0" data-name="nq_s31_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s31_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s31_w5_cam0">3D</button></h3>
+          <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000005 · 2347 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.703</span></div>
+            <div><span>4RC</span><span>0.570</span></div>
+            <div><span>Point4D</span><span>0.427</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s32_w3_cam0.jpg" alt="nq_s32_w3_cam0" data-name="nq_s32_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s32_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s32_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S32_ROCKETBOX_H1M2/WORLD_00000003 · 3598 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.423</span></div>
+            <div><span>4RC</span><span>0.134</span></div>
+            <div><span>Point4D</span><span>0.172</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s7_w1_cam0.jpg" alt="nq_s7_w1_cam0" data-name="nq_s7_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w1_cam0">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 3415 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.318</span></div>
+            <div><span>4RC</span><span>0.063</span></div>
+            <div><span>Point4D</span><span>0.033</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s7_w1_cam1.jpg" alt="nq_s7_w1_cam1" data-name="nq_s7_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w1_cam1">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 20843 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.169</span></div>
+            <div><span>4RC</span><span>0.085</span></div>
+            <div><span>Point4D</span><span class=best>0.203</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s7_w3_cam0.jpg" alt="nq_s7_w3_cam0" data-name="nq_s7_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 1958 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.348</span></div>
+            <div><span>4RC</span><span>0.061</span></div>
+            <div><span>Point4D</span><span>0.045</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s7_w3_cam1.jpg" alt="nq_s7_w3_cam1" data-name="nq_s7_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w3_cam1">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 2190 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.310</span></div>
+            <div><span>4RC</span><span>0.618</span></div>
+            <div><span>Point4D</span><span class=best>0.666</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s8_w0_cam0.jpg" alt="nq_s8_w0_cam0" data-name="nq_s8_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w0_cam0">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000000 · 1644 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.556</span></div>
+            <div><span>4RC</span><span>0.245</span></div>
+            <div><span>Point4D</span><span>0.144</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/nq_s8_w3_cam0.jpg" alt="nq_s8_w3_cam0" data-name="nq_s8_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000003 · 1328 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.561</span></div>
+            <div><span>4RC</span><span>0.107</span></div>
+            <div><span>Point4D</span><span>0.042</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s8_w4_cam1.jpg" alt="nq_s8_w4_cam1" data-name="nq_s8_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w4_cam1">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000004 · 508 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.316</span></div>
+            <div><span>4RC</span><span>0.287</span></div>
+            <div><span>Point4D</span><span class=best>0.385</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/nq_s8_w5_cam1.jpg" alt="nq_s8_w5_cam1" data-name="nq_s8_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w5_cam1">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000005 · 615 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.666</span></div>
+            <div><span>4RC</span><span>0.089</span></div>
+            <div><span>Point4D</span><span>0.599</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/ru_s9_w1_cam0.jpg" alt="ru_s9_w1_cam0" data-name="ru_s9_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>ru_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ru_s9_w1_cam0">3D</button></h3>
+          <div class="map">RU_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.485</span></div>
+            <div><span>4RC</span><span>0.460</span></div>
+            <div><span>Point4D</span><span class=best>0.651</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/ruc3_s10_w0_cam0.jpg" alt="ruc3_s10_w0_cam0" data-name="ruc3_s10_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>ruc3_s10_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s10_w0_cam0">3D</button></h3>
+          <div class="map">RUC3_S10_ROCKETBOX_H1M2/WORLD_00000000 · 10348 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.707</span></div>
+            <div><span>4RC</span><span>0.500</span></div>
+            <div><span>Point4D</span><span class=best>0.719</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/ruc3_s7_w0_cam0.jpg" alt="ruc3_s7_w0_cam0" data-name="ruc3_s7_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>ruc3_s7_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s7_w0_cam0">3D</button></h3>
+          <div class="map">RUC3_S7_ROCKETBOX_H1M2/WORLD_00000000 · 8445 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.736</span></div>
+            <div><span>4RC</span><span>0.480</span></div>
+            <div><span>Point4D</span><span class=best>0.774</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/ruc3_s9_w1_cam0.jpg" alt="ruc3_s9_w1_cam0" data-name="ruc3_s9_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>ruc3_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s9_w1_cam0">3D</button></h3>
+          <div class="map">RUC3_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.469</span></div>
+            <div><span>4RC</span><span>0.466</span></div>
+            <div><span>Point4D</span><span class=best>0.673</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/ruc5_s23_w0_cam1.jpg" alt="ruc5_s23_w0_cam1" data-name="ruc5_s23_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>ruc5_s23_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="ruc5_s23_w0_cam1">3D</button></h3>
+          <div class="map">RUC5_S23_ROCKETBOX_H1M2/WORLD_00000000 · 3887 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.726</span></div>
+            <div><span>4RC</span><span>0.694</span></div>
+            <div><span>Point4D</span><span>0.718</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sf_s10_w5_cam1.jpg" alt="sf_s10_w5_cam1" data-name="sf_s10_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>sf_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sf_s10_w5_cam1">3D</button></h3>
+          <div class="map">SF_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1151 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.753</span></div>
+            <div><span>4RC</span><span>0.625</span></div>
+            <div><span>Point4D</span><span>0.613</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sf_s20_w0_cam0.jpg" alt="sf_s20_w0_cam0" data-name="sf_s20_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>sf_s20_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sf_s20_w0_cam0">3D</button></h3>
+          <div class="map">SF_S20_ROCKETBOX_H1M2/WORLD_00000000 · 7779 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.672</span></div>
+            <div><span>4RC</span><span>0.357</span></div>
+            <div><span>Point4D</span><span class=best>0.708</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc3_s10_w5_cam1.jpg" alt="sfc3_s10_w5_cam1" data-name="sfc3_s10_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc3_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s10_w5_cam1">3D</button></h3>
+          <div class="map">SFC3_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1692 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.541</span></div>
+            <div><span>4RC</span><span>0.430</span></div>
+            <div><span>Point4D</span><span>0.460</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc3_s16_w2_cam1.jpg" alt="sfc3_s16_w2_cam1" data-name="sfc3_s16_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc3_s16_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s16_w2_cam1">3D</button></h3>
+          <div class="map">SFC3_S16_ROCKETBOX_H1M2/WORLD_00000002 · 2322 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.378</span></div>
+            <div><span>4RC</span><span>0.351</span></div>
+            <div><span>Point4D</span><span>0.363</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc3_s18_w2_cam1.jpg" alt="sfc3_s18_w2_cam1" data-name="sfc3_s18_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc3_s18_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s18_w2_cam1">3D</button></h3>
+          <div class="map">SFC3_S18_ROCKETBOX_H1M2/WORLD_00000002 · 3586 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.453</span></div>
+            <div><span>4RC</span><span>0.397</span></div>
+            <div><span>Point4D</span><span>0.261</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s23_w1_cam1.jpg" alt="sfc5_s23_w1_cam1" data-name="sfc5_s23_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s23_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s23_w1_cam1">3D</button></h3>
+          <div class="map">SFC5_S23_ROCKETBOX_H1M2/WORLD_00000001 · 2161 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.202</span></div>
+            <div><span>4RC</span><span class=best>0.344</span></div>
+            <div><span>Point4D</span><span>0.212</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s26_w3_cam1.jpg" alt="sfc5_s26_w3_cam1" data-name="sfc5_s26_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s26_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s26_w3_cam1">3D</button></h3>
+          <div class="map">SFC5_S26_ROCKETBOX_H1M2/WORLD_00000003 · 1858 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.410</span></div>
+            <div><span>4RC</span><span>0.421</span></div>
+            <div><span>Point4D</span><span class=best>0.477</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s27_w0_cam1.jpg" alt="sfc5_s27_w0_cam1" data-name="sfc5_s27_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s27_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w0_cam1">3D</button></h3>
+          <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000000 · 1740 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.740</span></div>
+            <div><span>4RC</span><span>0.583</span></div>
+            <div><span>Point4D</span><span>0.706</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s27_w3_cam1.jpg" alt="sfc5_s27_w3_cam1" data-name="sfc5_s27_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s27_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w3_cam1">3D</button></h3>
+          <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000003 · 5969 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.254</span></div>
+            <div><span>4RC</span><span>0.429</span></div>
+            <div><span>Point4D</span><span class=best>0.453</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sfc5_s31_w3_cam0.jpg" alt="sfc5_s31_w3_cam0" data-name="sfc5_s31_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s31_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s31_w3_cam0">3D</button></h3>
+          <div class="map">SFC5_S31_ROCKETBOX_H1M2/WORLD_00000003 · 8063 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.320</span></div>
+            <div><span>4RC</span><span>0.400</span></div>
+            <div><span>Point4D</span><span class=best>0.516</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sfc5_s32_w2_cam0.jpg" alt="sfc5_s32_w2_cam0" data-name="sfc5_s32_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s32_w2_cam0">3D</button></h3>
+          <div class="map">SFC5_S32_ROCKETBOX_H1M2/WORLD_00000002 · 8534 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.151</span></div>
+            <div><span>4RC</span><span>0.146</span></div>
+            <div><span>Point4D</span><span class=best>0.266</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sfc5_s38_w1_cam0.jpg" alt="sfc5_s38_w1_cam0" data-name="sfc5_s38_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s38_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s38_w1_cam0">3D</button></h3>
+          <div class="map">SFC5_S38_ROCKETBOX_H1M2/WORLD_00000001 · 7478 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.386</span></div>
+            <div><span>4RC</span><span>0.201</span></div>
+            <div><span>Point4D</span><span class=best>0.529</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sfc5_s41_w0_cam0.jpg" alt="sfc5_s41_w0_cam0" data-name="sfc5_s41_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s41_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s41_w0_cam0">3D</button></h3>
+          <div class="map">SFC5_S41_ROCKETBOX_H1M2/WORLD_00000000 · 10216 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.765</span></div>
+            <div><span>4RC</span><span>0.380</span></div>
+            <div><span>Point4D</span><span class=best>0.785</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s47_w1_cam1.jpg" alt="sfc5_s47_w1_cam1" data-name="sfc5_s47_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s47_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s47_w1_cam1">3D</button></h3>
+          <div class="map">SFC5_S47_ROCKETBOX_H1M2/WORLD_00000001 · 2618 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.300</span></div>
+            <div><span>4RC</span><span class=best>0.590</span></div>
+            <div><span>Point4D</span><span>0.548</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sfc5_s49_w1_cam0.jpg" alt="sfc5_s49_w1_cam0" data-name="sfc5_s49_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s49_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s49_w1_cam0">3D</button></h3>
+          <div class="map">SFC5_S49_ROCKETBOX_H1M2/WORLD_00000001 · 7994 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.303</span></div>
+            <div><span>4RC</span><span>0.206</span></div>
+            <div><span>Point4D</span><span>0.246</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s50_w0_cam1.jpg" alt="sfc5_s50_w0_cam1" data-name="sfc5_s50_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s50_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s50_w0_cam1">3D</button></h3>
+          <div class="map">SFC5_S50_ROCKETBOX_H1M2/WORLD_00000000 · 6146 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.667</span></div>
+            <div><span>4RC</span><span>0.628</span></div>
+            <div><span>Point4D</span><span>0.386</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s52_w1_cam1.jpg" alt="sfc5_s52_w1_cam1" data-name="sfc5_s52_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s52_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s52_w1_cam1">3D</button></h3>
+          <div class="map">SFC5_S52_ROCKETBOX_H1M2/WORLD_00000001 · 4007 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.527</span></div>
+            <div><span>4RC</span><span>0.545</span></div>
+            <div><span>Point4D</span><span class=best>0.585</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s10_3d/sfc5_s53_w0_cam0.jpg" alt="sfc5_s53_w0_cam0" data-name="sfc5_s53_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s53_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s53_w0_cam0">3D</button></h3>
+          <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 6986 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.719</span></div>
+            <div><span>4RC</span><span>0.434</span></div>
+            <div><span>Point4D</span><span class=best>0.762</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s53_w0_cam1.jpg" alt="sfc5_s53_w0_cam1" data-name="sfc5_s53_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s53_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w0_cam1">3D</button></h3>
+          <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 1914 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span class=best>0.677</span></div>
+            <div><span>4RC</span><span>0.541</span></div>
+            <div><span>Point4D</span><span>0.642</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s53_w2_cam1.jpg" alt="sfc5_s53_w2_cam1" data-name="sfc5_s53_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s53_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w2_cam1">3D</button></h3>
+          <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000002 · 3281 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.446</span></div>
+            <div><span>4RC</span><span>0.449</span></div>
+            <div><span>Point4D</span><span class=best>0.535</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s10_3d/sfc5_s54_w6_cam1.jpg" alt="sfc5_s54_w6_cam1" data-name="sfc5_s54_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s54_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s54_w6_cam1">3D</button></h3>
+          <div class="map">SFC5_S54_ROCKETBOX_H1M2/WORLD_00000006 · 3206 query 点</div>
+          <div class="kv">
+            <div><span>s4d_train</span><span>0.476</span></div>
+            <div><span>4RC</span><span>0.546</span></div>
+            <div><span>Point4D</span><span class=best>0.552</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    数据 <code>4RC/data/s4d_test100_s10</code>（manifest.json 记录来源段），结果 <code>eval_results/point_track_f12/&lt;model&gt;/s4d_test100_s10</code>。生成于 2026-10-16。
+  </div>
+</footer>
+<!-- 3D 查看器：由 build_point_track_models_page.py 注入 point_track_models.html（media/point_track_3d），由 build_train_page.py 注入 train.html（media/train_3d，12 帧）。
+     数据来自 export_point_track_3d.py 的 <name>.bin；V3D.open(name, dir) 的 dir 选目录 -->
+<style>
+#v3d{position:fixed;inset:0;z-index:50;background:#0b0d12;color:#e8eaf0;display:flex;flex-direction:column;font-size:13px}
+#v3d[hidden]{display:none}
+#v3d .bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:8px 12px;border-bottom:1px solid #2a2f3a;background:#13161d}
+#v3d .bar label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;cursor:pointer}
+#v3d .bar .sw{display:inline-block;width:10px;height:10px;border-radius:2px}
+#v3d .bar button,#v3d .bar select{background:#1e222b;color:#e8eaf0;border:1px solid #2a2f3a;border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer}
+#v3d .bar button:hover,#v3d .bar select:hover{border-color:#5cc8ff}
+#v3d .bar button.on{border-color:#5cc8ff;color:#5cc8ff}
+#v3d .bar h3{margin:0;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+#v3d .bar .sp{flex:1}
+#v3d .stage{flex:1;position:relative;min-height:0}
+#v3d canvas{display:block;width:100%;height:100%}
+#v3d .hud{position:absolute;left:12px;top:10px;background:rgba(11,13,18,.72);border:1px solid #2a2f3a;border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums;pointer-events:none;line-height:1.5}
+#v3d .hud .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-0.5px}
+#v3d .hud .dim{color:#9aa3b2}
+#v3d .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa3b2;pointer-events:none}
+#v3d .foot{display:flex;gap:12px;align-items:center;padding:8px 12px;border-top:1px solid #2a2f3a;background:#13161d}
+#v3d .foot input[type=range]{flex:1;min-width:0}
+#v3d .foot .t{font-variant-numeric:tabular-nums;white-space:nowrap;min-width:5.5em}
+#v3d .help{color:#9aa3b2;white-space:nowrap}
+@media (max-width:700px){#v3d .help{display:none}}
+</style>
+<div id="v3d" hidden>
+  <div class="bar">
+    <h3 id="v3dName">—</h3>
+    <span id="v3dSets"></span>
+    <label>着色 <select id="v3dColor"><option value="set">按模型</option><option value="track">按轨迹</option></select></label>
+    <label>拖尾 <select id="v3dTrail"><option value="0">无</option><option value="6" selected>6 帧</option><option value="16">16 帧</option><option value="64">全程</option></select></label>
+    <label>点大小 <input type="range" id="v3dSize" min="2" max="14" value="6" style="width:70px"></label>
+    <label><input type="checkbox" id="v3dOcc" checked> 画被遮挡的 GT 点</label>
+    <button id="v3dCam">相机视角</button>
+    <button id="v3dReset">复位视角</button>
+    <span class="sp"></span>
+    <span class="help">左键旋转 · 右键平移 · 滚轮缩放 · 空格播放/暂停 · ←→ 逐帧 · Esc 关闭</span>
+    <button id="v3dClose">关闭</button>
+  </div>
+  <div class="stage"><canvas id="v3dCanvas"></canvas><div class="hud" id="v3dHud"></div><div class="msg" id="v3dMsg"></div></div>
+  <div class="foot">
+    <button id="v3dPlay">暂停</button>
+    <span class="t" id="v3dT">t = 00 / 63</span>
+    <input type="range" id="v3dFrame" min="0" max="63" value="0">
+    <label>速度 <select id="v3dSpeed"><option value="4">4 fps</option><option value="7.5" selected>7.5 fps</option><option value="15">15 fps</option></select></label>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const V3D = (() => {
+  const COLORS = { gt: 0xffffff, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c };
+  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train" };
+  const FAR = 1e5, el = id => document.getElementById(id);
+  let renderer, scene, camera, controls, grid, frustum, camPath, raf = null;
+  let D = null, frame = 0, playing = true, lastTick = 0, followCam = false;
+  let pts = {}, trails = {}, enabled = {};
+
+  function parse(buf) {
+    const dv = new DataView(buf);
+    if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== "PT3D") throw new Error("bad magic");
+    const hl = dv.getUint32(4, true);
+    const head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, hl)));
+    let off = 8 + hl;
+    const S = head.sets.length, T = head.T, N = head.N;
+    // 各块的偏移不保证 4 字节对齐，typed array 一律从 slice 建
+    const q = new Int16Array(buf.slice(off, off + S * T * N * 6)); off += S * T * N * 6;
+    const c2w = new Float32Array(buf.slice(off, off + T * 64)); off += T * 64;
+    const vis = new Uint8Array(buf.slice(off, off + T * N)); off += T * N;
+    const K = new Float32Array(buf.slice(off, off + 24));
+    // cm -> m，并把 OpenCV（x 右 y 下 z 前）换成 three（y 上 z 向观者）：(x, -y, -z)
+    const xyz = new Float32Array(S * T * N * 3);
+    for (let i = 0; i < S * T * N; i++) {
+      const a = q[i * 3], b = q[i * 3 + 1], c = q[i * 3 + 2];
+      if (a === -32768 || b === -32768 || c === -32768) { xyz[i * 3] = xyz[i * 3 + 1] = xyz[i * 3 + 2] = NaN; }
+      else { xyz[i * 3] = a / 100; xyz[i * 3 + 1] = -b / 100; xyz[i * 3 + 2] = -c / 100; }
+    }
+    const cams = [];
+    for (let t = 0; t < T; t++) {
+      const m = new THREE.Matrix4().fromArray(c2w.subarray(t * 16, t * 16 + 16)).transpose(); // 行主序 -> three 列主序
+      m.elements[12] /= 100; m.elements[13] /= 100; m.elements[14] /= 100;
+      const F = new THREE.Matrix4().makeScale(1, -1, -1);
+      cams.push(new THREE.Matrix4().multiplyMatrices(F, m).multiply(F));
+    }
+    return { head, S, T, N, xyz, vis, cams, fx: K[0], fy: K[1], W: K[4], H: K[5] };
+  }
+
+  function init() {
+    if (renderer) return;
+    const cv = el("v3dCanvas");
+    renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0b0d12);
+    camera = new THREE.PerspectiveCamera(50, 1, 0.05, 2000);
+    controls = new THREE.OrbitControls(camera, cv);
+    controls.enableDamping = true; controls.dampingFactor = 0.1;
+    new ResizeObserver(resize).observe(cv.parentElement);
+    el("v3dClose").onclick = close;
+    el("v3dPlay").onclick = () => setPlaying(!playing);
+    el("v3dFrame").oninput = e => { if (!D) return; setPlaying(false); setFrame(+e.target.value); };
+    el("v3dColor").onchange = () => D && recolor(); el("v3dOcc").onchange = () => D && setFrame(frame);
+    el("v3dTrail").onchange = () => D && setFrame(frame);
+    el("v3dSize").oninput = e => { for (const k in pts) pts[k].material.size = (k === "gt" ? 1.2 : 1) * e.target.value / 100; };
+    el("v3dCam").onclick = () => { if (!D) return; followCam = !followCam; el("v3dCam").classList.toggle("on", followCam); controls.enabled = !followCam; if (!followCam) resetView(); else setFrame(frame); };
+    el("v3dReset").onclick = () => { if (!D) return; followCam = false; el("v3dCam").classList.remove("on"); controls.enabled = true; resetView(); };
+    addEventListener("keydown", e => {
+      if (el("v3d").hidden || !D) return;
+      if (e.key === "Escape") close();
+      else if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+      else if (e.key === "ArrowRight") { setPlaying(false); setFrame((frame + 1) % D.T); }
+      else if (e.key === "ArrowLeft") { setPlaying(false); setFrame((frame - 1 + D.T) % D.T); }
+    });
+  }
+
+  function resize() {
+    const cv = el("v3dCanvas"), w = cv.parentElement.clientWidth, h = cv.parentElement.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+
+  function clearScene() {
+    for (const k in pts) { scene.remove(pts[k]); pts[k].geometry.dispose(); pts[k].material.dispose(); }
+    for (const k in trails) { scene.remove(trails[k]); trails[k].geometry.dispose(); trails[k].material.dispose(); }
+    pts = {}; trails = {};
+    for (const o of [grid, frustum, camPath]) if (o) { scene.remove(o); o.geometry.dispose(); o.material.dispose(); }
+    grid = frustum = camPath = null;
+  }
+
+  function build() {
+    clearScene();
+    const { S, T, N, head } = D, size = +el("v3dSize").value / 100;
+    const setsEl = el("v3dSets"); setsEl.innerHTML = "";
+    el("v3dFrame").max = T - 1;
+    head.sets.forEach((k, s) => {
+      if (!head.have[s]) return;
+      enabled[k] = enabled[k] !== false;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+      g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+      const p = new THREE.Points(g, new THREE.PointsMaterial({ size: (k === "gt" ? 1.2 : 1) * size, vertexColors: true, sizeAttenuation: true }));
+      p.frustumCulled = false; scene.add(p); pts[k] = p;
+      const tg = new THREE.BufferGeometry();
+      tg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 63 * 2 * 3), 3));
+      tg.setAttribute("color", new THREE.BufferAttribute(new Float32Array(N * 63 * 2 * 3), 3));
+      const l = new THREE.LineSegments(tg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55 }));
+      l.frustumCulled = false; scene.add(l); trails[k] = l;
+      const lab = document.createElement("label");
+      lab.innerHTML = `<input type="checkbox" ${enabled[k] ? "checked" : ""}> <span class="sw" style="background:#${COLORS[k].toString(16).padStart(6, "0")}"></span>${NAMES[k] || k}`;
+      lab.querySelector("input").onchange = e => { enabled[k] = e.target.checked; pts[k].visible = trails[k].visible = e.target.checked; };
+      pts[k].visible = trails[k].visible = enabled[k];
+      setsEl.appendChild(lab);
+    });
+    // 相机路径与当前帧视锥
+    const cp = new Float32Array(T * 3);
+    for (let t = 0; t < T; t++) { const e = D.cams[t].elements; cp[t * 3] = e[12]; cp[t * 3 + 1] = e[13]; cp[t * 3 + 2] = e[14]; }
+    camPath = new THREE.Line(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(cp, 3)), new THREE.LineBasicMaterial({ color: 0x9aa3b2, transparent: true, opacity: 0.6 }));
+    camPath.frustumCulled = false; scene.add(camPath);
+    const d = 0.6, hx = d * D.W / (2 * D.fx), hy = d * D.H / (2 * D.fy);
+    const c = [[0, 0, 0], [hx, hy, -d], [-hx, hy, -d], [-hx, -hy, -d], [hx, -hy, -d]];
+    const seg = [0, 1, 0, 2, 0, 3, 0, 4, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2]; // 最后一条重复上边，画粗一点代表"上"
+    const fv = new Float32Array(seg.length * 3); seg.forEach((i, j) => fv.set(c[i], j * 3));
+    frustum = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(fv, 3)), new THREE.LineBasicMaterial({ color: 0xffcf66 }));
+    frustum.matrixAutoUpdate = false; frustum.frustumCulled = false; scene.add(frustum);
+    // 地面网格：GT 第 0 帧最低点当地面
+    let ymin = Infinity, cx = 0, cz = 0, n = 0;
+    for (let i = 0; i < N; i++) { const y = D.xyz[i * 3 + 1]; if (isFinite(y)) { ymin = Math.min(ymin, y); cx += D.xyz[i * 3]; cz += D.xyz[i * 3 + 2]; n++; } }
+    if (n) { cx /= n; cz /= n; }
+    grid = new THREE.GridHelper(400, 80, 0x2a2f3a, 0x1e222b);
+    grid.position.set(Math.round(cx), isFinite(ymin) ? ymin : 0, Math.round(cz)); scene.add(grid);
+    D.center = new THREE.Vector3(cx, isFinite(ymin) ? ymin + 1 : 0, cz);
+    recolor();
+    resetView();
+    setFrame(0);
+  }
+
+  function resetView() {
+    // 从第 0 帧相机的位置稍微抬高后退看向主体
+    const c = D.center, e = D.cams[0].elements, cam0 = new THREE.Vector3(e[12], e[13], e[14]);
+    const dir = new THREE.Vector3().subVectors(c, cam0), dist = Math.max(dir.length(), 3);
+    dir.normalize();
+    camera.position.copy(cam0).addScaledVector(dir, -dist * 0.35).add(new THREE.Vector3(0, dist * 0.45, 0));
+    controls.target.copy(c); camera.fov = 50; camera.updateProjectionMatrix(); controls.update();
+  }
+
+  function recolor() {
+    const byTrack = el("v3dColor").value === "track", { N, head } = D;
+    const u = head.track_u0, umin = Math.min(...u), ur = Math.max(1e-6, Math.max(...u) - umin), tmp = new THREE.Color();
+    for (const k in pts) {
+      pts[k].userData.full = null;
+      const col = pts[k].geometry.attributes.color.array, tcol = trails[k].geometry.attributes.color.array;
+      for (let i = 0; i < N; i++) {
+        if (byTrack) tmp.setHSL((u[i] - umin) / ur * 0.83, 1, k === "gt" ? 0.75 : 0.5); else tmp.setHex(COLORS[k]);
+        col.set([tmp.r, tmp.g, tmp.b], i * 3);
+        for (let j = 0; j < 63 * 2; j++) tcol.set([tmp.r, tmp.g, tmp.b], (i * 126 + j) * 3);
+      }
+      pts[k].geometry.attributes.color.needsUpdate = true; trails[k].geometry.attributes.color.needsUpdate = true;
+    }
+    setFrame(frame);
+  }
+
+  function setFrame(t) {
+    frame = t; const { N, T, head, xyz, vis } = D, trailN = +el("v3dTrail").value, occ = el("v3dOcc").checked;
+    el("v3dFrame").value = t; el("v3dT").textContent = `t = ${String(t).padStart(2, "0")} / ${T - 1}`;
+    head.sets.forEach((k, s) => {
+      if (!pts[k]) return;
+      const pos = pts[k].geometry.attributes.position.array, col = pts[k].geometry.attributes.color;
+      const base = (s * T + t) * N * 3;
+      for (let i = 0; i < N; i++) {
+        const x = xyz[base + i * 3], hide = !isFinite(x) || (k === "gt" && !occ && !vis[t * N + i]);
+        if (hide) pos.set([FAR, FAR, FAR], i * 3); else pos.set([x, xyz[base + i * 3 + 1], xyz[base + i * 3 + 2]], i * 3);
+      }
+      pts[k].geometry.attributes.position.needsUpdate = true;
+      if (k === "gt") { // 被遮挡的 GT 点压暗
+        const c = col.array; if (!pts[k].userData.full) pts[k].userData.full = Float32Array.from(c);
+        const full = pts[k].userData.full;
+        for (let i = 0; i < N; i++) { const f = vis[t * N + i] ? 1 : 0.3; c[i * 3] = full[i * 3] * f; c[i * 3 + 1] = full[i * 3 + 1] * f; c[i * 3 + 2] = full[i * 3 + 2] * f; }
+        col.needsUpdate = true;
+      }
+      const tp = trails[k].geometry.attributes.position.array; let m = 0;
+      const t0 = Math.max(0, t - trailN);
+      for (let i = 0; i < N; i++) for (let u = t0; u < t; u++) {
+        const a = (s * T + u) * N * 3 + i * 3, b = (s * T + u + 1) * N * 3 + i * 3;
+        if (!isFinite(xyz[a]) || !isFinite(xyz[b])) continue;
+        tp.set([xyz[a], xyz[a + 1], xyz[a + 2], xyz[b], xyz[b + 1], xyz[b + 2]], m * 6); m++;
+      }
+      trails[k].geometry.setDrawRange(0, m * 2); trails[k].geometry.attributes.position.needsUpdate = true;
+    });
+    frustum.matrix.copy(D.cams[t]);
+    if (followCam) {
+      const m = D.cams[t]; camera.position.setFromMatrixPosition(m); camera.quaternion.setFromRotationMatrix(m);
+      camera.fov = 2 * Math.atan(D.H / (2 * D.fy)) * 180 / Math.PI; camera.updateProjectionMatrix();
+    }
+    const hud = [`<span class="dim">${head.n_query} query 点，画 ${N} 条 · 第 0 帧相机系，米 · 黄色视锥 = GT 相机</span>`];
+    for (const k of head.sets) if (head.err_per_frame[k]) hud.push(`<span class="sw" style="background:#${COLORS[k].toString(16).padStart(6, "0")}"></span>${NAMES[k]} <span class="dim">误差</span> ${head.err_per_frame[k][t].toFixed(2)} m <span class="dim">· Sim(3) 尺度 ${head.sim3_scale[k].toFixed(2)}</span>`);
+    el("v3dHud").innerHTML = hud.join("<br>");
+  }
+
+  function setPlaying(p) { playing = p; el("v3dPlay").textContent = p ? "暂停" : "播放"; }
+
+  function loop(ts) {
+    raf = requestAnimationFrame(loop);
+    if (D && playing && ts - lastTick > 1000 / +el("v3dSpeed").value) { lastTick = ts; setFrame((frame + 1) % D.T); }
+    if (controls.enabled) controls.update();
+    renderer.render(scene, camera);
+  }
+
+  async function open(name, dir = "media/point_track_3d") {
+    init(); D = null;
+    el("v3d").hidden = false; document.body.style.overflow = "hidden";
+    el("v3dName").textContent = name; el("v3dMsg").textContent = "加载中…"; el("v3dHud").innerHTML = "";
+    resize();
+    if (!raf) raf = requestAnimationFrame(loop);
+    try {
+      const r = await fetch(`${dir}/${name}.bin`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      D = parse(await r.arrayBuffer());
+      el("v3dMsg").textContent = "";
+      followCam = false; el("v3dCam").classList.remove("on"); controls.enabled = true;
+      build(); setPlaying(true);
+    } catch (e) {
+      el("v3dMsg").textContent = `加载 ${dir}/${name}.bin 失败：${e.message}（本地打开 html 文件时 fetch 会被浏览器拦住，请用 http 服务或 GitHub Pages 打开）`;
+    }
+  }
+
+  function close() {
+    el("v3d").hidden = true; document.body.style.overflow = "";
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+  }
+
+  return { open, close };
+})();
+</script>
+
+<script>
+(() => {
+  const grid = document.getElementById("cmpGrid");
+  const btns = { follow: document.getElementById("cmpFollow"), static: document.getElementById("cmpStatic"), all: document.getElementById("cmpAll") };
+  const show = m => { grid.classList.toggle("all", m === "all"); grid.classList.toggle("static", m === "static"); for (const k in btns) btns[k].classList.toggle("on", k === m); };
+  for (const k in btns) btns[k].onclick = () => show(k);
+  grid.addEventListener("click", e => { const t = e.target.closest("[data-name]"); if (t) V3D.open(t.dataset.name, "media/train_test100_s10_3d"); });
+  document.getElementById("theme").onclick = () => {
+    const r = document.documentElement; const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    const cur = r.dataset.theme || (dark ? "dark" : "light");
+    r.dataset.theme = cur === "dark" ? "light" : "dark";
+    try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+  };
+  try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+})();
+</script>
+</body>
+</html>
