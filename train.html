@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Train Check</title>
+<meta name="description" content="s4d_train 全量微调 32000 步后在测试集抽 12 段前向，GT 与预测轨迹左右对比视频。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="index.html">← S4D Data Exhibition</a>
+    <h1>s4d_train 全量微调 · 测试集检查</h1>
+    <p class="sub">VGGT-Omega + motion head 在训练集（768 段、430 个世界）上全量微调 32000 步，取 checkpoint 在模型没见过的测试集（360 段、212 个世界）里均匀抽 12 段前向。每段视频左边是网格真值轨迹，右边是模型预测。</p>
+    <div class="stats">
+      <div class="stat"><b>12</b><span>测试样本（12 个世界）</span></div>
+      <div class="stat"><b>32000</b><span>优化步数</span></div>
+      <div class="stat"><b>43.6 cm</b><span>平均 3D 误差（全部帧、全部 query）</span></div>
+      <div class="stat"><b>18.25 px</b><span>2D 投影误差中位数（各样本平均，512×288）</span></div>
+    </div>
+  </div>
+</header>
+<section id="protocol">
+  <div class="wrap">
+    <h2>训练与可视化约定</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>训练</td><td>训练集每段每隔 3 帧取一个起始帧，一个样本 = 一台相机从起始帧开始的 12 帧片段，随机分辨率（长边 336–504）。8 卡，每卡 1 个样本，梯度累积 2，共 32000 步；config 见页脚</td></tr>
+        <tr><td>测试样本</td><td>测试集按样本编号等间距抽 12 段，世界与训练集不重叠；预处理时源视频每 4 帧取 1 帧（30 fps → 7.50 fps，相邻两帧约 0.13 s），画面 512×288（原生分辨率，不做随机缩放）</td></tr>
+        <tr><td>query 点</td><td>片段第 0 帧前景 mask 内固定种子随机取 300 个像素（训练时每样本 64 个），按深度反投影到 3D</td></tr>
+        <tr><td>真值轨迹</td><td>每个 query 点挂到最近的网格三角形上随网格逐帧搬运，表达在第 0 帧相机系里</td></tr>
+        <tr><td>前向</td><td>与训练相同：链式追踪 11 跳（0 → 1 → … → 11），链的起点用真值 3D query、投影用真值相机（teacher forcing），不是纯推理</td></tr>
+        <tr><td>画法</td><td>同 <a href="point_track.html">Point Tracking 页</a>：颜色按 query 点在第 0 帧的横坐标；左 GT 实心 = 可见、空心 = 被遮挡；右为预测，标题栏是该帧平均 3D 误差。两边都用真值相机投影。预测与真值同尺度，不做 Sim(3) 对齐</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="videos">
+  <div class="wrap">
+    <h2>全部 12 个测试样本</h2>
+    <p class="lead">视频按实时速度播放（7.50 fps，12 帧约 1.6 s），拖尾为最近 2 帧（约 0.3 s）。第 0 帧画的是 self-query（模型直接回归 query 像素的 3D 位置）。</p>
+    <div class="ctl"><button id="playAll">全部播放</button><button id="pauseAll">全部暂停</button><button id="theme">切换深浅色</button></div>
+    <div class="grid">
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/00000_cam0_s000.jpg" src="media/train/00000_cam0_s000.mp4"></video>
+        <div class="body">
+          <h3>00000_cam0_s000<span class="tag">跟拍</span></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000003 · 起始帧 0</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>17.0 cm</span></div>
+            <div><span>末帧 3D</span><span>21.4 cm</span></div>
+            <div><span>2D 误差中位</span><span>6.94 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/01527_cam1_s084.jpg" src="media/train/01527_cam1_s084.mp4"></video>
+        <div class="body">
+          <h3>01527_cam1_s084<span class="tag">静态</span></h3>
+          <div class="map">A2_S29_ROCKETBOX_H1M2/WORLD_00000005 · 起始帧 84</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>22.4 cm</span></div>
+            <div><span>末帧 3D</span><span>24.5 cm</span></div>
+            <div><span>2D 误差中位</span><span>2.92 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/03054_cam1_s012.jpg" src="media/train/03054_cam1_s012.mp4"></video>
+        <div class="body">
+          <h3>03054_cam1_s012<span class="tag">静态</span></h3>
+          <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 12</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>16.4 cm</span></div>
+            <div><span>末帧 3D</span><span>20.7 cm</span></div>
+            <div><span>2D 误差中位</span><span>3.81 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/04581_cam1_s120.jpg" src="media/train/04581_cam1_s120.mp4"></video>
+        <div class="body">
+          <h3>04581_cam1_s120<span class="tag">静态</span></h3>
+          <div class="map">FA_S13_ROCKETBOX_H1M2/WORLD_00000000 · 起始帧 120</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>71.3 cm</span></div>
+            <div><span>末帧 3D</span><span>61.5 cm</span></div>
+            <div><span>2D 误差中位</span><span>19.88 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/06108_cam1_s048.jpg" src="media/train/06108_cam1_s048.mp4"></video>
+        <div class="body">
+          <h3>06108_cam1_s048<span class="tag">静态</span></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000005 · 起始帧 48</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>60.7 cm</span></div>
+            <div><span>末帧 3D</span><span>44.8 cm</span></div>
+            <div><span>2D 误差中位</span><span>12.99 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/07635_cam1_s117.jpg" src="media/train/07635_cam1_s117.mp4"></video>
+        <div class="body">
+          <h3>07635_cam1_s117<span class="tag">静态</span></h3>
+          <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000007 · 起始帧 117</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>41.8 cm</span></div>
+            <div><span>末帧 3D</span><span>33.2 cm</span></div>
+            <div><span>2D 误差中位</span><span>10.82 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/09162_cam0_s003.jpg" src="media/train/09162_cam0_s003.mp4"></video>
+        <div class="body">
+          <h3>09162_cam0_s003<span class="tag">跟拍</span></h3>
+          <div class="map">NK_S28_ROCKETBOX_H1M2/WORLD_00000007 · 起始帧 3</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>19.7 cm</span></div>
+            <div><span>末帧 3D</span><span>18.3 cm</span></div>
+            <div><span>2D 误差中位</span><span>4.87 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/10689_cam0_s009.jpg" src="media/train/10689_cam0_s009.mp4"></video>
+        <div class="body">
+          <h3>10689_cam0_s009<span class="tag">跟拍</span></h3>
+          <div class="map">NQ_S27_ROCKETBOX_H1M2/WORLD_00000001 · 起始帧 9</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>31.1 cm</span></div>
+            <div><span>末帧 3D</span><span>36.2 cm</span></div>
+            <div><span>2D 误差中位</span><span>20.87 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/12216_cam0_s099.jpg" src="media/train/12216_cam0_s099.mp4"></video>
+        <div class="body">
+          <h3>12216_cam0_s099<span class="tag">跟拍</span></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000004 · 起始帧 99</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>158.5 cm</span></div>
+            <div><span>末帧 3D</span><span>350.9 cm</span></div>
+            <div><span>2D 误差中位</span><span>74.00 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/13743_cam0_s000.jpg" src="media/train/13743_cam0_s000.mp4"></video>
+        <div class="body">
+          <h3>13743_cam0_s000<span class="tag">跟拍</span></h3>
+          <div class="map">SFC3_S18_ROCKETBOX_H1M2/WORLD_00000002 · 起始帧 0</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>35.0 cm</span></div>
+            <div><span>末帧 3D</span><span>31.2 cm</span></div>
+            <div><span>2D 误差中位</span><span>44.20 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/15270_cam1_s069.jpg" src="media/train/15270_cam1_s069.mp4"></video>
+        <div class="body">
+          <h3>15270_cam1_s069<span class="tag">静态</span></h3>
+          <div class="map">SFC5_S38_ROCKETBOX_H1M2/WORLD_00000004 · 起始帧 69</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>25.8 cm</span></div>
+            <div><span>末帧 3D</span><span>24.9 cm</span></div>
+            <div><span>2D 误差中位</span><span>10.49 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <video autoplay loop muted playsinline controls preload="auto" poster="media/train/16797_cam1_s138.jpg" src="media/train/16797_cam1_s138.mp4"></video>
+        <div class="body">
+          <h3>16797_cam1_s138<span class="tag">静态</span></h3>
+          <div class="map">SF_S9_ROCKETBOX_H1M2/WORLD_00000001 · 起始帧 138</div>
+          <div class="kv">
+            <div><span>3D 误差</span><span>23.1 cm</span></div>
+            <div><span>末帧 3D</span><span>28.0 cm</span></div>
+            <div><span>2D 误差中位</span><span>7.18 px</span></div>
+            <div><span>query 点</span><span>300</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="notes">
+  <div class="wrap">
+    <h2>说明</h2>
+    <p class="note"><b>画面方向。</b>预处理沿用 TAPVid-3D 的约定把图像左右镜像，几何对齐的是镜像后的图像；这里的视频画完点后整体翻回正向。</p>
+    <p class="note"><b>2D 误差。</b>只统计真值和预测都在相机前方 10 cm 以外的点；离相机过近的点投影会炸开（单点可到上千像素），平均值会被它们拉偏，所以报中位数。这些点在视频里也不画。</p>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    checkpoint <code>epoch014-step00032000.pt</code>，config <code>configs/train.yaml</code>。3D 误差按样本的 global 尺度换回厘米。视频 1280×360（两个 640×360 面板），H.264。生成于 2026-10-16。
+  </div>
+</footer>
+<script>
+const vids = () => document.querySelectorAll(".grid video");
+document.getElementById("playAll").onclick = () => vids().forEach(v => v.play().catch(() => {}));
+document.getElementById("pauseAll").onclick = () => vids().forEach(v => v.pause());
+document.getElementById("theme").onclick = () => {
+  const r = document.documentElement; const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur = r.dataset.theme || (dark ? "dark" : "light");
+  r.dataset.theme = cur === "dark" ? "light" : "dark";
+  try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+};
+try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</body>
+</html>
