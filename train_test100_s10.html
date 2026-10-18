@@ -102,10 +102,11 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
         <tr><td>s4d_train</td><td><b>0.514</b></td><td><b>0.515</b></td><td><b>0.486</b></td><td><b>0.541</b></td><td><b>1.079</b></td><td>74</td></tr>
         <tr><td>4RC</td><td>0.312</td><td>0.317</td><td>0.242</td><td>0.383</td><td>2.902</td><td>7</td></tr>
         <tr><td>Point4D</td><td>0.381</td><td>0.376</td><td>0.358</td><td>0.403</td><td>2.412</td><td>19</td></tr>
+        <tr style="opacity:.6"><td>s4d_train · num_paths=10（同一 checkpoint，链式追踪 10 条路线平均）</td><td>0.334</td><td>0.333</td><td>0.242</td><td>0.425</td><td>2.869</td><td>—</td></tr>
         <tr style="opacity:.6"><td>s4d_train · 上一版 checkpoint（step 32000）</td><td>0.405</td><td>0.397</td><td>0.417</td><td>0.394</td><td>1.852</td><td>—</td></tr>
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:14px">avg_pts 阈值是固定米制、按整段对齐后算的，只在本页内比较。EPE 来自各模型评测输出的汇总文件（全部段平均）。灰色行是 s4d_train 上一版 checkpoint 在同一份数据上的结果，只作对照，不参与加粗与单段最佳。</p>
+    <p class="note" style="margin-top:14px">avg_pts 阈值是固定米制、按整段对齐后算的，只在本页内比较。EPE 来自各模型评测输出的汇总文件（全部段平均）。灰色行只作对照，不参与加粗与单段最佳：num_paths=10 是同一 checkpoint 推理时每个目标帧再走 9 条随机单调路线 0→…→t 取平均；step 32000 是 s4d_train 上一版 checkpoint 在同一份数据上的结果。</p>
   </div>
 </section>
 <section id="cards">
