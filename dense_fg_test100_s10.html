@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Dense Foreground</title>
+<meta name="description" content="s4d_train 测试集 100 段：dense_head 预测深度对前景点的 3D 准确率（第 1–9 帧 / 第 10–12 帧 / 逐帧），和 motion_head 链式轨迹同口径对比。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+<style>
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.win{color:var(--accent);font-weight:600}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;white-space:nowrap}
+tr.gap td{border-top:2px solid var(--line)}
+footer code{word-break:break-all}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="index.html">← S4D Data Exhibition</a>
+    <h1>s4d_train dense_head · 前景点 3D 准确率</h1>
+    <p class="sub">和 <a href="train_test100_s10.html">测试集 100 段对比页</a>同一份数据、同一个 checkpoint。每一帧把 dense_head 预测的深度在前景点的真值像素处取出来、反投影到第 0 帧相机系，看它离真值多远；同一批点上再算一遍 motion_head 链式轨迹作对照。12 帧分成第 1–9 帧和第 10–12 帧两段，各自对齐打分。</p>
+    <div class="stats">
+      <div class="stat"><b>0.646 / 0.525</b><span>第 10–12 帧 avg_pts：dense / motion</span></div>
+      <div class="stat"><b>0.598 / 0.585</b><span>第 1–9 帧 avg_pts：dense / motion</span></div>
+      <div class="stat"><b>100</b><span>测试段（跟拍 50 / 静态 50）</span></div>
+      <div class="stat"><b>1939</b><span>平均可见前景点 / 段 / 帧</span></div>
+    </div>
+  </div>
+</header>
+<section id="protocol">
+  <div class="wrap">
+    <h2>约定</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>数据</td><td><code>4RC/data/s4d_test100_s10</code>：s4d_train 测试集抽 100 段，源帧 0, 10, …, 110 共 12 帧。帧号 1 起算：第 1–9 帧 = 源帧 0–80，第 10–12 帧 = 源帧 90–110</td></tr>
+        <tr><td>前景点</td><td>4RC 点追踪评测的 query 点：第 0 帧前景 mask 内每 4 像素取 1 个，真值随网格搬运，第 0 帧相机系、米。每帧只取<b>该帧真值可见</b>且投影在画面内的点（被挡的点在深度图上看到的是遮挡物，无从评 dense_head）</td></tr>
+        <tr><td>dense_head</td><td>checkpoint <code>train/epoch022-step00050000.pt</code>（全量微调，带 depth loss），一次 12 帧前向。该帧深度图在真值像素处双线性采样，按 camera_head 预测的内参反投影、按其预测的位姿搬到第 0 帧相机系，和 3D 查看器里的深度点云同一套，不含真值</td></tr>
+        <tr><td>motion_head</td><td>同一次前向的链式轨迹在这些点、这些帧上的位置（与对比页 s4d_train 的输出相同，纯推理）。第 1 帧是它的 self-query 输出（只看像素给出的 3D 位置）</td></tr>
+        <tr><td>对齐与打分</td><td>每段、每个区间、每个方法各自把区间内所有帧的点放在一起做一次 Sim(3) RANSAC，再用 4RC 的 <code>compute_average_pts_within_thresh</code>：avg_pts = 误差在 0.1 / 0.3 / 0.5 / 1.0 m 内的比例取平均；逐帧数值用所在区间的那组对齐拆开算。各段等权平均</td></tr>
+        <tr><td>注意</td><td>dense_head 是在<b>真值像素位置</b>取深度，只考深度和相机，不用自己找对应；motion_head 要自己把点追到这一帧。所以 dense_head 分数相当于"已知 2D 位置时"的 3D 精度，不是一个追踪器的分数。motion_head 的数值也和对比页的 avg_pts 不同：这里只算可见点、按区间对齐。第 1–9 帧前面的帧可见点多，区间对齐由它们主导。4RC 的 RANSAC 不播种，同一输入重跑单段会抖 ±0.03 左右</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="summary">
+  <div class="wrap">
+    <h2>汇总</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>区间</th><th>方法</th><th class="num">avg_pts<br><small>全部 100 段</small></th><th class="num">跟拍 50</th><th class="num">静态 50</th><th class="num">EPE (m)<br><small>Sim(3) 后</small></th><th class="num">≤ 0.1 m</th><th class="num">≤ 0.3 m</th><th class="num">≤ 0.5 m</th><th class="num">≤ 1.0 m</th><th class="num">更好的段数</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="2">第 1-9 帧</td><td>dense_head</td><td class="num"><b>0.598</b></td><td class="num"><b>0.605</b></td><td class="num">0.591</td><td class="num">0.895</td><td class="num"><b>0.365</b></td><td class="num"><b>0.573</b></td><td class="num"><b>0.667</b></td><td class="num">0.787</td><td class="num">57 / 100</td></tr>
+        <tr><td>motion_head</td><td class="num">0.585</td><td class="num">0.570</td><td class="num"><b>0.600</b></td><td class="num"><b>0.714</b></td><td class="num">0.312</td><td class="num">0.557</td><td class="num">0.665</td><td class="num"><b>0.806</b></td><td class="num">43 / 100</td></tr>
+        <tr class=gap><td rowspan="2">第 10-12 帧</td><td>dense_head</td><td class="num"><b>0.646</b></td><td class="num"><b>0.635</b></td><td class="num"><b>0.658</b></td><td class="num">0.889</td><td class="num"><b>0.439</b></td><td class="num"><b>0.625</b></td><td class="num"><b>0.703</b></td><td class="num"><b>0.819</b></td><td class="num">67 / 100</td></tr>
+        <tr><td>motion_head</td><td class="num">0.525</td><td class="num">0.505</td><td class="num">0.546</td><td class="num"><b>0.888</b></td><td class="num">0.207</td><td class="num">0.477</td><td class="num">0.625</td><td class="num">0.792</td><td class="num">33 / 100</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:14px">同一区间内两种方法较好的加粗（EPE 取小）。"≤ x m" 是误差在该阈值内的点的比例，avg_pts 是这四个比例的平均。</p>
+  </div>
+</section>
+<section id="frames">
+  <div class="wrap">
+    <h2>逐帧</h2>
+    <p class="lead">每帧的数值用该帧所在区间的那组 Sim(3) 对齐后算，各段等权平均；可见点是 100 段的平均。区间内越往后越低，一部分来自对齐：一组 Sim(3) 要同时套住区间里所有帧，第 1–9 帧那组由点多的前几帧主导；第 10–12 帧只用 3 帧对齐、更宽松，所以两个区间之间不宜直接比高低，同一帧上 dense 与 motion 的对比才是同口径的。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>帧</th><th class="num">源帧</th><th class="num">可见点</th><th class="num">dense avg_pts</th><th class="num">motion avg_pts</th><th class="num">dense EPE</th><th class="num">motion EPE</th></tr></thead>
+      <tbody>
+        <tr><td>第 1 帧</td><td class="num">0</td><td class="num">3000</td><td class="num">0.616</td><td class="num"><b>0.822</b></td><td class="num">0.814</td><td class="num"><b>0.268</b></td></tr>
+        <tr><td>第 2 帧</td><td class="num">10</td><td class="num">2513</td><td class="num">0.663</td><td class="num"><b>0.724</b></td><td class="num">0.731</td><td class="num"><b>0.335</b></td></tr>
+        <tr><td>第 3 帧</td><td class="num">20</td><td class="num">2416</td><td class="num"><b>0.666</b></td><td class="num">0.646</td><td class="num">0.705</td><td class="num"><b>0.421</b></td></tr>
+        <tr><td>第 4 帧</td><td class="num">30</td><td class="num">2232</td><td class="num"><b>0.653</b></td><td class="num">0.574</td><td class="num">0.672</td><td class="num"><b>0.551</b></td></tr>
+        <tr><td>第 5 帧</td><td class="num">40</td><td class="num">1890</td><td class="num"><b>0.602</b></td><td class="num">0.520</td><td class="num">0.834</td><td class="num"><b>0.714</b></td></tr>
+        <tr><td>第 6 帧</td><td class="num">50</td><td class="num">1706</td><td class="num"><b>0.536</b></td><td class="num">0.462</td><td class="num">1.015</td><td class="num"><b>0.904</b></td></tr>
+        <tr><td>第 7 帧</td><td class="num">60</td><td class="num">1734</td><td class="num"><b>0.492</b></td><td class="num">0.410</td><td class="num">1.170</td><td class="num"><b>1.129</b></td></tr>
+        <tr><td>第 8 帧</td><td class="num">70</td><td class="num">1683</td><td class="num"><b>0.480</b></td><td class="num">0.377</td><td class="num">1.353</td><td class="num"><b>1.334</b></td></tr>
+        <tr><td>第 9 帧</td><td class="num">80</td><td class="num">1484</td><td class="num"><b>0.441</b></td><td class="num">0.337</td><td class="num"><b>1.448</b></td><td class="num">1.573</td></tr>
+        <tr class=gap><td>第 10 帧</td><td class="num">90</td><td class="num">1530</td><td class="num"><b>0.628</b></td><td class="num">0.569</td><td class="num">0.988</td><td class="num"><b>0.904</b></td></tr>
+        <tr><td>第 11 帧</td><td class="num">100</td><td class="num">1612</td><td class="num"><b>0.670</b></td><td class="num">0.508</td><td class="num"><b>0.833</b></td><td class="num">0.867</td></tr>
+        <tr><td>第 12 帧</td><td class="num">110</td><td class="num">1464</td><td class="num"><b>0.609</b></td><td class="num">0.459</td><td class="num"><b>0.972</b></td><td class="num">1.069</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="segments">
+  <div class="wrap">
+    <h2>每段结果</h2>
+    <p class="lead">avg_pts，蓝色为同一区间内较高的一方。</p>
+    <div class="ctl"><button id="theme">切换深浅色</button></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>段</th><th>相机</th><th class="num">query 点</th><th class="num">1–9 帧<br><small>dense</small></th><th class="num">1–9 帧<br><small>motion</small></th><th class="num">10–12 帧<br><small>dense</small></th><th class="num">10–12 帧<br><small>motion</small></th></tr></thead>
+      <tbody>
+        <tr><td class="mono">a2_s8_w0_cam1</td><td>静态</td><td class="num">746</td><td class="num win">0.501</td><td class="num">0.412</td><td class="num win">0.563</td><td class="num">0.300</td></tr>
+        <tr><td class="mono">a2_s10_w3_cam1</td><td>静态</td><td class="num">1135</td><td class="num win">0.706</td><td class="num">0.497</td><td class="num win">0.795</td><td class="num">0.646</td></tr>
+        <tr><td class="mono">a2_s11_w2_cam1</td><td>静态</td><td class="num">578</td><td class="num">0.414</td><td class="num win">0.467</td><td class="num">0.497</td><td class="num win">0.688</td></tr>
+        <tr><td class="mono">a2_s24_w3_cam1</td><td>静态</td><td class="num">918</td><td class="num win">0.690</td><td class="num">0.497</td><td class="num">0.427</td><td class="num win">0.483</td></tr>
+        <tr><td class="mono">a2_s25_w4_cam0</td><td>跟拍</td><td class="num">5438</td><td class="num">0.122</td><td class="num win">0.331</td><td class="num win">0.818</td><td class="num">0.423</td></tr>
+        <tr><td class="mono">a2_s26_w4_cam1</td><td>静态</td><td class="num">1092</td><td class="num">0.474</td><td class="num win">0.544</td><td class="num win">0.471</td><td class="num">0.182</td></tr>
+        <tr><td class="mono">a2_s26_w7_cam0</td><td>跟拍</td><td class="num">1674</td><td class="num">0.858</td><td class="num win">0.870</td><td class="num win">0.887</td><td class="num">0.806</td></tr>
+        <tr><td class="mono">a2_s27_w1_cam1</td><td>静态</td><td class="num">1270</td><td class="num win">0.341</td><td class="num">0.273</td><td class="num win">0.717</td><td class="num">0.402</td></tr>
+        <tr><td class="mono">a2_s28_w3_cam0</td><td>跟拍</td><td class="num">1298</td><td class="num win">0.390</td><td class="num">0.340</td><td class="num win">0.444</td><td class="num">0.313</td></tr>
+        <tr><td class="mono">a2_s30_w2_cam1</td><td>静态</td><td class="num">3620</td><td class="num win">0.536</td><td class="num">0.518</td><td class="num win">0.579</td><td class="num">0.315</td></tr>
+        <tr><td class="mono">a3_s11_w7_cam1</td><td>静态</td><td class="num">1328</td><td class="num">0.678</td><td class="num win">0.799</td><td class="num">0.739</td><td class="num win">0.775</td></tr>
+        <tr><td class="mono">a3_s12_w3_cam0</td><td>跟拍</td><td class="num">2522</td><td class="num win">0.658</td><td class="num">0.588</td><td class="num win">0.614</td><td class="num">0.521</td></tr>
+        <tr><td class="mono">a3_s12_w6_cam1</td><td>静态</td><td class="num">637</td><td class="num win">0.450</td><td class="num">0.373</td><td class="num win">0.557</td><td class="num">0.195</td></tr>
+        <tr><td class="mono">a3_s14_w0_cam1</td><td>静态</td><td class="num">1033</td><td class="num win">0.911</td><td class="num">0.873</td><td class="num win">0.927</td><td class="num">0.881</td></tr>
+        <tr><td class="mono">a3_s14_w4_cam1</td><td>静态</td><td class="num">3015</td><td class="num">0.470</td><td class="num win">0.593</td><td class="num win">0.541</td><td class="num">0.179</td></tr>
+        <tr><td class="mono">a3_s26_w0_cam0</td><td>跟拍</td><td class="num">4896</td><td class="num win">0.365</td><td class="num">0.305</td><td class="num win">0.780</td><td class="num">0.490</td></tr>
+        <tr><td class="mono">a3_s29_w1_cam1</td><td>静态</td><td class="num">419</td><td class="num">0.477</td><td class="num win">0.606</td><td class="num">0.660</td><td class="num win">0.675</td></tr>
+        <tr><td class="mono">a3_s33_w2_cam0</td><td>跟拍</td><td class="num">2148</td><td class="num win">0.780</td><td class="num">0.706</td><td class="num win">0.826</td><td class="num">0.523</td></tr>
+        <tr><td class="mono">fa_s10_w2_cam1</td><td>静态</td><td class="num">4118</td><td class="num">0.591</td><td class="num win">0.725</td><td class="num win">0.481</td><td class="num">0.128</td></tr>
+        <tr><td class="mono">fa_s10_w3_cam1</td><td>静态</td><td class="num">1117</td><td class="num">0.501</td><td class="num win">0.572</td><td class="num win">0.563</td><td class="num">0.374</td></tr>
+        <tr><td class="mono">fa_s10_w7_cam0</td><td>跟拍</td><td class="num">4040</td><td class="num">0.823</td><td class="num win">0.861</td><td class="num win">0.819</td><td class="num">0.792</td></tr>
+        <tr><td class="mono">fa_s12_w1_cam1</td><td>静态</td><td class="num">457</td><td class="num win">0.549</td><td class="num">0.409</td><td class="num">0.639</td><td class="num win">0.746</td></tr>
+        <tr><td class="mono">fa_s12_w6_cam0</td><td>跟拍</td><td class="num">1888</td><td class="num win">0.341</td><td class="num">0.272</td><td class="num win">0.531</td><td class="num">0.287</td></tr>
+        <tr><td class="mono">fa_s12_w6_cam1</td><td>静态</td><td class="num">430</td><td class="num win">0.322</td><td class="num">0.288</td><td class="num">0.451</td><td class="num win">0.595</td></tr>
+        <tr><td class="mono">fa_s23_w5_cam1</td><td>静态</td><td class="num">672</td><td class="num">0.566</td><td class="num win">0.673</td><td class="num">0.655</td><td class="num win">0.763</td></tr>
+        <tr><td class="mono">fa_s23_w6_cam0</td><td>跟拍</td><td class="num">2564</td><td class="num win">0.540</td><td class="num">0.451</td><td class="num win">0.372</td><td class="num">0.206</td></tr>
+        <tr><td class="mono">fa_s23_w6_cam1</td><td>静态</td><td class="num">872</td><td class="num">0.418</td><td class="num win">0.558</td><td class="num">0.377</td><td class="num win">0.497</td></tr>
+        <tr><td class="mono">fa_s26_w1_cam0</td><td>跟拍</td><td class="num">1590</td><td class="num">0.557</td><td class="num win">0.613</td><td class="num win">0.491</td><td class="num">0.260</td></tr>
+        <tr><td class="mono">fa_s26_w4_cam0</td><td>跟拍</td><td class="num">3890</td><td class="num">0.634</td><td class="num win">0.773</td><td class="num win">0.423</td><td class="num">0.194</td></tr>
+        <tr><td class="mono">fa_s26_w7_cam1</td><td>静态</td><td class="num">1694</td><td class="num">0.731</td><td class="num win">0.810</td><td class="num win">0.812</td><td class="num">0.810</td></tr>
+        <tr><td class="mono">fa_s30_w0_cam0</td><td>跟拍</td><td class="num">2682</td><td class="num">0.769</td><td class="num win">0.770</td><td class="num win">0.832</td><td class="num">0.769</td></tr>
+        <tr><td class="mono">fa_s32_w2_cam0</td><td>跟拍</td><td class="num">2069</td><td class="num">0.115</td><td class="num win">0.181</td><td class="num win">0.290</td><td class="num">0.206</td></tr>
+        <tr><td class="mono">fa_s32_w2_cam1</td><td>静态</td><td class="num">1793</td><td class="num">0.473</td><td class="num win">0.529</td><td class="num">0.207</td><td class="num win">0.471</td></tr>
+        <tr><td class="mono">fa_s32_w4_cam0</td><td>跟拍</td><td class="num">2898</td><td class="num">0.485</td><td class="num win">0.512</td><td class="num win">0.443</td><td class="num">0.288</td></tr>
+        <tr><td class="mono">fa_s32_w5_cam0</td><td>跟拍</td><td class="num">2430</td><td class="num">0.883</td><td class="num win">0.921</td><td class="num">0.902</td><td class="num win">0.930</td></tr>
+        <tr><td class="mono">fa_s32_w6_cam0</td><td>跟拍</td><td class="num">3551</td><td class="num">0.383</td><td class="num win">0.506</td><td class="num">0.299</td><td class="num win">0.446</td></tr>
+        <tr><td class="mono">fa_s33_w6_cam0</td><td>跟拍</td><td class="num">3207</td><td class="num win">0.256</td><td class="num">0.242</td><td class="num win">0.390</td><td class="num">0.203</td></tr>
+        <tr><td class="mono">fv_s7_w2_cam0</td><td>跟拍</td><td class="num">2999</td><td class="num">0.209</td><td class="num win">0.212</td><td class="num">0.526</td><td class="num win">0.590</td></tr>
+        <tr><td class="mono">fv_s8_w3_cam0</td><td>跟拍</td><td class="num">3712</td><td class="num">0.710</td><td class="num win">0.734</td><td class="num">0.582</td><td class="num win">0.613</td></tr>
+        <tr><td class="mono">fv_s9_w2_cam1</td><td>静态</td><td class="num">1046</td><td class="num">0.378</td><td class="num win">0.531</td><td class="num win">0.809</td><td class="num">0.540</td></tr>
+        <tr><td class="mono">fv_s9_w3_cam1</td><td>静态</td><td class="num">962</td><td class="num win">0.510</td><td class="num">0.489</td><td class="num">0.440</td><td class="num win">0.619</td></tr>
+        <tr><td class="mono">fv_s27_w1_cam1</td><td>静态</td><td class="num">928</td><td class="num">0.547</td><td class="num win">0.592</td><td class="num win">0.834</td><td class="num">0.544</td></tr>
+        <tr><td class="mono">fv_s28_w4_cam0</td><td>跟拍</td><td class="num">1605</td><td class="num win">0.339</td><td class="num">0.232</td><td class="num win">0.404</td><td class="num">0.177</td></tr>
+        <tr><td class="mono">fv_s34_w0_cam0</td><td>跟拍</td><td class="num">2822</td><td class="num win">0.521</td><td class="num">0.380</td><td class="num win">0.626</td><td class="num">0.459</td></tr>
+        <tr><td class="mono">fv_s35_w3_cam0</td><td>跟拍</td><td class="num">2766</td><td class="num win">0.248</td><td class="num">0.240</td><td class="num win">0.756</td><td class="num">0.432</td></tr>
+        <tr><td class="mono">fv_s35_w4_cam1</td><td>静态</td><td class="num">2353</td><td class="num">0.396</td><td class="num win">0.522</td><td class="num">0.216</td><td class="num win">0.250</td></tr>
+        <tr><td class="mono">nk_s23_w3_cam0</td><td>跟拍</td><td class="num">4330</td><td class="num win">0.635</td><td class="num">0.211</td><td class="num win">0.482</td><td class="num">0.380</td></tr>
+        <tr><td class="mono">nk_s24_w6_cam1</td><td>静态</td><td class="num">64</td><td class="num">0.750</td><td class="num win">0.864</td><td class="num">0.469</td><td class="num win">0.852</td></tr>
+        <tr><td class="mono">nk_s25_w3_cam0</td><td>跟拍</td><td class="num">1343</td><td class="num win">0.580</td><td class="num">0.562</td><td class="num win">0.405</td><td class="num">0.397</td></tr>
+        <tr><td class="mono">nk_s25_w4_cam0</td><td>跟拍</td><td class="num">1712</td><td class="num win">0.423</td><td class="num">0.416</td><td class="num">0.307</td><td class="num win">0.363</td></tr>
+        <tr><td class="mono">nk_s27_w3_cam0</td><td>跟拍</td><td class="num">1897</td><td class="num win">0.457</td><td class="num">0.255</td><td class="num win">0.804</td><td class="num">0.644</td></tr>
+        <tr><td class="mono">nk_s28_w0_cam0</td><td>跟拍</td><td class="num">2375</td><td class="num">0.863</td><td class="num win">0.883</td><td class="num win">0.852</td><td class="num">0.699</td></tr>
+        <tr><td class="mono">nq_s7_w1_cam0</td><td>跟拍</td><td class="num">3415</td><td class="num">0.440</td><td class="num win">0.510</td><td class="num">0.572</td><td class="num win">0.575</td></tr>
+        <tr><td class="mono">nq_s7_w1_cam1</td><td>静态</td><td class="num">20843</td><td class="num win">0.329</td><td class="num">0.222</td><td class="num">0.719</td><td class="num win">0.726</td></tr>
+        <tr><td class="mono">nq_s7_w3_cam0</td><td>跟拍</td><td class="num">1958</td><td class="num">0.695</td><td class="num win">0.760</td><td class="num">0.596</td><td class="num win">0.710</td></tr>
+        <tr><td class="mono">nq_s7_w3_cam1</td><td>静态</td><td class="num">2190</td><td class="num">0.557</td><td class="num win">0.760</td><td class="num win">0.758</td><td class="num">0.442</td></tr>
+        <tr><td class="mono">nq_s8_w0_cam0</td><td>跟拍</td><td class="num">1644</td><td class="num">0.650</td><td class="num win">0.714</td><td class="num">0.697</td><td class="num win">0.711</td></tr>
+        <tr><td class="mono">nq_s8_w3_cam0</td><td>跟拍</td><td class="num">1328</td><td class="num win">0.564</td><td class="num">0.136</td><td class="num win">0.649</td><td class="num">0.222</td></tr>
+        <tr><td class="mono">nq_s8_w4_cam1</td><td>静态</td><td class="num">508</td><td class="num">0.335</td><td class="num win">0.354</td><td class="num">0.421</td><td class="num win">0.611</td></tr>
+        <tr><td class="mono">nq_s8_w5_cam1</td><td>静态</td><td class="num">615</td><td class="num">0.681</td><td class="num win">0.708</td><td class="num">0.694</td><td class="num win">0.778</td></tr>
+        <tr><td class="mono">nq_s10_w7_cam1</td><td>静态</td><td class="num">279</td><td class="num">0.611</td><td class="num win">0.715</td><td class="num">0.695</td><td class="num win">0.818</td></tr>
+        <tr><td class="mono">nq_s23_w2_cam0</td><td>跟拍</td><td class="num">1829</td><td class="num win">0.319</td><td class="num">0.297</td><td class="num">0.435</td><td class="num win">0.473</td></tr>
+        <tr><td class="mono">nq_s23_w2_cam1</td><td>静态</td><td class="num">1046</td><td class="num">0.351</td><td class="num win">0.564</td><td class="num win">0.681</td><td class="num">0.497</td></tr>
+        <tr><td class="mono">nq_s26_w3_cam0</td><td>跟拍</td><td class="num">719</td><td class="num win">0.257</td><td class="num">0.182</td><td class="num">0.523</td><td class="num win">0.547</td></tr>
+        <tr><td class="mono">nq_s26_w6_cam0</td><td>跟拍</td><td class="num">1769</td><td class="num win">0.420</td><td class="num">0.230</td><td class="num win">0.488</td><td class="num">0.258</td></tr>
+        <tr><td class="mono">nq_s26_w7_cam1</td><td>静态</td><td class="num">1422</td><td class="num win">0.488</td><td class="num">0.433</td><td class="num win">0.690</td><td class="num">0.421</td></tr>
+        <tr><td class="mono">nq_s27_w5_cam0</td><td>跟拍</td><td class="num">2042</td><td class="num win">0.715</td><td class="num">0.597</td><td class="num win">0.745</td><td class="num">0.502</td></tr>
+        <tr><td class="mono">nq_s28_w5_cam0</td><td>跟拍</td><td class="num">2504</td><td class="num">0.528</td><td class="num win">0.694</td><td class="num">0.466</td><td class="num win">0.700</td></tr>
+        <tr><td class="mono">nq_s29_w7_cam0</td><td>跟拍</td><td class="num">3481</td><td class="num win">0.893</td><td class="num">0.882</td><td class="num">0.917</td><td class="num win">0.920</td></tr>
+        <tr><td class="mono">nq_s29_w7_cam1</td><td>静态</td><td class="num">1639</td><td class="num win">0.720</td><td class="num">0.694</td><td class="num win">0.857</td><td class="num">0.764</td></tr>
+        <tr><td class="mono">nq_s30_w2_cam1</td><td>静态</td><td class="num">637</td><td class="num win">0.490</td><td class="num">0.396</td><td class="num win">0.489</td><td class="num">0.453</td></tr>
+        <tr><td class="mono">nq_s31_w1_cam1</td><td>静态</td><td class="num">654</td><td class="num">0.370</td><td class="num win">0.481</td><td class="num win">0.689</td><td class="num">0.348</td></tr>
+        <tr><td class="mono">nq_s31_w5_cam0</td><td>跟拍</td><td class="num">2347</td><td class="num">0.768</td><td class="num win">0.793</td><td class="num win">0.836</td><td class="num">0.737</td></tr>
+        <tr><td class="mono">nq_s32_w3_cam0</td><td>跟拍</td><td class="num">3598</td><td class="num win">0.698</td><td class="num">0.562</td><td class="num win">0.775</td><td class="num">0.456</td></tr>
+        <tr><td class="mono">ru_s9_w1_cam0</td><td>跟拍</td><td class="num">7801</td><td class="num win">0.812</td><td class="num">0.722</td><td class="num win">0.698</td><td class="num">0.358</td></tr>
+        <tr><td class="mono">ruc3_s7_w0_cam0</td><td>跟拍</td><td class="num">8445</td><td class="num win">0.901</td><td class="num">0.850</td><td class="num">0.708</td><td class="num win">0.826</td></tr>
+        <tr><td class="mono">ruc3_s9_w1_cam0</td><td>跟拍</td><td class="num">7801</td><td class="num win">0.813</td><td class="num">0.728</td><td class="num win">0.693</td><td class="num">0.363</td></tr>
+        <tr><td class="mono">ruc3_s10_w0_cam0</td><td>跟拍</td><td class="num">10348</td><td class="num win">0.888</td><td class="num">0.856</td><td class="num win">0.915</td><td class="num">0.797</td></tr>
+        <tr><td class="mono">ruc5_s23_w0_cam1</td><td>静态</td><td class="num">3887</td><td class="num win">0.843</td><td class="num">0.836</td><td class="num win">0.840</td><td class="num">0.726</td></tr>
+        <tr><td class="mono">sf_s10_w5_cam1</td><td>静态</td><td class="num">1151</td><td class="num win">0.880</td><td class="num">0.808</td><td class="num win">0.737</td><td class="num">0.714</td></tr>
+        <tr><td class="mono">sf_s20_w0_cam0</td><td>跟拍</td><td class="num">7779</td><td class="num win">0.954</td><td class="num">0.915</td><td class="num win">0.722</td><td class="num">0.703</td></tr>
+        <tr><td class="mono">sfc3_s10_w5_cam1</td><td>静态</td><td class="num">1692</td><td class="num win">0.726</td><td class="num">0.716</td><td class="num">0.619</td><td class="num win">0.769</td></tr>
+        <tr><td class="mono">sfc3_s16_w2_cam1</td><td>静态</td><td class="num">2322</td><td class="num win">0.653</td><td class="num">0.570</td><td class="num win">0.707</td><td class="num">0.255</td></tr>
+        <tr><td class="mono">sfc3_s18_w2_cam1</td><td>静态</td><td class="num">3586</td><td class="num win">0.811</td><td class="num">0.748</td><td class="num win">0.897</td><td class="num">0.464</td></tr>
+        <tr><td class="mono">sfc5_s23_w1_cam1</td><td>静态</td><td class="num">2161</td><td class="num">0.595</td><td class="num win">0.682</td><td class="num win">0.792</td><td class="num">0.533</td></tr>
+        <tr><td class="mono">sfc5_s26_w3_cam1</td><td>静态</td><td class="num">1858</td><td class="num win">0.705</td><td class="num">0.646</td><td class="num win">0.807</td><td class="num">0.565</td></tr>
+        <tr><td class="mono">sfc5_s27_w0_cam1</td><td>静态</td><td class="num">1740</td><td class="num">0.835</td><td class="num win">0.862</td><td class="num win">0.756</td><td class="num">0.754</td></tr>
+        <tr><td class="mono">sfc5_s27_w3_cam1</td><td>静态</td><td class="num">5969</td><td class="num win">0.759</td><td class="num">0.673</td><td class="num win">0.820</td><td class="num">0.457</td></tr>
+        <tr><td class="mono">sfc5_s31_w3_cam0</td><td>跟拍</td><td class="num">8063</td><td class="num win">0.679</td><td class="num">0.669</td><td class="num win">0.626</td><td class="num">0.202</td></tr>
+        <tr><td class="mono">sfc5_s32_w2_cam0</td><td>跟拍</td><td class="num">8534</td><td class="num win">0.736</td><td class="num">0.641</td><td class="num win">0.595</td><td class="num">0.191</td></tr>
+        <tr><td class="mono">sfc5_s38_w1_cam0</td><td>跟拍</td><td class="num">7478</td><td class="num win">0.871</td><td class="num">0.758</td><td class="num win">0.834</td><td class="num">0.711</td></tr>
+        <tr><td class="mono">sfc5_s41_w0_cam0</td><td>跟拍</td><td class="num">10216</td><td class="num win">0.956</td><td class="num">0.952</td><td class="num">0.705</td><td class="num win">0.818</td></tr>
+        <tr><td class="mono">sfc5_s47_w1_cam1</td><td>静态</td><td class="num">2618</td><td class="num win">0.634</td><td class="num">0.634</td><td class="num win">0.794</td><td class="num">0.555</td></tr>
+        <tr><td class="mono">sfc5_s49_w1_cam0</td><td>跟拍</td><td class="num">7994</td><td class="num win">0.790</td><td class="num">0.725</td><td class="num win">0.925</td><td class="num">0.245</td></tr>
+        <tr><td class="mono">sfc5_s50_w0_cam1</td><td>静态</td><td class="num">6146</td><td class="num win">0.867</td><td class="num">0.789</td><td class="num win">0.862</td><td class="num">0.621</td></tr>
+        <tr><td class="mono">sfc5_s52_w1_cam1</td><td>静态</td><td class="num">4007</td><td class="num win">0.716</td><td class="num">0.642</td><td class="num win">0.830</td><td class="num">0.256</td></tr>
+        <tr><td class="mono">sfc5_s53_w0_cam0</td><td>跟拍</td><td class="num">6986</td><td class="num">0.945</td><td class="num win">0.970</td><td class="num">0.709</td><td class="num win">0.789</td></tr>
+        <tr><td class="mono">sfc5_s53_w0_cam1</td><td>静态</td><td class="num">1914</td><td class="num">0.798</td><td class="num win">0.865</td><td class="num">0.721</td><td class="num win">0.831</td></tr>
+        <tr><td class="mono">sfc5_s53_w2_cam1</td><td>静态</td><td class="num">3281</td><td class="num win">0.667</td><td class="num">0.473</td><td class="num win">0.821</td><td class="num">0.496</td></tr>
+        <tr><td class="mono">sfc5_s54_w6_cam1</td><td>静态</td><td class="num">3206</td><td class="num win">0.760</td><td class="num">0.693</td><td class="num win">0.790</td><td class="num">0.522</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    结果 <code>eval_results/dense_fg_f12/s4d_train/s4d_test100_s10/results.json</code>（<code>s4d_train/eval/eval_dense_fg_depth.py</code>）。生成于 2026-10-18。
+  </div>
+</footer>
+<script>
+(() => {
+  document.getElementById("theme").onclick = () => {
+    const r = document.documentElement; const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    const cur = r.dataset.theme || (dark ? "dark" : "light");
+    r.dataset.theme = cur === "dark" ? "light" : "dark";
+    try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+  };
+  try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+})();
+</script>
+</body>
+</html>
