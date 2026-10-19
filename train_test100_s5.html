@@ -149,6 +149,47 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <p class="note" style="margin-top:14px">成对比较（同一个点、同一个目标帧里两类路线都有）：按模型预测分，1377189 对里全可见那组 EPE 1.128 m vs 有不可见 1.957 m，全可见更准的占 67%；按真值分，645968 对里 2.157 vs 1.934 m，全可见更准的占 41%。原始链自己：到目标帧为止中间各跳都预测可见的点 EPE 0.543 m（2609036 个点·帧），有不可见的 1.106 m（3993010）；按真值分别是 0.665 m（2575287）和 1.023 m（4026759）。每个点每帧原始链恰好是最好路线的比例 58%（5 条随机均等应为 20%）。数据 <code>chain_paths_f24/s4d_train_np5/s4d_test100_s5/stats.json</code>。</p>
   </div>
 </section>
+<section id="reproj">
+  <div class="wrap">
+    <h2>用重投影 uv 和原 query uv 的相似度挑路线（s4d_train · num_paths=5）</h2>
+    <p class="lead">链里每一跳给模型的 uv 和局部 RGB 块都是第 0 帧 query 像素的，从不重投影。这里试着在 5 条路线之间事后挑：把每条路线在目标帧的预测 3D 点用相机投回目标帧得到 uv′，
+    按 uv′ 和原 query uv 的"相似度"取一条。两种相似：<b>像素距离</b> |uv′ − uv|（越近越像，等于"点没怎么动"的先验）；<b>外观</b>：目标帧在 uv′ 处的 9×9 局部块 vs 第 0 帧在 uv 处的局部块（512×288 分辨率），RGB L2 或灰度 NCC。
+    出画或在相机后面的路线记最差，同分取原始链。相机两套：<b>pred</b> = 同一 checkpoint camera_head 预测的相机（测试时真能用）；<b>GT</b> = Sim(3) 对齐后用真值相机（只作参考）。
+    口径同上一节（Sim(3) 用原始链拟合，第 1–23 帧，100 段平均）。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>取哪条</th><th>avg_pts</th><th>EPE (m)</th><th>段数 &gt; 原始链</th><th>挑中 oracle 的比例</th><th>挑中原始链的比例</th><th>判准–误差秩相关</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>原始链</td><td>0.534</td><td>0.852</td><td>—</td><td>58%</td><td>100%</td><td>—</td><td>num_paths=1</td></tr>
+        <tr><td>最好的路线（oracle）</td><td>0.579</td><td>0.769</td><td>100/100</td><td>100%</td><td>58%</td><td>—</td><td>每个点每帧取误差最小的那条（上界，用了真值）</td></tr>
+        <tr><td>按置信度挑</td><td>0.513</td><td>1.523</td><td>26/100</td><td>46%</td><td>49%</td><td>—</td><td>取目标帧置信度最高的那条（上一节同一行）</td></tr>
+        <tr><td>像素距离最近 · pred 相机</td><td>0.496</td><td>1.029</td><td>25/100</td><td>44%</td><td>44%</td><td>+0.36</td><td>重投影 uv′ 离 query 像素最近</td></tr>
+        <tr><td>局部块 L2 最小 · pred 相机</td><td>0.463</td><td>1.125</td><td>11/100</td><td>38%</td><td>46%</td><td>+0.13</td><td>目标帧 uv′ 处 9×9 RGB 块和第 0 帧 query 块的 L2 最小</td></tr>
+        <tr><td>局部块 NCC 最大 · pred 相机</td><td>0.454</td><td>1.142</td><td>11/100</td><td>36%</td><td>45%</td><td>+0.08</td><td>同上，灰度 NCC 最大</td></tr>
+        <tr style="opacity:.6"><td>像素距离最近 · GT 相机</td><td>0.512</td><td>0.897</td><td>29/100</td><td>51%</td><td>49%</td><td>+0.42</td><td>同 pred 行，换真值相机</td></tr>
+        <tr style="opacity:.6"><td>局部块 L2 最小 · GT 相机</td><td>0.473</td><td>1.055</td><td>12/100</td><td>42%</td><td>50%</td><td>+0.15</td><td>同 pred 行，换真值相机</td></tr>
+        <tr style="opacity:.6"><td>局部块 NCC 最大 · GT 相机</td><td>0.461</td><td>1.080</td><td>12/100</td><td>39%</td><td>48%</td><td>+0.10</td><td>同 pred 行，换真值相机</td></tr>
+      </tbody>
+    </table></div>
+    <h3 style="margin-top:18px">候选里去掉原始链：只在 4 条随机路线里挑</h3>
+    <p class="lead">实际要用这种判准的场景（只走随机路线、或以后用随机跳训的模型）候选里未必有原始链，所以再看只在随机路线之间挑能不能挑到最好的。Sim(3) 仍用原始链拟合。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>取哪条</th><th>avg_pts</th><th>EPE (m)</th><th>段数 &gt; 单条随机路线</th><th>挑中 oracle 的比例</th><th>判准–误差秩相关</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>单条随机路线</td><td>0.397</td><td>1.957</td><td>—</td><td>—</td><td>—</td><td>每条随机路线单独打分再平均</td></tr>
+        <tr><td>简单平均</td><td>0.392</td><td>1.897</td><td>37/100</td><td>—</td><td>—</td><td>随机路线简单平均</td></tr>
+        <tr><td>最好的路线（oracle）</td><td>0.500</td><td>1.244</td><td>100/100</td><td>100%</td><td>—</td><td>每个点每帧取误差最小的那条（上界，用了真值）</td></tr>
+        <tr><td>按置信度挑</td><td>0.451</td><td>1.859</td><td>90/100</td><td>46%</td><td>—</td><td>取目标帧置信度最高的那条（上一节同一行）</td></tr>
+        <tr><td>像素距离最近 · pred 相机</td><td>0.450</td><td>1.463</td><td>93/100</td><td>50%</td><td>+0.38</td><td>重投影 uv′ 离 query 像素最近</td></tr>
+        <tr><td>局部块 L2 最小 · pred 相机</td><td>0.421</td><td>1.626</td><td>90/100</td><td>40%</td><td>+0.11</td><td>目标帧 uv′ 处 9×9 RGB 块和第 0 帧 query 块的 L2 最小</td></tr>
+        <tr><td>局部块 NCC 最大 · pred 相机</td><td>0.416</td><td>1.641</td><td>91/100</td><td>38%</td><td>+0.07</td><td>同上，灰度 NCC 最大</td></tr>
+        <tr style="opacity:.6"><td>像素距离最近 · GT 相机</td><td>0.456</td><td>1.417</td><td>91/100</td><td>54%</td><td>+0.43</td><td>同 pred 行，换真值相机</td></tr>
+        <tr style="opacity:.6"><td>局部块 L2 最小 · GT 相机</td><td>0.424</td><td>1.666</td><td>91/100</td><td>40%</td><td>+0.13</td><td>同 pred 行，换真值相机</td></tr>
+        <tr style="opacity:.6"><td>局部块 NCC 最大 · GT 相机</td><td>0.418</td><td>1.676</td><td>96/100</td><td>39%</td><td>+0.08</td><td>同 pred 行，换真值相机</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:14px">秩相关：同一个点、同一个目标帧的 5 条路线里，判准排序和真实误差排序的 Spearman ρ（+1 = 判准越好误差越小），对所有组平均；随机挑中 oracle 的期望是 20%。重投影本身没问题：原始链用 pred 相机投回目标帧，和真值像素的中位误差 10.5 px（512×288，各段中位数的中位数）。数据 <code>chain_paths_f24/s4d_train_np5/s4d_test100_s5/reproj_stats.json</code>（<code>s4d_train/eval/analyze_chain_reproj.py</code>）。</p>
+  </div>
+</section>
 <section id="cards">
   <div class="wrap">
     <h2>每段结果</h2>
