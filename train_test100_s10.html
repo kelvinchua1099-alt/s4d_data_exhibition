@@ -88,6 +88,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
         <tr><td>s4d_train</td><td>checkpoint <code>train/epoch022-step00050000.pt</code>，纯推理：不给真值 query 3D、不给真值相机，链从模型自己对 query 像素的 3D 估计出发，下一跳位置用 camera_head 预测的相机投影；输入缩到 512×288。训练时相邻帧的源帧间隔是 15–20，这里是 10</td></tr>
         <tr><td>4RC / Point4D</td><td>同 <a href="point_track_models.html">四模型对比页</a>：4RC 输入 512 长边 patch 14，第 0 帧每像素逐帧 3D；Point4D 输入 518×294，<code>track_long_video</code> 单块</td></tr>
         <tr><td>打分</td><td>4RC 的 <code>track_eval.py</code>：整段所有点所有帧一次 Sim(3) RANSAC 对齐，avg_pts = 误差在 0.1 / 0.3 / 0.5 / 1.0 m 内的比例取平均；dyn 只算总运动 > 0.01 m 的点；seed 42</td></tr>
+        <tr><td>survival</td><td>PointOdyssey / PIPs++ <code>test_on_pod.py</code> 的 survival rate：3D 预测按上面同一组 Sim(3) 对齐后用 GT 相机投影成 2D，坐标归一到 256×256，一条轨迹从第 0 帧起"活着"，第一次在 GT 可见帧上偏离 &gt; 16 px 就算死、之后都算死（GT 被挡的帧不判死，投到相机后方算死），所有轨迹所有帧"活着"的比例 × 100（<code>compute_survival.py</code>）</td></tr>
         <tr><td>3D 查看器</td><td>白底，GT（黑）与各模型 Sim(3) 对齐后的轨迹，每段最多 300 条（等距抽样）、GT 相机视锥，坐标系为第 0 帧相机系，可按模型 / 轨迹着色、拖尾、逐帧。<b>深度点云</b>：s4d_train 同一次前向里 dense_head 的逐帧深度按 camera_head 预测的内参反投影、再按其预测的相机位姿搬到第 0 帧相机系（H/8 × W/8 网格，按输入图像着色），用和它轨迹相同的那组 Sim(3) 对齐到 GT，默认累积到当前帧（0..t 帧叠在一起），可切回只看当前帧、开关、调点大小。不含任何真值，和 <code>s4d_train/vis/visualization.py</code> 的 viser 查看器画的是同一份东西</td></tr>
       </tbody>
     </table></div>
@@ -97,16 +98,16 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
   <div class="wrap">
     <h2>汇总</h2>
     <div class="tablewrap"><table>
-      <thead><tr><th>模型</th><th>avg_pts<br><small>全部 100 段</small></th><th>avg_pts_dyn</th><th>avg_pts<br><small>跟拍 50 段</small></th><th>avg_pts<br><small>静态 50 段</small></th><th>EPE (m)<br><small>Sim(3) 后</small></th><th>单段最佳</th></tr></thead>
+      <thead><tr><th>模型</th><th>avg_pts<br><small>全部 100 段</small></th><th>avg_pts_dyn</th><th>avg_pts<br><small>跟拍 50 段</small></th><th>avg_pts<br><small>静态 50 段</small></th><th>EPE (m)<br><small>Sim(3) 后</small></th><th>survival (%)<br><small>PIPs++ 口径</small></th><th>单段最佳</th></tr></thead>
       <tbody>
-        <tr><td>s4d_train</td><td><b>0.514</b></td><td><b>0.515</b></td><td><b>0.486</b></td><td><b>0.541</b></td><td><b>1.079</b></td><td>74</td></tr>
-        <tr><td>4RC</td><td>0.312</td><td>0.317</td><td>0.242</td><td>0.383</td><td>2.902</td><td>7</td></tr>
-        <tr><td>Point4D</td><td>0.381</td><td>0.376</td><td>0.358</td><td>0.403</td><td>2.412</td><td>19</td></tr>
-        <tr style="opacity:.6"><td>s4d_train · num_paths=10（同一 checkpoint，链式追踪 10 条路线平均）</td><td>0.334</td><td>0.333</td><td>0.242</td><td>0.425</td><td>2.869</td><td>—</td></tr>
-        <tr style="opacity:.6"><td>s4d_train · 上一版 checkpoint（step 32000）</td><td>0.405</td><td>0.397</td><td>0.417</td><td>0.394</td><td>1.852</td><td>—</td></tr>
+        <tr><td>s4d_train</td><td><b>0.514</b></td><td><b>0.515</b></td><td><b>0.486</b></td><td><b>0.541</b></td><td><b>1.079</b></td><td><b>60.8</b></td><td>74</td></tr>
+        <tr><td>4RC</td><td>0.312</td><td>0.317</td><td>0.242</td><td>0.383</td><td>2.902</td><td>35.7</td><td>7</td></tr>
+        <tr><td>Point4D</td><td>0.381</td><td>0.376</td><td>0.358</td><td>0.403</td><td>2.412</td><td>40.6</td><td>19</td></tr>
+        <tr style="opacity:.6"><td>s4d_train · num_paths=10（同一 checkpoint，链式追踪 10 条路线平均）</td><td>0.334</td><td>0.333</td><td>0.242</td><td>0.425</td><td>2.869</td><td>43.6</td><td>—</td></tr>
+        <tr style="opacity:.6"><td>s4d_train · 上一版 checkpoint（step 32000）</td><td>0.405</td><td>0.397</td><td>0.417</td><td>0.394</td><td>1.852</td><td>48.3</td><td>—</td></tr>
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:14px">avg_pts 阈值是固定米制、按整段对齐后算的，只在本页内比较。EPE 来自各模型评测输出的汇总文件（全部段平均）。灰色行只作对照，不参与加粗与单段最佳：num_paths=10 是同一 checkpoint 推理时每个目标帧再走 9 条随机单调路线 0→…→t 取平均；step 32000 是 s4d_train 上一版 checkpoint 在同一份数据上的结果。</p>
+    <p class="note" style="margin-top:14px">avg_pts 阈值是固定米制、按整段对齐后算的，只在本页内比较。EPE 来自各模型评测输出的汇总文件（全部段平均）。survival 是 PointOdyssey 的 2D 存活率（见约定），越高越好。灰色行只作对照，不参与加粗与单段最佳：num_paths=10 是同一 checkpoint 推理时每个目标帧再走 9 条随机单调路线 0→…→t 取平均；step 32000 是 s4d_train 上一版 checkpoint 在同一份数据上的结果。</p>
   </div>
 </section>
 <section id="cards">
@@ -1320,7 +1321,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 </section>
 <footer>
   <div class="wrap">
-    数据 <code>4RC/data/s4d_test100_s10</code>（manifest.json 记录来源段），结果 <code>eval_results/point_track_f12/&lt;model&gt;/s4d_test100_s10</code>。生成于 2026-10-18。
+    数据 <code>4RC/data/s4d_test100_s10</code>（manifest.json 记录来源段），结果 <code>eval_results/point_track_f12/&lt;model&gt;/s4d_test100_s10</code>。生成于 2026-10-19。
   </div>
 </footer>
 <!-- 3D 查看器：由 build_point_track_models_page.py 注入 point_track_models.html（media/point_track_3d），由 build_train_page.py 注入 train.html（media/train_3d，12 帧）。
@@ -1375,8 +1376,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const V3D = (() => {
-  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c };
-  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train" };
+  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c, s4d_train_np5: 0xb06cff };
+  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train", s4d_train_np5: "s4d_train np5" };
   const FAR = 1e5, el = id => document.getElementById(id);
   let renderer, scene, camera, controls, grid, frustum, camPath, cloud, raf = null;
   let D = null, frame = 0, playing = true, lastTick = 0, followCam = false;
