@@ -71,7 +71,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <div class="stats">
       <div class="stat"><b>100</b><span>测试段（92 个世界，跟拍 50 / 静态 50）</span></div>
       <div class="stat"><b>12</b><span>帧 / 段（源帧 0, 1, …, 11）</span></div>
-      <div class="stat"><b>36</b><span>History head · step 24000 单段最佳的段数</span></div>
+      <div class="stat"><b>46</b><span>History head · step 24000 单段最佳的段数</span></div>
       <div class="stat"><b>3001</b><span>平均 query 点数 / 段</span></div>
     </div>
   </div>
@@ -100,9 +100,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <div class="tablewrap"><table>
       <thead><tr><th>模型</th><th>avg_pts<br><small>全部 100 段</small></th><th>avg_pts_dyn</th><th>avg_pts<br><small>跟拍 50 段</small></th><th>avg_pts<br><small>静态 50 段</small></th><th>EPE (m)<br><small>Sim(3) 后</small></th><th>survival (%)<br><small>PIPs++ 口径</small></th><th>单段最佳</th></tr></thead>
       <tbody>
-        <tr><td>History head · step 24000</td><td>0.730</td><td>0.738</td><td>0.801</td><td><b>0.659</b></td><td><b>0.487</b></td><td>85.0</td><td>36</td></tr>
+        <tr><td>History head · step 24000</td><td><b>0.737</b></td><td><b>0.751</b></td><td>0.809</td><td><b>0.665</b></td><td><b>0.404</b></td><td>87.5</td><td>46</td></tr>
         <tr><td>4RC</td><td>0.606</td><td>0.619</td><td>0.674</td><td>0.539</td><td>1.097</td><td>74.4</td><td>7</td></tr>
-        <tr><td>Point4D head · step 24000</td><td><b>0.734</b></td><td><b>0.739</b></td><td><b>0.818</b></td><td>0.650</td><td>0.742</td><td><b>89.7</b></td><td>57</td></tr>
+        <tr><td>Point4D head · step 24000</td><td>0.734</td><td>0.739</td><td><b>0.818</b></td><td>0.650</td><td>0.742</td><td><b>89.7</b></td><td>47</td></tr>
         <tr style="opacity:.6"><td>s4d_train · step 24000（主 run 同等步数，原 motion_head）</td><td>0.642</td><td>0.651</td><td>0.682</td><td>0.601</td><td>0.542</td><td>80.8</td><td>—</td></tr>
         <tr style="opacity:.6"><td>s4d_train · step 44000（上一页主行）</td><td>0.722</td><td>0.719</td><td>0.768</td><td>0.676</td><td>0.397</td><td>88.0</td><td>—</td></tr>
         <tr style="opacity:.6"><td>Point4D · 原版公开权重（minsikj/point4d）</td><td>0.631</td><td>0.645</td><td>0.720</td><td>0.541</td><td>1.072</td><td>78.6</td><td>—</td></tr>
@@ -123,7 +123,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s10_w3_cam1">3D</button></h3>
           <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1135 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.757</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.769</span></div>
             <div><span>4RC</span><span>0.444</span></div>
             <div><span>Point4D head · step 24000</span><span>0.720</span></div>
           </div>
@@ -135,9 +135,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s11_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s11_w2_cam1">3D</button></h3>
           <div class="map">A2_S11_ROCKETBOX_H1M2/WORLD_00000002 · 578 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.717</span></div>
+            <div><span>History head · step 24000</span><span>0.521</span></div>
             <div><span>4RC</span><span>0.503</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.677</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.677</span></div>
           </div>
         </div>
       </div>
@@ -147,9 +147,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s24_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s24_w3_cam1">3D</button></h3>
           <div class="map">A2_S24_ROCKETBOX_H1M2/WORLD_00000003 · 918 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.821</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.826</span></div>
             <div><span>4RC</span><span>0.211</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.822</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.822</span></div>
           </div>
         </div>
       </div>
@@ -159,9 +159,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s25_w4_cam0">3D</button></h3>
           <div class="map">A2_S25_ROCKETBOX_H1M2/WORLD_00000004 · 5438 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.638</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.744</span></div>
             <div><span>4RC</span><span>0.455</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.710</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.710</span></div>
           </div>
         </div>
       </div>
@@ -171,7 +171,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s26_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s26_w4_cam1">3D</button></h3>
           <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000004 · 1092 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.622</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.587</span></div>
             <div><span>4RC</span><span>0.392</span></div>
             <div><span>Point4D head · step 24000</span><span>0.465</span></div>
           </div>
@@ -183,7 +183,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s26_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s26_w7_cam0">3D</button></h3>
           <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1674 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.885</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.857</span></div>
             <div><span>4RC</span><span>0.740</span></div>
             <div><span>Point4D head · step 24000</span><span>0.824</span></div>
           </div>
@@ -195,7 +195,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s27_w1_cam1">3D</button></h3>
           <div class="map">A2_S27_ROCKETBOX_H1M2/WORLD_00000001 · 1270 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.272</span></div>
+            <div><span>History head · step 24000</span><span>0.314</span></div>
             <div><span>4RC</span><span>0.143</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.358</span></div>
           </div>
@@ -207,7 +207,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s28_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s28_w3_cam0">3D</button></h3>
           <div class="map">A2_S28_ROCKETBOX_H1M2/WORLD_00000003 · 1298 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.835</span></div>
+            <div><span>History head · step 24000</span><span>0.838</span></div>
             <div><span>4RC</span><span>0.607</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.875</span></div>
           </div>
@@ -219,7 +219,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s30_w2_cam1">3D</button></h3>
           <div class="map">A2_S30_ROCKETBOX_H1M2/WORLD_00000002 · 3620 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.499</span></div>
+            <div><span>History head · step 24000</span><span>0.580</span></div>
             <div><span>4RC</span><span>0.482</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.594</span></div>
           </div>
@@ -231,9 +231,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s8_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s8_w0_cam1">3D</button></h3>
           <div class="map">A2_S8_ROCKETBOX_H1M2/WORLD_00000000 · 746 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.572</span></div>
+            <div><span>History head · step 24000</span><span>0.444</span></div>
             <div><span>4RC</span><span>0.246</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.476</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.476</span></div>
           </div>
         </div>
       </div>
@@ -243,7 +243,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s11_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s11_w7_cam1">3D</button></h3>
           <div class="map">A3_S11_ROCKETBOX_H1M2/WORLD_00000007 · 1328 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.525</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.546</span></div>
             <div><span>4RC</span><span>0.497</span></div>
             <div><span>Point4D head · step 24000</span><span>0.482</span></div>
           </div>
@@ -255,7 +255,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s12_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s12_w3_cam0">3D</button></h3>
           <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000003 · 2522 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.907</span></div>
+            <div><span>History head · step 24000</span><span>0.896</span></div>
             <div><span>4RC</span><span>0.822</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.910</span></div>
           </div>
@@ -267,8 +267,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s12_w6_cam1">3D</button></h3>
           <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000006 · 637 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.195</span></div>
-            <div><span>4RC</span><span class=best>0.227</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.519</span></div>
+            <div><span>4RC</span><span>0.227</span></div>
             <div><span>Point4D head · step 24000</span><span>0.208</span></div>
           </div>
         </div>
@@ -279,8 +279,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s14_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w0_cam1">3D</button></h3>
           <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000000 · 1033 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.782</span></div>
-            <div><span>4RC</span><span class=best>0.824</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.857</span></div>
+            <div><span>4RC</span><span>0.824</span></div>
             <div><span>Point4D head · step 24000</span><span>0.582</span></div>
           </div>
         </div>
@@ -291,9 +291,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s14_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w4_cam1">3D</button></h3>
           <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000004 · 3015 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.555</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.674</span></div>
             <div><span>4RC</span><span>0.420</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.598</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.598</span></div>
           </div>
         </div>
       </div>
@@ -303,7 +303,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s26_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s26_w0_cam0">3D</button></h3>
           <div class="map">A3_S26_ROCKETBOX_H1M2/WORLD_00000000 · 4896 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.868</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.858</span></div>
             <div><span>4RC</span><span>0.828</span></div>
             <div><span>Point4D head · step 24000</span><span>0.846</span></div>
           </div>
@@ -315,9 +315,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s29_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s29_w1_cam1">3D</button></h3>
           <div class="map">A3_S29_ROCKETBOX_H1M2/WORLD_00000001 · 419 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.554</span></div>
+            <div><span>History head · step 24000</span><span>0.521</span></div>
             <div><span>4RC</span><span>0.514</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.547</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.547</span></div>
           </div>
         </div>
       </div>
@@ -339,7 +339,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s10_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w2_cam1">3D</button></h3>
           <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000002 · 4118 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.493</span></div>
+            <div><span>History head · step 24000</span><span>0.592</span></div>
             <div><span>4RC</span><span>0.628</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.713</span></div>
           </div>
@@ -351,7 +351,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w3_cam1">3D</button></h3>
           <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1117 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.587</span></div>
+            <div><span>History head · step 24000</span><span>0.574</span></div>
             <div><span>4RC</span><span>0.394</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.596</span></div>
           </div>
@@ -363,7 +363,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s10_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s10_w7_cam0">3D</button></h3>
           <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000007 · 4040 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.819</span></div>
+            <div><span>History head · step 24000</span><span>0.854</span></div>
             <div><span>4RC</span><span class=best>0.879</span></div>
             <div><span>Point4D head · step 24000</span><span>0.839</span></div>
           </div>
@@ -375,7 +375,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s12_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w1_cam1">3D</button></h3>
           <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000001 · 457 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.679</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.730</span></div>
             <div><span>4RC</span><span>0.453</span></div>
             <div><span>Point4D head · step 24000</span><span>0.462</span></div>
           </div>
@@ -387,9 +387,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s12_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s12_w6_cam0">3D</button></h3>
           <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 1888 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.761</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.827</span></div>
             <div><span>4RC</span><span>0.572</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.790</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.790</span></div>
           </div>
         </div>
       </div>
@@ -399,7 +399,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w6_cam1">3D</button></h3>
           <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 430 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.605</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.565</span></div>
             <div><span>4RC</span><span>0.076</span></div>
             <div><span>Point4D head · step 24000</span><span>0.093</span></div>
           </div>
@@ -411,9 +411,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s23_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w5_cam1">3D</button></h3>
           <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000005 · 672 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.589</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.761</span></div>
             <div><span>4RC</span><span>0.327</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.617</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.617</span></div>
           </div>
         </div>
       </div>
@@ -423,7 +423,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s23_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s23_w6_cam0">3D</button></h3>
           <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 2564 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.687</span></div>
+            <div><span>History head · step 24000</span><span>0.618</span></div>
             <div><span>4RC</span><span>0.595</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.690</span></div>
           </div>
@@ -435,7 +435,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s23_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w6_cam1">3D</button></h3>
           <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 872 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.219</span></div>
+            <div><span>History head · step 24000</span><span>0.229</span></div>
             <div><span>4RC</span><span>0.258</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.343</span></div>
           </div>
@@ -447,9 +447,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s26_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w1_cam0">3D</button></h3>
           <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000001 · 1590 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.893</span></div>
+            <div><span>History head · step 24000</span><span>0.881</span></div>
             <div><span>4RC</span><span>0.723</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.883</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.883</span></div>
           </div>
         </div>
       </div>
@@ -459,7 +459,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s26_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w4_cam0">3D</button></h3>
           <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000004 · 3890 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.766</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.775</span></div>
             <div><span>4RC</span><span>0.677</span></div>
             <div><span>Point4D head · step 24000</span><span>0.640</span></div>
           </div>
@@ -471,7 +471,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s26_w7_cam1">3D</button></h3>
           <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1694 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.640</span></div>
+            <div><span>History head · step 24000</span><span>0.642</span></div>
             <div><span>4RC</span><span>0.548</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.700</span></div>
           </div>
@@ -483,7 +483,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s30_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s30_w0_cam0">3D</button></h3>
           <div class="map">FA_S30_ROCKETBOX_H1M2/WORLD_00000000 · 2682 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.599</span></div>
+            <div><span>History head · step 24000</span><span>0.411</span></div>
             <div><span>4RC</span><span class=best>0.749</span></div>
             <div><span>Point4D head · step 24000</span><span>0.708</span></div>
           </div>
@@ -495,9 +495,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w2_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 2069 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.664</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.740</span></div>
             <div><span>4RC</span><span>0.587</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.721</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.721</span></div>
           </div>
         </div>
       </div>
@@ -507,7 +507,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s32_w2_cam1">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 1793 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.685</span></div>
+            <div><span>History head · step 24000</span><span>0.583</span></div>
             <div><span>4RC</span><span>0.611</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.695</span></div>
           </div>
@@ -519,9 +519,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w4_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000004 · 2898 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.896</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.913</span></div>
             <div><span>4RC</span><span>0.710</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.909</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.909</span></div>
           </div>
         </div>
       </div>
@@ -531,7 +531,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w5_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000005 · 2430 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.931</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.951</span></div>
             <div><span>4RC</span><span>0.883</span></div>
             <div><span>Point4D head · step 24000</span><span>0.904</span></div>
           </div>
@@ -543,9 +543,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w6_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000006 · 3551 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.733</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.811</span></div>
             <div><span>4RC</span><span>0.316</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.787</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.787</span></div>
           </div>
         </div>
       </div>
@@ -555,7 +555,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s33_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s33_w6_cam0">3D</button></h3>
           <div class="map">FA_S33_ROCKETBOX_H1M2/WORLD_00000006 · 3207 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.702</span></div>
+            <div><span>History head · step 24000</span><span>0.708</span></div>
             <div><span>4RC</span><span>0.705</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.744</span></div>
           </div>
@@ -567,7 +567,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s27_w1_cam1">3D</button></h3>
           <div class="map">FV_S27_ROCKETBOX_H1M2/WORLD_00000001 · 928 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.762</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.714</span></div>
             <div><span>4RC</span><span>0.449</span></div>
             <div><span>Point4D head · step 24000</span><span>0.548</span></div>
           </div>
@@ -579,9 +579,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s28_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s28_w4_cam0">3D</button></h3>
           <div class="map">FV_S28_ROCKETBOX_H1M2/WORLD_00000004 · 1605 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.659</span></div>
+            <div><span>History head · step 24000</span><span>0.593</span></div>
             <div><span>4RC</span><span>0.505</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.609</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.609</span></div>
           </div>
         </div>
       </div>
@@ -591,7 +591,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s34_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s34_w0_cam0">3D</button></h3>
           <div class="map">FV_S34_ROCKETBOX_H1M2/WORLD_00000000 · 2822 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.395</span></div>
+            <div><span>History head · step 24000</span><span>0.595</span></div>
             <div><span>4RC</span><span>0.572</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.693</span></div>
           </div>
@@ -603,9 +603,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s35_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s35_w3_cam0">3D</button></h3>
           <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000003 · 2766 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.737</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.773</span></div>
             <div><span>4RC</span><span>0.687</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.772</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.772</span></div>
           </div>
         </div>
       </div>
@@ -615,7 +615,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s35_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s35_w4_cam1">3D</button></h3>
           <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000004 · 2353 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.689</span></div>
+            <div><span>History head · step 24000</span><span>0.707</span></div>
             <div><span>4RC</span><span>0.561</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.731</span></div>
           </div>
@@ -627,7 +627,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s7_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s7_w2_cam0">3D</button></h3>
           <div class="map">FV_S7_ROCKETBOX_H1M2/WORLD_00000002 · 2999 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.704</span></div>
+            <div><span>History head · step 24000</span><span>0.609</span></div>
             <div><span>4RC</span><span>0.251</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.794</span></div>
           </div>
@@ -639,7 +639,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s8_w3_cam0">3D</button></h3>
           <div class="map">FV_S8_ROCKETBOX_H1M2/WORLD_00000003 · 3712 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.747</span></div>
+            <div><span>History head · step 24000</span><span>0.796</span></div>
             <div><span>4RC</span><span>0.613</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.815</span></div>
           </div>
@@ -651,7 +651,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s9_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w2_cam1">3D</button></h3>
           <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.369</span></div>
+            <div><span>History head · step 24000</span><span>0.493</span></div>
             <div><span>4RC</span><span>0.407</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.660</span></div>
           </div>
@@ -663,8 +663,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s9_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w3_cam1">3D</button></h3>
           <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000003 · 962 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.524</span></div>
-            <div><span>4RC</span><span>0.432</span></div>
+            <div><span>History head · step 24000</span><span>0.412</span></div>
+            <div><span>4RC</span><span class=best>0.432</span></div>
             <div><span>Point4D head · step 24000</span><span>0.351</span></div>
           </div>
         </div>
@@ -675,7 +675,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s23_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s23_w3_cam0">3D</button></h3>
           <div class="map">NK_S23_ROCKETBOX_H1M2/WORLD_00000003 · 4330 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.887</span></div>
+            <div><span>History head · step 24000</span><span>0.873</span></div>
             <div><span>4RC</span><span>0.635</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.913</span></div>
           </div>
@@ -687,7 +687,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s24_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="nk_s24_w6_cam1">3D</button></h3>
           <div class="map">NK_S24_ROCKETBOX_H1M2/WORLD_00000006 · 64 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.830</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.873</span></div>
             <div><span>4RC</span><span>0.653</span></div>
             <div><span>Point4D head · step 24000</span><span>0.732</span></div>
           </div>
@@ -699,7 +699,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s25_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w3_cam0">3D</button></h3>
           <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000003 · 1343 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.778</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.783</span></div>
             <div><span>4RC</span><span>0.650</span></div>
             <div><span>Point4D head · step 24000</span><span>0.760</span></div>
           </div>
@@ -711,7 +711,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w4_cam0">3D</button></h3>
           <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000004 · 1712 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.732</span></div>
+            <div><span>History head · step 24000</span><span>0.766</span></div>
             <div><span>4RC</span><span>0.773</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.783</span></div>
           </div>
@@ -723,7 +723,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s27_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s27_w3_cam0">3D</button></h3>
           <div class="map">NK_S27_ROCKETBOX_H1M2/WORLD_00000003 · 1897 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.740</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.743</span></div>
             <div><span>4RC</span><span>0.546</span></div>
             <div><span>Point4D head · step 24000</span><span>0.719</span></div>
           </div>
@@ -735,7 +735,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s28_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s28_w0_cam0">3D</button></h3>
           <div class="map">NK_S28_ROCKETBOX_H1M2/WORLD_00000000 · 2375 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.954</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.947</span></div>
             <div><span>4RC</span><span>0.908</span></div>
             <div><span>Point4D head · step 24000</span><span>0.916</span></div>
           </div>
@@ -747,8 +747,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s10_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s10_w7_cam1">3D</button></h3>
           <div class="map">NQ_S10_ROCKETBOX_H1M2/WORLD_00000007 · 279 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.653</span></div>
-            <div><span>4RC</span><span>0.623</span></div>
+            <div><span>History head · step 24000</span><span>0.559</span></div>
+            <div><span>4RC</span><span class=best>0.623</span></div>
             <div><span>Point4D head · step 24000</span><span>0.506</span></div>
           </div>
         </div>
@@ -759,9 +759,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s23_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s23_w2_cam0">3D</button></h3>
           <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1829 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.859</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.882</span></div>
             <div><span>4RC</span><span>0.483</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.877</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.877</span></div>
           </div>
         </div>
       </div>
@@ -771,9 +771,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s23_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s23_w2_cam1">3D</button></h3>
           <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.664</span></div>
+            <div><span>History head · step 24000</span><span>0.507</span></div>
             <div><span>4RC</span><span>0.604</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.636</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.636</span></div>
           </div>
         </div>
       </div>
@@ -783,7 +783,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s26_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w3_cam0">3D</button></h3>
           <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000003 · 719 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.702</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.696</span></div>
             <div><span>4RC</span><span>0.372</span></div>
             <div><span>Point4D head · step 24000</span><span>0.455</span></div>
           </div>
@@ -795,9 +795,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s26_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w6_cam0">3D</button></h3>
           <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000006 · 1769 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.889</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.913</span></div>
             <div><span>4RC</span><span>0.608</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.891</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.891</span></div>
           </div>
         </div>
       </div>
@@ -807,9 +807,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s26_w7_cam1">3D</button></h3>
           <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1422 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.426</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.531</span></div>
             <div><span>4RC</span><span>0.480</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.523</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.523</span></div>
           </div>
         </div>
       </div>
@@ -819,7 +819,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s27_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s27_w5_cam0">3D</button></h3>
           <div class="map">NQ_S27_ROCKETBOX_H1M2/WORLD_00000005 · 2042 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.669</span></div>
+            <div><span>History head · step 24000</span><span>0.663</span></div>
             <div><span>4RC</span><span>0.631</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.766</span></div>
           </div>
@@ -831,7 +831,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s28_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s28_w5_cam0">3D</button></h3>
           <div class="map">NQ_S28_ROCKETBOX_H1M2/WORLD_00000005 · 2504 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.762</span></div>
+            <div><span>History head · step 24000</span><span>0.816</span></div>
             <div><span>4RC</span><span>0.573</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.817</span></div>
           </div>
@@ -855,9 +855,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s29_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s29_w7_cam1">3D</button></h3>
           <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 1639 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.872</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.883</span></div>
             <div><span>4RC</span><span>0.716</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.873</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.873</span></div>
           </div>
         </div>
       </div>
@@ -867,7 +867,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s30_w2_cam1">3D</button></h3>
           <div class="map">NQ_S30_ROCKETBOX_H1M2/WORLD_00000002 · 637 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.625</span></div>
+            <div><span>History head · step 24000</span><span>0.639</span></div>
             <div><span>4RC</span><span>0.646</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.664</span></div>
           </div>
@@ -879,7 +879,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s31_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s31_w1_cam1">3D</button></h3>
           <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000001 · 654 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.328</span></div>
+            <div><span>History head · step 24000</span><span>0.381</span></div>
             <div><span>4RC</span><span class=best>0.448</span></div>
             <div><span>Point4D head · step 24000</span><span>0.347</span></div>
           </div>
@@ -891,7 +891,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s31_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s31_w5_cam0">3D</button></h3>
           <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000005 · 2347 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.679</span></div>
+            <div><span>History head · step 24000</span><span>0.741</span></div>
             <div><span>4RC</span><span>0.570</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.770</span></div>
           </div>
@@ -903,7 +903,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s32_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s32_w3_cam0">3D</button></h3>
           <div class="map">NQ_S32_ROCKETBOX_H1M2/WORLD_00000003 · 3598 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.801</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.800</span></div>
             <div><span>4RC</span><span>0.700</span></div>
             <div><span>Point4D head · step 24000</span><span>0.798</span></div>
           </div>
@@ -915,9 +915,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w1_cam0">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 3415 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.616</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.687</span></div>
             <div><span>4RC</span><span>0.317</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.680</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.680</span></div>
           </div>
         </div>
       </div>
@@ -927,7 +927,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w1_cam1">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 20843 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.894</span></div>
+            <div><span>History head · step 24000</span><span>0.808</span></div>
             <div><span>4RC</span><span>0.696</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.936</span></div>
           </div>
@@ -939,9 +939,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w3_cam0">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 1958 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.793</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.844</span></div>
             <div><span>4RC</span><span>0.394</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.837</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.837</span></div>
           </div>
         </div>
       </div>
@@ -951,7 +951,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w3_cam1">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 2190 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.643</span></div>
+            <div><span>History head · step 24000</span><span>0.564</span></div>
             <div><span>4RC</span><span class=best>0.711</span></div>
             <div><span>Point4D head · step 24000</span><span>0.693</span></div>
           </div>
@@ -963,7 +963,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w0_cam0">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000000 · 1644 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.724</span></div>
+            <div><span>History head · step 24000</span><span>0.674</span></div>
             <div><span>4RC</span><span>0.741</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.818</span></div>
           </div>
@@ -975,7 +975,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w3_cam0">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000003 · 1328 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.682</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.687</span></div>
             <div><span>4RC</span><span>0.400</span></div>
             <div><span>Point4D head · step 24000</span><span>0.646</span></div>
           </div>
@@ -987,9 +987,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w4_cam1">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000004 · 508 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.242</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.541</span></div>
             <div><span>4RC</span><span>0.296</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.305</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.305</span></div>
           </div>
         </div>
       </div>
@@ -999,7 +999,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w5_cam1">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000005 · 615 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.792</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.751</span></div>
             <div><span>4RC</span><span>0.633</span></div>
             <div><span>Point4D head · step 24000</span><span>0.662</span></div>
           </div>
@@ -1011,7 +1011,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ru_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ru_s9_w1_cam0">3D</button></h3>
           <div class="map">RU_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.943</span></div>
+            <div><span>History head · step 24000</span><span>0.924</span></div>
             <div><span>4RC</span><span>0.936</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.966</span></div>
           </div>
@@ -1023,9 +1023,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc3_s10_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s10_w0_cam0">3D</button></h3>
           <div class="map">RUC3_S10_ROCKETBOX_H1M2/WORLD_00000000 · 10348 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.961</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.972</span></div>
             <div><span>4RC</span><span>0.944</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.970</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.970</span></div>
           </div>
         </div>
       </div>
@@ -1035,7 +1035,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc3_s7_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s7_w0_cam0">3D</button></h3>
           <div class="map">RUC3_S7_ROCKETBOX_H1M2/WORLD_00000000 · 8445 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.987</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.990</span></div>
             <div><span>4RC</span><span>0.974</span></div>
             <div><span>Point4D head · step 24000</span><span>0.977</span></div>
           </div>
@@ -1047,7 +1047,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc3_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s9_w1_cam0">3D</button></h3>
           <div class="map">RUC3_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.943</span></div>
+            <div><span>History head · step 24000</span><span>0.927</span></div>
             <div><span>4RC</span><span>0.935</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.968</span></div>
           </div>
@@ -1059,7 +1059,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc5_s23_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="ruc5_s23_w0_cam1">3D</button></h3>
           <div class="map">RUC5_S23_ROCKETBOX_H1M2/WORLD_00000000 · 3887 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.956</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.960</span></div>
             <div><span>4RC</span><span>0.914</span></div>
             <div><span>Point4D head · step 24000</span><span>0.949</span></div>
           </div>
@@ -1071,7 +1071,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sf_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sf_s10_w5_cam1">3D</button></h3>
           <div class="map">SF_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1151 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.875</span></div>
+            <div><span>History head · step 24000</span><span>0.873</span></div>
             <div><span>4RC</span><span>0.850</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.898</span></div>
           </div>
@@ -1083,9 +1083,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sf_s20_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sf_s20_w0_cam0">3D</button></h3>
           <div class="map">SF_S20_ROCKETBOX_H1M2/WORLD_00000000 · 7779 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.972</span></div>
+            <div><span>History head · step 24000</span><span>0.963</span></div>
             <div><span>4RC</span><span>0.903</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.967</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.967</span></div>
           </div>
         </div>
       </div>
@@ -1095,7 +1095,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc3_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s10_w5_cam1">3D</button></h3>
           <div class="map">SFC3_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1692 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.854</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.838</span></div>
             <div><span>4RC</span><span>0.576</span></div>
             <div><span>Point4D head · step 24000</span><span>0.680</span></div>
           </div>
@@ -1107,7 +1107,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc3_s16_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s16_w2_cam1">3D</button></h3>
           <div class="map">SFC3_S16_ROCKETBOX_H1M2/WORLD_00000002 · 2322 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.785</span></div>
+            <div><span>History head · step 24000</span><span>0.698</span></div>
             <div><span>4RC</span><span>0.499</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.837</span></div>
           </div>
@@ -1119,9 +1119,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc3_s18_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s18_w2_cam1">3D</button></h3>
           <div class="map">SFC3_S18_ROCKETBOX_H1M2/WORLD_00000002 · 3586 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.824</span></div>
+            <div><span>History head · step 24000</span><span>0.770</span></div>
             <div><span>4RC</span><span>0.719</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.786</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.786</span></div>
           </div>
         </div>
       </div>
@@ -1131,7 +1131,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s23_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s23_w1_cam1">3D</button></h3>
           <div class="map">SFC5_S23_ROCKETBOX_H1M2/WORLD_00000001 · 2161 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.617</span></div>
+            <div><span>History head · step 24000</span><span>0.587</span></div>
             <div><span>4RC</span><span>0.585</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.717</span></div>
           </div>
@@ -1143,7 +1143,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s26_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s26_w3_cam1">3D</button></h3>
           <div class="map">SFC5_S26_ROCKETBOX_H1M2/WORLD_00000003 · 1858 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.846</span></div>
+            <div><span>History head · step 24000</span><span>0.867</span></div>
             <div><span>4RC</span><span>0.811</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.895</span></div>
           </div>
@@ -1167,7 +1167,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s27_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w3_cam1">3D</button></h3>
           <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000003 · 5969 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.848</span></div>
+            <div><span>History head · step 24000</span><span>0.720</span></div>
             <div><span>4RC</span><span>0.754</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.875</span></div>
           </div>
@@ -1179,7 +1179,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s31_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s31_w3_cam0">3D</button></h3>
           <div class="map">SFC5_S31_ROCKETBOX_H1M2/WORLD_00000003 · 8063 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.942</span></div>
+            <div><span>History head · step 24000</span><span>0.939</span></div>
             <div><span>4RC</span><span>0.761</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.955</span></div>
           </div>
@@ -1191,7 +1191,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s32_w2_cam0">3D</button></h3>
           <div class="map">SFC5_S32_ROCKETBOX_H1M2/WORLD_00000002 · 8534 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.897</span></div>
+            <div><span>History head · step 24000</span><span>0.870</span></div>
             <div><span>4RC</span><span>0.610</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.905</span></div>
           </div>
@@ -1203,9 +1203,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s38_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s38_w1_cam0">3D</button></h3>
           <div class="map">SFC5_S38_ROCKETBOX_H1M2/WORLD_00000001 · 7478 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.915</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.923</span></div>
             <div><span>4RC</span><span>0.754</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.916</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.916</span></div>
           </div>
         </div>
       </div>
@@ -1215,7 +1215,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s41_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s41_w0_cam0">3D</button></h3>
           <div class="map">SFC5_S41_ROCKETBOX_H1M2/WORLD_00000000 · 10216 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.981</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.986</span></div>
             <div><span>4RC</span><span>0.966</span></div>
             <div><span>Point4D head · step 24000</span><span>0.970</span></div>
           </div>
@@ -1227,9 +1227,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s47_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s47_w1_cam1">3D</button></h3>
           <div class="map">SFC5_S47_ROCKETBOX_H1M2/WORLD_00000001 · 2618 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.790</span></div>
+            <div><span>History head · step 24000</span><span>0.648</span></div>
             <div><span>4RC</span><span>0.724</span></div>
-            <div><span>Point4D head · step 24000</span><span>0.784</span></div>
+            <div><span>Point4D head · step 24000</span><span class=best>0.784</span></div>
           </div>
         </div>
       </div>
@@ -1239,7 +1239,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s49_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s49_w1_cam0">3D</button></h3>
           <div class="map">SFC5_S49_ROCKETBOX_H1M2/WORLD_00000001 · 7994 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.829</span></div>
+            <div><span>History head · step 24000</span><span>0.820</span></div>
             <div><span>4RC</span><span>0.623</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.878</span></div>
           </div>
@@ -1251,7 +1251,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s50_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s50_w0_cam1">3D</button></h3>
           <div class="map">SFC5_S50_ROCKETBOX_H1M2/WORLD_00000000 · 6146 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.796</span></div>
+            <div><span>History head · step 24000</span><span>0.744</span></div>
             <div><span>4RC</span><span>0.443</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.823</span></div>
           </div>
@@ -1263,7 +1263,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s52_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s52_w1_cam1">3D</button></h3>
           <div class="map">SFC5_S52_ROCKETBOX_H1M2/WORLD_00000001 · 4007 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.863</span></div>
+            <div><span>History head · step 24000</span><span>0.845</span></div>
             <div><span>4RC</span><span>0.760</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.865</span></div>
           </div>
@@ -1275,7 +1275,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s53_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s53_w0_cam0">3D</button></h3>
           <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 6986 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.978</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.983</span></div>
             <div><span>4RC</span><span>0.958</span></div>
             <div><span>Point4D head · step 24000</span><span>0.960</span></div>
           </div>
@@ -1287,9 +1287,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s53_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w0_cam1">3D</button></h3>
           <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 1914 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.849</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.902</span></div>
             <div><span>4RC</span><span>0.791</span></div>
-            <div><span>Point4D head · step 24000</span><span class=best>0.896</span></div>
+            <div><span>Point4D head · step 24000</span><span>0.896</span></div>
           </div>
         </div>
       </div>
@@ -1299,7 +1299,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s53_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w2_cam1">3D</button></h3>
           <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000002 · 3281 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span class=best>0.845</span></div>
+            <div><span>History head · step 24000</span><span class=best>0.854</span></div>
             <div><span>4RC</span><span>0.507</span></div>
             <div><span>Point4D head · step 24000</span><span>0.840</span></div>
           </div>
@@ -1311,7 +1311,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s54_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s54_w6_cam1">3D</button></h3>
           <div class="map">SFC5_S54_ROCKETBOX_H1M2/WORLD_00000006 · 3206 query 点</div>
           <div class="kv">
-            <div><span>History head · step 24000</span><span>0.600</span></div>
+            <div><span>History head · step 24000</span><span>0.816</span></div>
             <div><span>4RC</span><span>0.555</span></div>
             <div><span>Point4D head · step 24000</span><span class=best>0.843</span></div>
           </div>
@@ -1322,7 +1322,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 </section>
 <footer>
   <div class="wrap">
-    数据 <code>4RC/data/s4d_test100_s1</code>（manifest.json 记录来源段），结果 <code>eval_results/point_track_f12/&lt;model&gt;/s4d_test100_s1</code>。生成于 2026-10-21。
+    数据 <code>4RC/data/s4d_test100_s1</code>（manifest.json 记录来源段），结果 <code>eval_results/point_track_f12/&lt;model&gt;/s4d_test100_s1</code>。生成于 2026-10-22。
   </div>
 </footer>
 <!-- 3D 查看器：由 build_point_track_models_page.py 注入 point_track_models.html（media/point_track_3d），由 build_train_page.py 注入 train.html（media/train_3d，12 帧）。
@@ -1377,8 +1377,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const V3D = (() => {
-  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c, s4d_train_np5: 0xb06cff, s4d_train_step44000: 0xff5c5c, point4d_abl_step44000: 0xff7bd0 };
-  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train", s4d_train_np5: "s4d_train np5", s4d_train_step44000: "s4d_train step44000", point4d_abl_step44000: "Point4D head step44000" };
+  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c, s4d_train_np5: 0xb06cff, s4d_train_step44000: 0xff5c5c, point4d_abl_step44000: 0xff7bd0, history_abl_step24000: 0xff5c5c, point4d_abl_step24000: 0xff7bd0, s4d_train_step24000: 0xb06cff };
+  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train", s4d_train_np5: "s4d_train np5", s4d_train_step44000: "s4d_train step44000", point4d_abl_step44000: "Point4D head step44000", history_abl_step24000: "History head step24000", point4d_abl_step24000: "Point4D head step24000", s4d_train_step24000: "s4d_train step24000" };
   const FAR = 1e5, el = id => document.getElementById(id);
   let renderer, scene, camera, controls, grid, frustum, camPath, cloud, raf = null;
   let D = null, frame = 0, playing = true, lastTick = 0, followCam = false;
