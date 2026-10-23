@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>S4D Relay Stitch Compare</title>
-<meta name="description" content="History head v2 与 Point4D head（都是 step 24000）在连续 23 帧上两块接力（Point4D 式 3D 交接，像素交接作对照）、共享 3 帧拟合 Sim(3) 拼接的对比，每段带 3D 查看器。">
+<meta name="description" content="History head v2 与 Point4D head（都是 step 24000）在连续 23 帧上两块接力（Point4D 式 3D 交接，像素交接作对照）、按 Point4D 用共享帧深度云 Sim(3) 拼接的对比，每段带 3D 查看器。">
 <style>
 :root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
@@ -70,12 +70,12 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
   <div class="wrap">
     <a class="back" href="index.html">← S4D Data Exhibition</a>
     <h1>History head v2 vs Point4D head · 23 帧两块接力（3D 交接）+ 块间 Sim(3) 拼接 · 测试集 100 段</h1>
-    <p class="sub">同一批 100 段测试集（和 <a href="train_test100_s1_f48_relay.html">48 帧接力页</a>同一份数据、同样的第 0 帧 query），取连续 23 帧（0.77 s）。两个 step 24000 的模型都切成 2 块接力：块长 13 帧、相邻块<b>共享 3 帧</b>（块 0 = 帧 0–12，块 1 = 帧 10–22），每块独立前向。主行按 Point4D <code>track_long_video</code> 的<b>3D 交接</b>：用共享帧的深度云估块间 Sim(3)，把块 0 在帧 10 上预测的 3D 点直接搬进块 1 当起点；灰色行有 48 帧页的<b>像素交接</b>（只传投影像素、块 1 从像素重新起步）作对照。两块的输出各在自己的第 0 帧相机系，打分前用 3 个共享帧上的预测拟合一次 RANSAC Sim(3) 把块 1 拼到块 0 上，拼成一条后整段一次 RANSAC Sim(3) 对齐到 GT——这才是不借助 GT 的接力结果。另有每块各自对齐到 GT、整段 23 帧一次前向两种对照。每段可开 3D 查看器看 3D 交接拼接后的两条轨迹。</p>
+    <p class="sub">同一批 100 段测试集（和 <a href="train_test100_s1_f48_relay.html">48 帧接力页</a>同一份数据、同样的第 0 帧 query），取连续 23 帧（0.77 s）。两个 step 24000 的模型都切成 2 块接力：块长 13 帧、相邻块<b>共享 3 帧</b>（块 0 = 帧 0–12，块 1 = 帧 10–22），每块独立前向。主行按 Point4D <code>track_long_video</code> 的<b>3D 交接</b>：用共享帧的深度云估块间 Sim(3)，把块 0 在帧 10 上预测的 3D 点直接搬进块 1 当起点；灰色行有 48 帧页的<b>像素交接</b>（只传投影像素、块 1 从像素重新起步）作对照。两块的输出各在自己的第 0 帧相机系，打分前照 Point4D 的拼法把块 1 拼到块 0 上：块间 Sim(3) 就是共享帧深度云估的那个（3D 交接时交接和拼接用同一个），取逆把块 1 搬到块 0 的坐标系，共享帧从块 0 平滑过渡到块 1；拼成一条后整段一次 RANSAC Sim(3) 对齐到 GT——这才是不借助 GT 的接力结果。另有每块各自对齐到 GT、整段 23 帧一次前向，以及旧版拼接（用共享帧上的轨迹点拟合块间 Sim(3)）作对照。每段可开 3D 查看器看 3D 交接拼接后的两条轨迹。</p>
     <div class="stats">
       <div class="stat"><b>100</b><span>测试段（跟拍 50 / 静态 50）</span></div>
       <div class="stat"><b>23</b><span>帧 / 段，切 2 块（0–12 / 10–22，共享 10–12）</span></div>
-      <div class="stat"><b>0.693</b><span>History v2 · 3D 交接拼接后 avg_pts</span></div>
-      <div class="stat"><b>0.705</b><span>Point4D head · 3D 交接拼接后 avg_pts</span></div>
+      <div class="stat"><b>0.683</b><span>History v2 · 3D 交接拼接后 avg_pts</span></div>
+      <div class="stat"><b>0.698</b><span>Point4D head · 3D 交接拼接后 avg_pts</span></div>
     </div>
   </div>
 </header>
@@ -86,10 +86,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
       <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
       <tbody>
         <tr><td>数据</td><td><code>4RC/data/s4d_test100_s1_f48</code> 的前 23 帧（源帧 0–22 连续，1280×720）：和 s1 / s5 / s10 页同一份 100 段划分（<code>test100_same.txt</code>）；query 点 = 第 0 帧前景 mask 内每 4 像素取 1 个，真值轨迹表达在第 0 帧相机系、米制</td></tr>
-        <tr><td>切块</td><td>照 Point4D <code>track_long_video</code> 切块：stride = 块长 − 共享帧数 = 10，块 0 = 帧 0–12、块 1 = 帧 10–22；共享帧 10–12 的最终预测归块 0（不做 Point4D 的重叠区加权混合）</td></tr>
+        <tr><td>切块</td><td>照 Point4D <code>track_long_video</code> 切块：stride = 块长 − 共享帧数 = 10，块 0 = 帧 0–12、块 1 = 帧 10–22；拼接行的共享帧 10–12 照 Point4D 默认的 <code>overlap_strategy="smooth"</code> 混合：帧 10 取块 0、帧 11 两块各半、帧 12 取块 1；逐块对 GT 行和旧版拼接行的共享帧归块 0</td></tr>
         <tr><td>3D 交接（主行）</td><td>照 Point4D <code>track_long_video</code>（论文算法 1）：块 1 先前向一次拿深度云（dense_head 深度 + camera_head 相机反投影到块 1 第 0 帧相机系，H/8 × W/8 网格，不依赖 query）；共享帧 10–12 上同一网格像素的两块深度云配对，用 Point4D 的 <code>_chunk_sim3</code>（按配对距离取最小的 85%、Umeyama 带尺度闭式解）估块 0 → 块 1 的 Sim(3)；块 0 在帧 10 上预测的 3D 点经它搬到块 1 第 0 帧相机系，作为块 1 的起点 3D（模型的 <code>query_coords</code>，链 / 直接 query 都从它出发）再前向一次；query 像素是这些 3D 用块 1 第 0 帧预测内参的投影、裁到画内（<code>eval_point_track_relay.py --handoff xyz</code>）。和原版的差别：原版的外观 patch 沿用第 0 块出生处缓存的那份，这两个模型每块从自己第 0 帧的 query 像素处裁 patch，所以块 1 的 patch 取自投影像素</td></tr>
         <tr><td>像素交接（对照）</td><td>同 48 帧页：块 0 在帧 10 上的预测 3D 用 camera_head 预测的该帧相机投影成像素、裁到画内，作为块 1 的 query 像素；块 1 从这个像素重新起步（History v2 = 自己的 self-query 估 3D，Point4D head = dense_head 深度在该像素反投影），不传 3D。这是 Point4D 附录 D 给 2D 基线用的 First-frame 策略，不是 Point4D 自己的做法</td></tr>
-        <tr><td>块间拼接（打分）</td><td>两种交接都一样：块 0 不动；块 1 的预测在帧 10–12 上和块 0 的预测逐点配对（全部点·帧，两边都有限的才用），拟合一次 Sim(3)（RANSAC：1000 次随机 3 点、内点 5 cm、内点精化，&gt;16384 对先抽 16384；5 cm 是模型输出单位，不是米），用它把块 1 整块搬到块 0 第 0 帧相机系，填帧 13–22（<code>rescore_point_track.py --stitch</code>）。只用模型自己的预测，不碰 GT</td></tr>
+        <tr><td>块间拼接（打分）</td><td>照 Point4D <code>track_long_video</code>：块 0 不动；块 0 → 块 1 的 Sim(3) 用共享帧 10–12 上两块<b>深度云</b>（同一网格像素配对，<code>_chunk_sim3</code>）估——3D 交接时就是交接用的那一个，像素交接时同样从两块的深度云估、只用于拼接；取逆把块 1 整块搬到块 0 第 0 帧相机系，帧 13–22 取块 1，共享帧按上面的权重混合（<code>rescore_point_track.py --stitch --stitch_mode point4d</code>）。只用模型自己的预测，不碰 GT。<b>旧版拼接</b>（灰色行，这页之前的主行）：块 1 的轨迹点在帧 10–12 上和块 0 的轨迹点逐点配对拟合 RANSAC Sim(3)（1000 次随机 3 点、内点 5 cm、内点精化，<code>--stitch_mode tracks</code>）——只有前景点、而且把两块轨迹在共享帧上的差异吸收进对齐里，不是 Point4D 的做法</td></tr>
         <tr><td>模型</td><td><b>History head v2 · step 24000</b>：History head 消融新架构重训（xyz 档 (−2, 8) + composition loss）。<b>Point4D head · step 24000</b>：原版 Point4D sparse query head 接同一 VGGT-Omega backbone、同等步数的消融（<code>ablation/point4d_head.py</code>）。每块看 13 帧（训练是 12 帧）；整段对照是 23 帧一次前向（约训练长度的 2 倍）</td></tr>
         <tr><td>打分</td><td>4RC <code>track_eval.py</code> 口径：avg_pts = 误差在 0.1 / 0.3 / 0.5 / 1.0 m 内的比例取平均，dyn 只算总运动 &gt; 0.01 m 的点；EPE 全部点·帧平均。全部用 RANSAC Sim(3)（同正式评测）：<b>拼接</b>行整段一次；<b>逐块对 GT</b> 行每块各自一次（块 1 借了 GT 的尺度和位姿，是拼接做到完美时的参照）；<b>整段一次</b>行整段一次。survival 同 PIPs++ 口径，用同一组对齐投影到 GT 相机。RANSAC 的 3 点抽样没设种子（<code>estimate_sim3</code> 里是 <code>default_rng()</code>，seed 42 只管 &gt;16384 时的抽样），同一批预测每次打分都不同，单段 avg_pts 能差到 0.5，所以汇总表另给 5 次重复打分的均值 ± std</td></tr>
         <tr><td>3D 查看器</td><td>白底，GT（黑）与两个模型 <b>3D 交接 + 块间拼接</b>后的轨迹（整段一次 RANSAC Sim(3) 对齐到 GT，和主行打分同一种对齐），每段最多 300 条（等距抽样）、GT 相机视锥，第 0 帧相机系；可按模型 / 轨迹着色、拖尾、逐帧、只画 100 / 30 / 10 条、误差连线，右下角是逐帧平均误差曲线（帧 13 起是块 1）。接力评测没存深度图，所以没有点云；逐块对 GT 的预测两块不在同一坐标系，不进查看器</td></tr>
@@ -103,19 +103,21 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <div class="tablewrap"><table class="summary">
       <thead><tr><th>设置</th><th>模型</th><th>avg_pts<br><small>全部 100 段</small></th><th>avg_pts_dyn</th><th>avg_pts<br><small>跟拍 50 段</small></th><th>avg_pts<br><small>静态 50 段</small></th><th>EPE (m)</th><th>survival (%)</th><th>单段较好</th><th>5 次 RANSAC 均值 ± std<br><small>avg_pts / EPE / survival</small></th></tr></thead>
       <tbody>
-        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.693</td><td>0.687</td><td>0.765</td><td>0.621</td><td class=best>0.483</td><td>81.9</td><td>40</td><td>0.689 ± 0.004 / 0.50 ± 0.04 / 81.3 ± 0.7</td></tr>
-        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td class=best>0.705</td><td class=best>0.714</td><td class=best>0.785</td><td class=best>0.625</td><td>0.705</td><td class=best>83.0</td><td>60</td><td>0.705 ± 0.004 / 0.70 ± 0.02 / 83.7 ± 1.0</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.683</td><td>0.691</td><td>0.755</td><td>0.610</td><td class=best>0.507</td><td>80.5</td><td>32</td><td>0.683 ± 0.003 / 0.52 ± 0.06 / 80.9 ± 0.4</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td class=best>0.698</td><td class=best>0.707</td><td class=best>0.772</td><td class=best>0.624</td><td>0.701</td><td class=best>84.7</td><td>68</td><td>0.700 ± 0.004 / 0.72 ± 0.04 / 83.8 ± 1.0</td></tr>
         <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.696</td><td>0.704</td><td>0.769</td><td>0.624</td><td class=best>0.537</td><td>79.0</td><td>32</td><td>0.700 ± 0.004 / 0.53 ± 0.02 / 78.8 ± 0.6</td></tr>
         <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td class=best>0.714</td><td class=best>0.723</td><td class=best>0.794</td><td class=best>0.633</td><td>0.719</td><td class=best>82.5</td><td>68</td><td>0.712 ± 0.001 / 0.73 ± 0.02 / 83.8 ± 0.8</td></tr>
-        <tr class="ref"><td>像素交接 · 块间拼接</td><td>History head v2 · step 24000</td><td class=best>0.671</td><td class=best>0.672</td><td class=best>0.747</td><td class=best>0.594</td><td class=best>0.539</td><td class=best>79.1</td><td>66</td><td>0.670 ± 0.002 / 0.56 ± 0.03 / 79.3 ± 0.8</td></tr>
-        <tr class="ref"><td>像素交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.610</td><td>0.611</td><td>0.664</td><td>0.555</td><td>0.989</td><td>75.6</td><td>34</td><td>0.611 ± 0.003 / 1.01 ± 0.03 / 75.9 ± 0.4</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.693</td><td>0.687</td><td>0.765</td><td>0.621</td><td class=best>0.483</td><td>81.9</td><td>40</td><td>0.689 ± 0.004 / 0.50 ± 0.04 / 81.3 ± 0.7</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td class=best>0.705</td><td class=best>0.714</td><td class=best>0.785</td><td class=best>0.625</td><td>0.705</td><td class=best>83.0</td><td>60</td><td>0.705 ± 0.004 / 0.70 ± 0.02 / 83.7 ± 1.0</td></tr>
+        <tr class="ref"><td>像素交接 · 块间拼接</td><td>History head v2 · step 24000</td><td class=best>0.678</td><td class=best>0.678</td><td class=best>0.745</td><td class=best>0.611</td><td class=best>0.505</td><td class=best>79.2</td><td>74</td><td>0.679 ± 0.002 / 0.51 ± 0.06 / 80.2 ± 0.6</td></tr>
+        <tr class="ref"><td>像素交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.607</td><td>0.615</td><td>0.671</td><td>0.543</td><td>1.471</td><td>79.1</td><td>26</td><td>0.609 ± 0.003 / 1.43 ± 0.04 / 78.8 ± 0.3</td></tr>
         <tr class="ref"><td>像素交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td class=best>0.696</td><td class=best>0.699</td><td class=best>0.764</td><td class=best>0.629</td><td class=best>0.534</td><td>78.0</td><td>74</td><td>0.694 ± 0.002 / 0.59 ± 0.05 / 78.0 ± 0.5</td></tr>
         <tr class="ref"><td>像素交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.648</td><td>0.654</td><td>0.717</td><td>0.580</td><td>1.216</td><td class=best>80.1</td><td>26</td><td>0.650 ± 0.001 / 1.20 ± 0.02 / 80.0 ± 0.4</td></tr>
         <tr class="ref"><td>整段一次</td><td>History head v2 · step 24000</td><td>0.685</td><td>0.693</td><td>0.764</td><td>0.606</td><td class=best>0.608</td><td>78.9</td><td>32</td><td>0.687 ± 0.005 / 0.53 ± 0.06 / 80.1 ± 0.7</td></tr>
         <tr class="ref"><td>整段一次</td><td>Point4D head · step 24000</td><td class=best>0.711</td><td class=best>0.713</td><td class=best>0.795</td><td class=best>0.627</td><td>0.699</td><td class=best>84.2</td><td>68</td><td>0.709 ± 0.001 / 0.74 ± 0.04 / 85.0 ± 1.3</td></tr>
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:14px">加粗两行是主行（3D 交接 + 拼接）。蓝色为同一设置下两模型中较好的那个；单段较好 = 同一设置下逐段比 avg_pts 各赢几段。同一种交接的拼接行和逐块对 GT 行是同一批预测，只差块 1 怎么对齐。前几列和其余各节都是第 1 次打分；最后一列是同一批预测重复打分 5 次（拼接行连块间 Sim(3) 一起重做）的均值 ± 标准差——单段会在两个差很远的 RANSAC 解之间跳，std 偏乐观，差 &lt;0.02 的不要当结论。</p>
+    <p class="note" style="margin-top:14px">加粗两行是主行（3D 交接 + 深度云 Sim(3) 拼接）。蓝色为同一设置下两模型中较好的那个；单段较好 = 同一设置下逐段比 avg_pts 各赢几段。同一种交接的拼接行和逐块对 GT 行是同一批预测，只差块 1 怎么对齐。前几列和其余各节都是第 1 次打分；最后一列是同一批预测重复打分 5 次（深度云拼接是确定的，只有最后对齐到 GT 的 RANSAC 重做；旧版轨迹点拼接连块间 RANSAC 一起重做）的均值 ± 标准差——单段会在两个差很远的 RANSAC 解之间跳，std 偏乐观，差 &lt;0.02 的不要当结论。</p>
   </div>
 </section>
 <section id="chunks">
@@ -125,12 +127,14 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <div class="tablewrap"><table class="summary">
       <thead><tr><th>设置</th><th>模型</th><th>块 0<br><small>帧 0–12</small></th><th>块 1<br><small>帧 13–22</small></th></tr></thead>
       <tbody>
-        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.746<br><small>EPE 0.44</small></td><td>0.623<br><small>EPE 0.53</small></td></tr>
-        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.722<br><small>EPE 0.71</small></td><td>0.683<br><small>EPE 0.70</small></td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.736<br><small>EPE 0.47</small></td><td>0.614<br><small>EPE 0.56</small></td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.716<br><small>EPE 0.70</small></td><td>0.674<br><small>EPE 0.71</small></td></tr>
         <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.744<br><small>EPE 0.40</small></td><td>0.635<br><small>EPE 0.71</small></td></tr>
         <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.738<br><small>EPE 0.65</small></td><td>0.682<br><small>EPE 0.80</small></td></tr>
-        <tr class="ref"><td>像素交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.740<br><small>EPE 0.47</small></td><td>0.581<br><small>EPE 0.63</small></td></tr>
-        <tr class="ref"><td>像素交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.730<br><small>EPE 0.64</small></td><td>0.453<br><small>EPE 1.44</small></td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.746<br><small>EPE 0.44</small></td><td>0.623<br><small>EPE 0.53</small></td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td>0.722<br><small>EPE 0.71</small></td><td>0.683<br><small>EPE 0.70</small></td></tr>
+        <tr class="ref"><td>像素交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.740<br><small>EPE 0.44</small></td><td>0.598<br><small>EPE 0.59</small></td></tr>
+        <tr class="ref"><td>像素交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.689<br><small>EPE 0.95</small></td><td>0.500<br><small>EPE 2.15</small></td></tr>
         <tr class="ref"><td>像素交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.751<br><small>EPE 0.38</small></td><td>0.626<br><small>EPE 0.73</small></td></tr>
         <tr class="ref"><td>像素交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.737<br><small>EPE 0.65</small></td><td>0.534<br><small>EPE 1.95</small></td></tr>
         <tr class="ref"><td>整段一次</td><td>History head v2 · step 24000</td><td>0.739<br><small>EPE 0.58</small></td><td>0.614<br><small>EPE 0.65</small></td></tr>
@@ -138,16 +142,18 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
       </tbody>
     </table></div>
     <h3 style="margin-top:18px">逐帧 avg_pts</h3>
-    <p class="lead">100 段平均。帧 10–12 是共享帧（预测归块 0），帧 13 起是块 1。</p>
+    <p class="lead">100 段平均。帧 10–12 是共享帧（拼接行两块混合，其余行归块 0），帧 13 起是块 1。</p>
     <div class="tablewrap"><table class="summary">
       <thead><tr><th>设置</th><th>模型</th><th>0</th><th>3</th><th>6</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>16</th><th>19</th><th>22</th></tr></thead>
       <tbody>
-        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.781</td><td>0.780</td><td>0.752</td><td>0.720</td><td>0.707</td><td>0.695</td><td>0.686</td><td>0.682</td><td>0.669</td><td>0.640</td><td>0.601</td><td>0.572</td></tr>
-        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.711</td><td>0.722</td><td>0.726</td><td>0.726</td><td>0.725</td><td>0.721</td><td>0.718</td><td>0.703</td><td>0.698</td><td>0.688</td><td>0.679</td><td>0.661</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.778</td><td>0.769</td><td>0.741</td><td>0.704</td><td>0.691</td><td>0.687</td><td>0.681</td><td>0.669</td><td>0.657</td><td>0.630</td><td>0.595</td><td>0.565</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.706</td><td>0.720</td><td>0.723</td><td>0.721</td><td>0.718</td><td>0.714</td><td>0.694</td><td>0.691</td><td>0.687</td><td>0.680</td><td>0.671</td><td>0.653</td></tr>
         <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.800</td><td>0.791</td><td>0.749</td><td>0.705</td><td>0.690</td><td>0.678</td><td>0.667</td><td>0.652</td><td>0.654</td><td>0.646</td><td>0.631</td><td>0.600</td></tr>
         <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.732</td><td>0.744</td><td>0.743</td><td>0.740</td><td>0.735</td><td>0.729</td><td>0.725</td><td>0.683</td><td>0.686</td><td>0.686</td><td>0.683</td><td>0.671</td></tr>
-        <tr class="ref"><td>像素交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.784</td><td>0.772</td><td>0.745</td><td>0.710</td><td>0.697</td><td>0.686</td><td>0.676</td><td>0.645</td><td>0.631</td><td>0.598</td><td>0.558</td><td>0.526</td></tr>
-        <tr class="ref"><td>像素交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.724</td><td>0.736</td><td>0.737</td><td>0.731</td><td>0.725</td><td>0.720</td><td>0.713</td><td>0.514</td><td>0.496</td><td>0.464</td><td>0.435</td><td>0.410</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.781</td><td>0.780</td><td>0.752</td><td>0.720</td><td>0.707</td><td>0.695</td><td>0.686</td><td>0.682</td><td>0.669</td><td>0.640</td><td>0.601</td><td>0.572</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td>0.711</td><td>0.722</td><td>0.726</td><td>0.726</td><td>0.725</td><td>0.721</td><td>0.718</td><td>0.703</td><td>0.698</td><td>0.688</td><td>0.679</td><td>0.661</td></tr>
+        <tr class="ref"><td>像素交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.801</td><td>0.789</td><td>0.744</td><td>0.705</td><td>0.692</td><td>0.676</td><td>0.629</td><td>0.627</td><td>0.626</td><td>0.614</td><td>0.586</td><td>0.560</td></tr>
+        <tr class="ref"><td>像素交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.710</td><td>0.723</td><td>0.721</td><td>0.715</td><td>0.709</td><td>0.555</td><td>0.498</td><td>0.499</td><td>0.498</td><td>0.502</td><td>0.505</td><td>0.492</td></tr>
         <tr class="ref"><td>像素交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.809</td><td>0.799</td><td>0.758</td><td>0.709</td><td>0.691</td><td>0.678</td><td>0.667</td><td>0.629</td><td>0.634</td><td>0.636</td><td>0.623</td><td>0.600</td></tr>
         <tr class="ref"><td>像素交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.736</td><td>0.745</td><td>0.741</td><td>0.736</td><td>0.732</td><td>0.725</td><td>0.717</td><td>0.524</td><td>0.529</td><td>0.536</td><td>0.540</td><td>0.527</td></tr>
         <tr class="ref"><td>整段一次</td><td>History head v2 · step 24000</td><td>0.782</td><td>0.777</td><td>0.748</td><td>0.706</td><td>0.692</td><td>0.682</td><td>0.674</td><td>0.664</td><td>0.656</td><td>0.632</td><td>0.595</td><td>0.564</td></tr>
@@ -159,14 +165,16 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 <section id="stitch">
   <div class="wrap">
     <h2>拼接诊断</h2>
-    <p class="lead">块间尺度 = 打分时块 1 → 块 0 的轨迹 RANSAC Sim(3) 尺度；尺度出界 = 它 &lt;0.5 或 &gt;2 的段（拼接塌掉）；拼接残差 = 拼好后共享帧上两块预测的距离中位数 ÷ 块 0 第 0 帧预测深度中位数；块 1 损失 = 每段块 1 的 avg_pts（拼接 − 逐块对 GT）；深度云 Sim(3) = 3D 交接时用深度云估的块 0 → 块 1 尺度。裁到画内 = 交接时 query 像素投到画外被裁回的比例。</p>
+    <p class="lead">块间尺度 = 拼接时块 1 → 块 0 的尺度（深度云拼接 = 深度云 Sim(3) 的倒数，旧版 = 轨迹点 RANSAC Sim(3)）；尺度出界 = 它 &lt;0.5 或 &gt;2 的段（拼接塌掉）；拼接残差 = 块 1 搬过去后（混合前）共享帧上两块轨迹预测的距离中位数 ÷ 块 0 第 0 帧预测深度中位数（旧版是在这些点上拟合的，残差天然小）；块 1 损失 = 每段块 1 的 avg_pts（拼接 − 逐块对 GT）。裁到画内 = 交接时 query 像素投到画外被裁回的比例。</p>
     <div class="tablewrap"><table>
-      <thead><tr><th>交接</th><th>模型</th><th>块间尺度<br><small>中位（p10 – p90）</small></th><th>尺度出界</th><th>拼接残差 / 深度<br><small>中位（p90）</small></th><th>块 1 损失<br><small>均值 / 中位</small></th><th>块 1 掉 &gt;0.1 的段</th><th>深度云 Sim(3)<br><small>中位（p10 – p90）</small></th><th>裁到画内</th><th>每段耗时</th></tr></thead>
+      <thead><tr><th>设置</th><th>模型</th><th>块间尺度<br><small>中位（p10 – p90）</small></th><th>尺度出界</th><th>拼接残差 / 深度<br><small>中位（p90）</small></th><th>块 1 损失<br><small>均值 / 中位</small></th><th>块 1 掉 &gt;0.1 的段</th><th>裁到画内</th><th>每段耗时</th></tr></thead>
       <tbody>
-        <tr><td>3D 交接</td><td>History head v2 · step 24000</td><td>0.997（0.935 – 1.076）</td><td>1</td><td>0.7%（1.9%）</td><td>-0.012 / -0.007</td><td>13</td><td>1.003（0.930 – 1.053）</td><td>2.5%</td><td>1.2 s</td></tr>
-        <tr><td>3D 交接</td><td>Point4D head · step 24000</td><td>1.007（0.951 – 1.090）</td><td>1</td><td>1.1%（2.1%）</td><td>+0.002 / -0.004</td><td>6</td><td>0.998（0.929 – 1.050）</td><td>2.9%</td><td>1.3 s</td></tr>
-        <tr><td>像素交接</td><td>History head v2 · step 24000</td><td>0.996（0.793 – 1.125）</td><td>1</td><td>1.9%（3.9%）</td><td>-0.045 / -0.036</td><td>25</td><td>—</td><td>2.7%</td><td>0.8 s</td></tr>
-        <tr><td>像素交接</td><td>Point4D head · step 24000</td><td>0.914（0.031 – 1.050）</td><td>27</td><td>3.7%（14.4%）</td><td>-0.080 / -0.021</td><td>34</td><td>—</td><td>3.0%</td><td>0.9 s</td></tr>
+        <tr><td>3D 交接 · 深度云拼接</td><td>History head v2 · step 24000</td><td>0.997（0.950 – 1.075）</td><td>0</td><td>0.7%（2.2%）</td><td>-0.021 / -0.012</td><td>15</td><td>2.5%</td><td>1.2 s</td></tr>
+        <tr><td>3D 交接 · 深度云拼接</td><td>Point4D head · step 24000</td><td>1.002（0.953 – 1.076）</td><td>0</td><td>1.2%（2.6%）</td><td>-0.008 / -0.005</td><td>8</td><td>2.9%</td><td>1.3 s</td></tr>
+        <tr><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.997（0.935 – 1.076）</td><td>1</td><td>0.7%（1.9%）</td><td>-0.012 / -0.007</td><td>13</td><td>2.5%</td><td>1.2 s</td></tr>
+        <tr><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td>1.007（0.951 – 1.090）</td><td>1</td><td>1.1%（2.1%）</td><td>+0.002 / -0.004</td><td>6</td><td>2.9%</td><td>1.3 s</td></tr>
+        <tr><td>像素交接 · 深度云拼接</td><td>History head v2 · step 24000</td><td>0.997（0.950 – 1.075）</td><td>0</td><td>3.0%（9.3%）</td><td>-0.027 / -0.009</td><td>20</td><td>2.7%</td><td>0.8 s</td></tr>
+        <tr><td>像素交接 · 深度云拼接</td><td>Point4D head · step 24000</td><td>1.002（0.953 – 1.076）</td><td>0</td><td>5.1%（24.8%）</td><td>-0.033 / -0.008</td><td>17</td><td>3.0%</td><td>0.9 s</td></tr>
       </tbody>
     </table></div>
   </div>
@@ -178,8 +186,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <div class="tablewrap"><table>
       <thead><tr><th>模型</th><th>交接像素误差<br><small>中位 px（可见 / 被挡），&gt;8 px 占比</small></th><th>起点帧（帧 10）误差中位 m<br><small>块 0 / 块 1：像素 · 真值像素 · 3D</small></th><th>块 1 avg_pts，逐块对 GT<br><small>像素 · 真值像素 · 3D</small></th><th>拼接后 avg_pts<br><small>像素 · 真值像素 · 3D</small></th></tr></thead>
       <tbody>
-        <tr><td>History head v2 · step 24000</td><td>21.4（21.2 / 21.2），86%</td><td>0.150 / 0.182 · 0.126 · 0.162</td><td>0.626 · 0.709 · 0.635</td><td>0.671 · 0.686 · 0.693</td></tr>
-        <tr><td>Point4D head · step 24000</td><td>16.9（17.2 / 19.7），85%</td><td>0.241 / 0.455 · 0.289 · 0.246</td><td>0.534 · 0.698 · 0.682</td><td>0.610 · 0.690 · 0.705</td></tr>
+        <tr><td>History head v2 · step 24000</td><td>21.4（21.2 / 21.2），86%</td><td>0.150 / 0.182 · 0.126 · 0.162</td><td>0.626 · 0.709 · 0.635</td><td>0.678 · 0.714 · 0.683</td></tr>
+        <tr><td>Point4D head · step 24000</td><td>16.9（17.2 / 19.7），85%</td><td>0.241 / 0.455 · 0.289 · 0.246</td><td>0.534 · 0.698 · 0.682</td><td>0.607 · 0.692 · 0.698</td></tr>
       </tbody>
     </table></div>
     <p class="note" style="margin-top:14px">交接像素误差：每段 query 点的中位数再取 100 段中位数，原图 1280×720，"被挡" = 帧 10 上 GT 不可见的点（约 13.5%）。起点帧误差：块 0 / 块 1 各自只用共享帧 10–12 闭式最小二乘 Sim(3) 对齐到 GT 后，帧 10 上的点误差（每段中位数的 100 段中位数）；3D 交接的块 1 起点就是搬过来的块 0 预测，所以接近块 0。avg_pts 两列都是第 1 次 RANSAC 打分。</p>
@@ -197,10 +205,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s10_w3_cam1">3D</button></h3>
           <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1135 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.663</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.635</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.655</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.633</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.681</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.709</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.696</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.611</span></div>
             <div><span>History v2 整段一次</span><span>0.662</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.719</span></div>
           </div>
@@ -212,10 +220,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s11_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s11_w2_cam1">3D</button></h3>
           <div class="map">A2_S11_ROCKETBOX_H1M2/WORLD_00000002 · 578 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.706</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.675</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.706</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.398</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.757</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.645</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.731</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.503</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.754</span></div>
             <div><span>Point4D head 整段一次</span><span>0.605</span></div>
           </div>
@@ -227,10 +235,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s24_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s24_w3_cam1">3D</button></h3>
           <div class="map">A2_S24_ROCKETBOX_H1M2/WORLD_00000003 · 918 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.667</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.805</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.632</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.746</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.695</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.801</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.716</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.652</span></div>
             <div><span>History v2 整段一次</span><span>0.687</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.810</span></div>
           </div>
@@ -242,10 +250,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s25_w4_cam0">3D</button></h3>
           <div class="map">A2_S25_ROCKETBOX_H1M2/WORLD_00000004 · 5438 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.709</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.660</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.610</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.637</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.710</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.674</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.670</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.550</span></div>
             <div><span>History v2 整段一次</span><span>0.690</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.701</span></div>
           </div>
@@ -257,10 +265,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s26_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s26_w4_cam1">3D</button></h3>
           <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000004 · 1092 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.394</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.472</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.428</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.453</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.458</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.482</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.453</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.459</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.474</span></div>
             <div><span>Point4D head 整段一次</span><span>0.457</span></div>
           </div>
@@ -272,10 +280,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s26_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s26_w7_cam0">3D</button></h3>
           <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1674 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.833</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.804</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.806</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.749</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.816</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.799</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.831</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.743</span></div>
             <div><span>History v2 整段一次</span><span>0.814</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.818</span></div>
           </div>
@@ -287,10 +295,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s27_w1_cam1">3D</button></h3>
           <div class="map">A2_S27_ROCKETBOX_H1M2/WORLD_00000001 · 1270 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.285</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.313</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.300</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.340</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.293</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.336</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.288</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.334</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.264</span></div>
             <div><span>Point4D head 整段一次</span><span>0.229</span></div>
           </div>
@@ -302,10 +310,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s28_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s28_w3_cam0">3D</button></h3>
           <div class="map">A2_S28_ROCKETBOX_H1M2/WORLD_00000003 · 1298 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.762</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.734</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.812</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.824</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.788</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.773</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.739</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.700</span></div>
             <div><span>History v2 整段一次</span><span>0.794</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.823</span></div>
           </div>
@@ -317,10 +325,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s30_w2_cam1">3D</button></h3>
           <div class="map">A2_S30_ROCKETBOX_H1M2/WORLD_00000002 · 3620 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.571</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.518</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.607</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.556</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.578</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.588</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.485</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.419</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.598</span></div>
             <div><span>Point4D head 整段一次</span><span>0.590</span></div>
           </div>
@@ -332,10 +340,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a2_s8_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s8_w0_cam1">3D</button></h3>
           <div class="map">A2_S8_ROCKETBOX_H1M2/WORLD_00000000 · 746 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.458</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.475</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.427</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.422</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.417</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.441</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.441</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.365</span></div>
             <div><span>History v2 整段一次</span><span>0.421</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.490</span></div>
           </div>
@@ -347,10 +355,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s11_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s11_w7_cam1">3D</button></h3>
           <div class="map">A3_S11_ROCKETBOX_H1M2/WORLD_00000007 · 1328 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.531</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.480</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.746</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.563</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.532</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.583</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.724</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.553</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.512</span></div>
             <div><span>Point4D head 整段一次</span><span>0.496</span></div>
           </div>
@@ -362,10 +370,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s12_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s12_w3_cam0">3D</button></h3>
           <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000003 · 2522 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.803</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.874</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.819</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.826</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.821</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.872</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.812</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.817</span></div>
             <div><span>History v2 整段一次</span><span>0.829</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.901</span></div>
           </div>
@@ -377,10 +385,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s12_w6_cam1">3D</button></h3>
           <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000006 · 637 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.209</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.203</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.206</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.214</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.203</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.214</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.365</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.207</span></div>
             <div><span>History v2 整段一次</span><span>0.201</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.207</span></div>
           </div>
@@ -392,10 +400,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s14_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w0_cam1">3D</button></h3>
           <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000000 · 1033 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.761</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.833</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.477</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.807</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.754</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.824</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.792</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.559</span></div>
             <div><span>History v2 整段一次</span><span>0.772</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.846</span></div>
           </div>
@@ -407,10 +415,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s14_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w4_cam1">3D</button></h3>
           <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000004 · 3015 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.560</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.584</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.491</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.575</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.390</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.550</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.542</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.563</span></div>
             <div><span>History v2 整段一次</span><span>0.550</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.596</span></div>
           </div>
@@ -422,10 +430,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s26_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s26_w0_cam0">3D</button></h3>
           <div class="map">A3_S26_ROCKETBOX_H1M2/WORLD_00000000 · 4896 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.830</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.844</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.812</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.808</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.825</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.845</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.828</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.799</span></div>
             <div><span>History v2 整段一次</span><span>0.823</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.843</span></div>
           </div>
@@ -437,10 +445,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s29_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s29_w1_cam1">3D</button></h3>
           <div class="map">A3_S29_ROCKETBOX_H1M2/WORLD_00000001 · 419 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.577</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.500</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.433</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.473</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.605</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.481</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.457</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.469</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.582</span></div>
             <div><span>Point4D head 整段一次</span><span>0.525</span></div>
           </div>
@@ -452,10 +460,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>a3_s33_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s33_w2_cam0">3D</button></h3>
           <div class="map">A3_S33_ROCKETBOX_H1M2/WORLD_00000002 · 2148 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.742</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.790</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.715</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.707</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.741</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.762</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.722</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.677</span></div>
             <div><span>History v2 整段一次</span><span>0.717</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.758</span></div>
           </div>
@@ -467,10 +475,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s10_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w2_cam1">3D</button></h3>
           <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000002 · 4118 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.485</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.703</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.496</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.544</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.471</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.666</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.453</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.584</span></div>
             <div><span>History v2 整段一次</span><span>0.485</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.702</span></div>
           </div>
@@ -482,10 +490,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w3_cam1">3D</button></h3>
           <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1117 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.596</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.577</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.592</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.465</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.294</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.586</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.599</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.464</span></div>
             <div><span>History v2 整段一次</span><span>0.598</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.601</span></div>
           </div>
@@ -497,10 +505,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s10_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s10_w7_cam0">3D</button></h3>
           <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000007 · 4040 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.782</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.818</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.777</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.617</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.783</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.821</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.774</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.696</span></div>
             <div><span>History v2 整段一次</span><span>0.787</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.821</span></div>
           </div>
@@ -512,10 +520,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s12_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w1_cam1">3D</button></h3>
           <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000001 · 457 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.603</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.492</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.554</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.311</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.582</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.430</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.393</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.425</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.628</span></div>
             <div><span>Point4D head 整段一次</span><span>0.480</span></div>
           </div>
@@ -527,10 +535,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s12_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s12_w6_cam0">3D</button></h3>
           <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 1888 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.759</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.769</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.737</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.478</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.782</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.724</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.781</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.605</span></div>
             <div><span>History v2 整段一次</span><span>0.757</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.764</span></div>
           </div>
@@ -542,10 +550,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w6_cam1">3D</button></h3>
           <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 430 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.631</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.554</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.574</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.328</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.636</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.440</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.626</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.087</span></div>
             <div><span>History v2 整段一次</span><span>0.087</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.429</span></div>
           </div>
@@ -557,10 +565,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s23_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w5_cam1">3D</button></h3>
           <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000005 · 672 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.680</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.576</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.633</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.457</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.642</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.568</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.688</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.471</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.619</span></div>
             <div><span>Point4D head 整段一次</span><span>0.588</span></div>
           </div>
@@ -572,10 +580,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s23_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s23_w6_cam0">3D</button></h3>
           <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 2564 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.555</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.617</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.538</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.436</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.521</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.592</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.606</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.522</span></div>
             <div><span>History v2 整段一次</span><span>0.500</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.693</span></div>
           </div>
@@ -587,10 +595,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s23_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w6_cam1">3D</button></h3>
           <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 872 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.214</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.391</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.211</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.193</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.224</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.348</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.223</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.227</span></div>
             <div><span>History v2 整段一次</span><span>0.229</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.376</span></div>
           </div>
@@ -602,10 +610,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s26_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w1_cam0">3D</button></h3>
           <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000001 · 1590 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.838</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.833</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.821</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.551</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.837</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.823</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.826</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.687</span></div>
             <div><span>History v2 整段一次</span><span>0.837</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.880</span></div>
           </div>
@@ -617,10 +625,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s26_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w4_cam0">3D</button></h3>
           <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000004 · 3890 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.725</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.610</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.718</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.494</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.541</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.572</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.708</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.519</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.790</span></div>
             <div><span>Point4D head 整段一次</span><span>0.786</span></div>
           </div>
@@ -632,10 +640,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s26_w7_cam1">3D</button></h3>
           <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1694 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.622</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.429</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.633</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.559</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.690</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.630</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.700</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.532</span></div>
             <div><span>History v2 整段一次</span><span>0.421</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.431</span></div>
           </div>
@@ -647,9 +655,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s30_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s30_w0_cam0">3D</button></h3>
           <div class="map">FA_S30_ROCKETBOX_H1M2/WORLD_00000000 · 2682 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.575</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.657</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.578</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.538</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.654</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.593</span></div>
             <div><span>Point4D head 像素交接拼接</span><span>0.478</span></div>
             <div><span>History v2 整段一次</span><span>0.565</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.691</span></div>
@@ -662,10 +670,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w2_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 2069 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.560</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.602</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.511</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.476</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.565</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.623</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.456</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.449</span></div>
             <div><span>History v2 整段一次</span><span>0.589</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.676</span></div>
           </div>
@@ -677,10 +685,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s32_w2_cam1">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 1793 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.562</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.567</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.621</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.554</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.613</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.588</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.577</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.309</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.571</span></div>
             <div><span>Point4D head 整段一次</span><span>0.545</span></div>
           </div>
@@ -692,10 +700,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w4_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000004 · 2898 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.858</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.896</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.845</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.707</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.861</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.895</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.840</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.786</span></div>
             <div><span>History v2 整段一次</span><span>0.860</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.899</span></div>
           </div>
@@ -707,10 +715,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w5_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000005 · 2430 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.919</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.911</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.913</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.785</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.922</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.906</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.916</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.805</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.930</span></div>
             <div><span>Point4D head 整段一次</span><span>0.904</span></div>
           </div>
@@ -722,10 +730,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s32_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w6_cam0">3D</button></h3>
           <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000006 · 3551 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.781</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.781</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.794</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.621</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.794</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.381</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.721</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.595</span></div>
             <div><span>History v2 整段一次</span><span>0.697</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.770</span></div>
           </div>
@@ -737,10 +745,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fa_s33_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s33_w6_cam0">3D</button></h3>
           <div class="map">FA_S33_ROCKETBOX_H1M2/WORLD_00000006 · 3207 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.674</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.669</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.635</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.615</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.585</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.684</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.654</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.631</span></div>
             <div><span>History v2 整段一次</span><span>0.672</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.721</span></div>
           </div>
@@ -752,10 +760,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s27_w1_cam1">3D</button></h3>
           <div class="map">FV_S27_ROCKETBOX_H1M2/WORLD_00000001 · 928 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.695</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.485</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.667</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.350</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.718</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.532</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.724</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.473</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.695</span></div>
             <div><span>Point4D head 整段一次</span><span>0.462</span></div>
           </div>
@@ -767,10 +775,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s28_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s28_w4_cam0">3D</button></h3>
           <div class="map">FV_S28_ROCKETBOX_H1M2/WORLD_00000004 · 1605 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.584</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.588</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.580</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.362</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.608</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.528</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.536</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.472</span></div>
             <div><span>History v2 整段一次</span><span>0.547</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.560</span></div>
           </div>
@@ -782,10 +790,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s34_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s34_w0_cam0">3D</button></h3>
           <div class="map">FV_S34_ROCKETBOX_H1M2/WORLD_00000000 · 2822 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.596</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.516</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.574</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.490</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.598</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.511</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.604</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.292</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.579</span></div>
             <div><span>Point4D head 整段一次</span><span>0.509</span></div>
           </div>
@@ -797,10 +805,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s35_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s35_w3_cam0">3D</button></h3>
           <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000003 · 2766 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.733</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.733</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.702</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.700</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.724</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.733</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.717</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.680</span></div>
             <div><span>History v2 整段一次</span><span>0.726</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.744</span></div>
           </div>
@@ -813,9 +821,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000004 · 2353 query 点</div>
           <div class="kv">
             <div><span>History v2 3D 交接拼接</span><span>0.451</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.619</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.464</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.534</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.486</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.388</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.424</span></div>
             <div><span>History v2 整段一次</span><span>0.485</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.594</span></div>
           </div>
@@ -827,10 +835,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s7_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s7_w2_cam0">3D</button></h3>
           <div class="map">FV_S7_ROCKETBOX_H1M2/WORLD_00000002 · 2999 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.691</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.725</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.672</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.703</span></div>
             <div><span>History v2 像素交接拼接</span><span class=best>0.695</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.470</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.529</span></div>
             <div><span>History v2 整段一次</span><span>0.684</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.760</span></div>
           </div>
@@ -842,10 +850,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s8_w3_cam0">3D</button></h3>
           <div class="map">FV_S8_ROCKETBOX_H1M2/WORLD_00000003 · 3712 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.726</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.795</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.671</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.538</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.732</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.793</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.727</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.598</span></div>
             <div><span>History v2 整段一次</span><span>0.732</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.787</span></div>
           </div>
@@ -857,10 +865,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s9_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w2_cam1">3D</button></h3>
           <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.675</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.417</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.358</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.429</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.667</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.484</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.676</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.525</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.671</span></div>
             <div><span>Point4D head 整段一次</span><span>0.418</span></div>
           </div>
@@ -872,10 +880,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>fv_s9_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w3_cam1">3D</button></h3>
           <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000003 · 962 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.370</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.303</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.267</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.301</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.292</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.333</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.292</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.318</span></div>
             <div><span>History v2 整段一次</span><span>0.367</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.447</span></div>
           </div>
@@ -887,10 +895,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s23_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s23_w3_cam0">3D</button></h3>
           <div class="map">NK_S23_ROCKETBOX_H1M2/WORLD_00000003 · 4330 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.830</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.893</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.835</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.831</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.834</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.890</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.818</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.818</span></div>
             <div><span>History v2 整段一次</span><span>0.829</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.870</span></div>
           </div>
@@ -902,10 +910,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s24_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="nk_s24_w6_cam1">3D</button></h3>
           <div class="map">NK_S24_ROCKETBOX_H1M2/WORLD_00000006 · 64 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.806</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.725</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.800</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.697</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.823</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.718</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.830</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.641</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.798</span></div>
             <div><span>Point4D head 整段一次</span><span>0.727</span></div>
           </div>
@@ -917,10 +925,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s25_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w3_cam0">3D</button></h3>
           <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000003 · 1343 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.795</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.743</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.750</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.510</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.797</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.748</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.778</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.640</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.797</span></div>
             <div><span>Point4D head 整段一次</span><span>0.716</span></div>
           </div>
@@ -932,10 +940,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w4_cam0">3D</button></h3>
           <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000004 · 1712 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.757</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.749</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.738</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.723</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.730</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.749</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.723</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.697</span></div>
             <div><span>History v2 整段一次</span><span>0.716</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.732</span></div>
           </div>
@@ -947,10 +955,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s27_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s27_w3_cam0">3D</button></h3>
           <div class="map">NK_S27_ROCKETBOX_H1M2/WORLD_00000003 · 1897 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.721</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.720</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.737</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.469</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.665</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.714</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.632</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.590</span></div>
             <div><span>History v2 整段一次</span><span>0.717</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.731</span></div>
           </div>
@@ -962,10 +970,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nk_s28_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s28_w0_cam0">3D</button></h3>
           <div class="map">NK_S28_ROCKETBOX_H1M2/WORLD_00000000 · 2375 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.908</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.899</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.841</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.853</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.902</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.890</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.904</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.837</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.885</span></div>
             <div><span>Point4D head 整段一次</span><span>0.880</span></div>
           </div>
@@ -977,10 +985,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s10_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s10_w7_cam1">3D</button></h3>
           <div class="map">NQ_S10_ROCKETBOX_H1M2/WORLD_00000007 · 279 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.441</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.572</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.499</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.448</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.524</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.560</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.466</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.388</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.554</span></div>
             <div><span>Point4D head 整段一次</span><span>0.531</span></div>
           </div>
@@ -992,10 +1000,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s23_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s23_w2_cam0">3D</button></h3>
           <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1829 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.769</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.812</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.770</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.778</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.768</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.806</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.741</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.706</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.827</span></div>
             <div><span>Point4D head 整段一次</span><span>0.821</span></div>
           </div>
@@ -1007,10 +1015,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s23_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s23_w2_cam1">3D</button></h3>
           <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.551</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.594</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.557</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.601</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.541</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.502</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.535</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.640</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.669</span></div>
             <div><span>Point4D head 整段一次</span><span>0.603</span></div>
           </div>
@@ -1022,10 +1030,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s26_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w3_cam0">3D</button></h3>
           <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000003 · 719 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.671</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.456</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.609</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.473</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.636</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.474</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.580</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.446</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.632</span></div>
             <div><span>Point4D head 整段一次</span><span>0.445</span></div>
           </div>
@@ -1037,10 +1045,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s26_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w6_cam0">3D</button></h3>
           <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000006 · 1769 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.750</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.831</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.761</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.850</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.755</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.822</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.719</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.738</span></div>
             <div><span>History v2 整段一次</span><span>0.815</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.825</span></div>
           </div>
@@ -1052,10 +1060,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s26_w7_cam1">3D</button></h3>
           <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1422 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.425</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.486</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.523</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.440</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.435</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.567</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.539</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.518</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.492</span></div>
             <div><span>Point4D head 整段一次</span><span>0.484</span></div>
           </div>
@@ -1067,10 +1075,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s27_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s27_w5_cam0">3D</button></h3>
           <div class="map">NQ_S27_ROCKETBOX_H1M2/WORLD_00000005 · 2042 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.687</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.784</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.722</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.750</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.690</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.757</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.692</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.657</span></div>
             <div><span>History v2 整段一次</span><span>0.680</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.787</span></div>
           </div>
@@ -1082,10 +1090,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s28_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s28_w5_cam0">3D</button></h3>
           <div class="map">NQ_S28_ROCKETBOX_H1M2/WORLD_00000005 · 2504 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.758</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.798</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.763</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.592</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.748</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.777</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.710</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.547</span></div>
             <div><span>History v2 整段一次</span><span>0.786</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.798</span></div>
           </div>
@@ -1097,10 +1105,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s29_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s29_w7_cam0">3D</button></h3>
           <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 3481 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.807</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.811</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.790</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.715</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.809</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.808</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.807</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.755</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.803</span></div>
             <div><span>Point4D head 整段一次</span><span>0.800</span></div>
           </div>
@@ -1112,10 +1120,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s29_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s29_w7_cam1">3D</button></h3>
           <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 1639 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.837</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.874</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.791</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.786</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.845</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.858</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.826</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.728</span></div>
             <div><span>History v2 整段一次</span><span>0.796</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.854</span></div>
           </div>
@@ -1127,10 +1135,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s30_w2_cam1">3D</button></h3>
           <div class="map">NQ_S30_ROCKETBOX_H1M2/WORLD_00000002 · 637 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.625</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.675</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.618</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.450</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.602</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.669</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.480</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.531</span></div>
             <div><span>History v2 整段一次</span><span>0.609</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.635</span></div>
           </div>
@@ -1142,10 +1150,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s31_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s31_w1_cam1">3D</button></h3>
           <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000001 · 654 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.418</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.322</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.427</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.228</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.422</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.326</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.359</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.222</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.420</span></div>
             <div><span>Point4D head 整段一次</span><span>0.308</span></div>
           </div>
@@ -1157,10 +1165,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s31_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s31_w5_cam0">3D</button></h3>
           <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000005 · 2347 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.681</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.771</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.695</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.522</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.674</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.763</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.694</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.601</span></div>
             <div><span>History v2 整段一次</span><span>0.701</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.722</span></div>
           </div>
@@ -1172,10 +1180,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s32_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s32_w3_cam0">3D</button></h3>
           <div class="map">NQ_S32_ROCKETBOX_H1M2/WORLD_00000003 · 3598 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.741</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.731</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.720</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.498</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.707</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.740</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.694</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.635</span></div>
             <div><span>History v2 整段一次</span><span>0.658</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.751</span></div>
           </div>
@@ -1187,10 +1195,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w1_cam0">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 3415 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.557</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.647</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.549</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.425</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.611</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.653</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.555</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.490</span></div>
             <div><span>History v2 整段一次</span><span>0.616</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.654</span></div>
           </div>
@@ -1202,10 +1210,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w1_cam1">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 20843 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.606</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.884</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.569</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.700</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.754</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.901</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.733</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.743</span></div>
             <div><span>History v2 整段一次</span><span>0.564</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.715</span></div>
           </div>
@@ -1217,10 +1225,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w3_cam0">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 1958 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.726</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.719</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.753</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.584</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.695</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.709</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.730</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.599</span></div>
             <div><span>History v2 整段一次</span><span>0.825</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.827</span></div>
           </div>
@@ -1232,10 +1240,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s7_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w3_cam1">3D</button></h3>
           <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 2190 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.413</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.619</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.470</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.629</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.438</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.573</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.403</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.405</span></div>
             <div><span>History v2 整段一次</span><span>0.402</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.656</span></div>
           </div>
@@ -1247,10 +1255,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w0_cam0">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000000 · 1644 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.615</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.739</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.600</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.601</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.553</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.745</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.616</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.614</span></div>
             <div><span>History v2 整段一次</span><span>0.641</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.768</span></div>
           </div>
@@ -1262,10 +1270,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w3_cam0">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000003 · 1328 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.601</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.564</span></div>
             <div><span>Point4D head 3D 交接拼接</span><span class=best>0.606</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.555</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.462</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.516</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.496</span></div>
             <div><span>History v2 整段一次</span><span>0.586</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.609</span></div>
           </div>
@@ -1277,10 +1285,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w4_cam1">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000004 · 508 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.455</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.310</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.502</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.288</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.378</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.253</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.322</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.285</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.327</span></div>
             <div><span>Point4D head 整段一次</span><span>0.297</span></div>
           </div>
@@ -1292,10 +1300,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>nq_s8_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w5_cam1">3D</button></h3>
           <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000005 · 615 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.798</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.603</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.717</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.509</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.744</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.578</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.732</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.575</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.753</span></div>
             <div><span>Point4D head 整段一次</span><span>0.647</span></div>
           </div>
@@ -1307,10 +1315,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ru_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ru_s9_w1_cam0">3D</button></h3>
           <div class="map">RU_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.873</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.953</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.836</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.688</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.878</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.957</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.852</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.680</span></div>
             <div><span>History v2 整段一次</span><span>0.868</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.957</span></div>
           </div>
@@ -1322,10 +1330,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc3_s10_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s10_w0_cam0">3D</button></h3>
           <div class="map">RUC3_S10_ROCKETBOX_H1M2/WORLD_00000000 · 10348 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.904</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.922</span></div>
             <div><span>Point4D head 3D 交接拼接</span><span class=best>0.957</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.894</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.937</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.909</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.933</span></div>
             <div><span>History v2 整段一次</span><span>0.927</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.957</span></div>
           </div>
@@ -1337,10 +1345,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc3_s7_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s7_w0_cam0">3D</button></h3>
           <div class="map">RUC3_S7_ROCKETBOX_H1M2/WORLD_00000000 · 8445 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.971</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.973</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.963</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.965</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.971</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.970</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.964</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.958</span></div>
             <div><span>History v2 整段一次</span><span>0.958</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.965</span></div>
           </div>
@@ -1352,10 +1360,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc3_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s9_w1_cam0">3D</button></h3>
           <div class="map">RUC3_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.879</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.955</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.838</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.684</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.883</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.950</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.857</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.690</span></div>
             <div><span>History v2 整段一次</span><span>0.889</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.951</span></div>
           </div>
@@ -1367,10 +1375,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>ruc5_s23_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="ruc5_s23_w0_cam1">3D</button></h3>
           <div class="map">RUC5_S23_ROCKETBOX_H1M2/WORLD_00000000 · 3887 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.928</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.940</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.925</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.939</span></div>
             <div><span>History v2 像素交接拼接</span><span class=best>0.920</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.850</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.836</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.937</span></div>
             <div><span>Point4D head 整段一次</span><span>0.932</span></div>
           </div>
@@ -1382,10 +1390,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sf_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sf_s10_w5_cam1">3D</button></h3>
           <div class="map">SF_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1151 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.827</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.881</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.818</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.824</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.821</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.865</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.823</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.825</span></div>
             <div><span>History v2 整段一次</span><span>0.813</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.874</span></div>
           </div>
@@ -1398,9 +1406,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <div class="map">SF_S20_ROCKETBOX_H1M2/WORLD_00000000 · 7779 query 点</div>
           <div class="kv">
             <div><span>History v2 3D 交接拼接</span><span>0.920</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.964</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.893</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.943</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.963</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.902</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.934</span></div>
             <div><span>History v2 整段一次</span><span>0.936</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.964</span></div>
           </div>
@@ -1412,10 +1420,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc3_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s10_w5_cam1">3D</button></h3>
           <div class="map">SFC3_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1692 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.815</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.603</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.783</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.633</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.811</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.647</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.806</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.635</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.801</span></div>
             <div><span>Point4D head 整段一次</span><span>0.646</span></div>
           </div>
@@ -1427,10 +1435,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc3_s16_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s16_w2_cam1">3D</button></h3>
           <div class="map">SFC3_S16_ROCKETBOX_H1M2/WORLD_00000002 · 2322 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.760</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.798</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.749</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.729</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.756</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.788</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.741</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.714</span></div>
             <div><span>History v2 整段一次</span><span>0.691</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.830</span></div>
           </div>
@@ -1442,10 +1450,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc3_s18_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s18_w2_cam1">3D</button></h3>
           <div class="map">SFC3_S18_ROCKETBOX_H1M2/WORLD_00000002 · 3586 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.652</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.775</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.658</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.468</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.648</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.748</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.730</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.718</span></div>
             <div><span>History v2 整段一次</span><span>0.682</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.779</span></div>
           </div>
@@ -1457,10 +1465,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s23_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s23_w1_cam1">3D</button></h3>
           <div class="map">SFC5_S23_ROCKETBOX_H1M2/WORLD_00000001 · 2161 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.686</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.681</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.480</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.653</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.494</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.696</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.604</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.640</span></div>
             <div><span>History v2 整段一次</span><span>0.492</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.699</span></div>
           </div>
@@ -1472,10 +1480,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s26_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s26_w3_cam1">3D</button></h3>
           <div class="map">SFC5_S26_ROCKETBOX_H1M2/WORLD_00000003 · 1858 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.794</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.876</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.792</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.843</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.811</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.877</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.817</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.830</span></div>
             <div><span>History v2 整段一次</span><span>0.771</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.842</span></div>
           </div>
@@ -1487,10 +1495,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s27_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w0_cam1">3D</button></h3>
           <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000000 · 1740 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.892</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.905</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.875</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.875</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.891</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.902</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.885</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.862</span></div>
             <div><span>History v2 整段一次</span><span>0.903</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.913</span></div>
           </div>
@@ -1502,10 +1510,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s27_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w3_cam1">3D</button></h3>
           <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000003 · 5969 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.768</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.848</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.752</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.734</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.758</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.855</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.764</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.710</span></div>
             <div><span>History v2 整段一次</span><span>0.762</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.860</span></div>
           </div>
@@ -1518,9 +1526,9 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <div class="map">SFC5_S31_ROCKETBOX_H1M2/WORLD_00000003 · 8063 query 点</div>
           <div class="kv">
             <div><span>History v2 3D 交接拼接</span><span>0.890</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.940</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.866</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.856</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.941</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.860</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.846</span></div>
             <div><span>History v2 整段一次</span><span>0.869</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.927</span></div>
           </div>
@@ -1532,10 +1540,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s32_w2_cam0">3D</button></h3>
           <div class="map">SFC5_S32_ROCKETBOX_H1M2/WORLD_00000002 · 8534 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.831</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.893</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.789</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.753</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.835</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.890</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.803</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.720</span></div>
             <div><span>History v2 整段一次</span><span>0.823</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.879</span></div>
           </div>
@@ -1547,10 +1555,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s38_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s38_w1_cam0">3D</button></h3>
           <div class="map">SFC5_S38_ROCKETBOX_H1M2/WORLD_00000001 · 7478 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.883</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.913</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.857</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.786</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.889</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.911</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.855</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.764</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.881</span></div>
             <div><span>Point4D head 整段一次</span><span>0.874</span></div>
           </div>
@@ -1562,10 +1570,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s41_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s41_w0_cam0">3D</button></h3>
           <div class="map">SFC5_S41_ROCKETBOX_H1M2/WORLD_00000000 · 10216 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.952</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.961</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.923</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.926</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.959</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.960</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.944</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.921</span></div>
             <div><span>History v2 整段一次</span><span>0.940</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.956</span></div>
           </div>
@@ -1577,10 +1585,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s47_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s47_w1_cam1">3D</button></h3>
           <div class="map">SFC5_S47_ROCKETBOX_H1M2/WORLD_00000001 · 2618 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.721</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.758</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.639</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.700</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.700</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.694</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.694</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.703</span></div>
             <div><span>History v2 整段一次</span><span>0.728</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.760</span></div>
           </div>
@@ -1592,10 +1600,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s49_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s49_w1_cam0">3D</button></h3>
           <div class="map">SFC5_S49_ROCKETBOX_H1M2/WORLD_00000001 · 7994 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.757</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.851</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.726</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.760</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.752</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.848</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.717</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.729</span></div>
             <div><span>History v2 整段一次</span><span>0.713</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.828</span></div>
           </div>
@@ -1607,10 +1615,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s50_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s50_w0_cam1">3D</button></h3>
           <div class="map">SFC5_S50_ROCKETBOX_H1M2/WORLD_00000000 · 6146 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.752</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.800</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.712</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.730</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.708</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.783</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.635</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.690</span></div>
             <div><span>History v2 整段一次</span><span>0.764</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.804</span></div>
           </div>
@@ -1622,10 +1630,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s52_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s52_w1_cam1">3D</button></h3>
           <div class="map">SFC5_S52_ROCKETBOX_H1M2/WORLD_00000001 · 4007 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.752</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.735</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.602</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.609</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.750</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.762</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.694</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.715</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.795</span></div>
             <div><span>Point4D head 整段一次</span><span>0.768</span></div>
           </div>
@@ -1637,10 +1645,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s53_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s53_w0_cam0">3D</button></h3>
           <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 6986 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.959</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.957</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.933</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.881</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.957</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.951</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.941</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.871</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.958</span></div>
             <div><span>Point4D head 整段一次</span><span>0.953</span></div>
           </div>
@@ -1652,10 +1660,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s53_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w0_cam1">3D</button></h3>
           <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 1914 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span class=best>0.888</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span>0.876</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.861</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.731</span></div>
+            <div><span>History v2 3D 交接拼接</span><span class=best>0.889</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span>0.869</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.875</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.702</span></div>
             <div><span>History v2 整段一次</span><span class=best>0.890</span></div>
             <div><span>Point4D head 整段一次</span><span>0.859</span></div>
           </div>
@@ -1667,10 +1675,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s53_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w2_cam1">3D</button></h3>
           <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000002 · 3281 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.679</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.710</span></div>
-            <div><span>History v2 像素交接拼接</span><span class=best>0.678</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span>0.622</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.689</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.691</span></div>
+            <div><span>History v2 像素交接拼接</span><span class=best>0.603</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span>0.580</span></div>
             <div><span>History v2 整段一次</span><span>0.778</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.824</span></div>
           </div>
@@ -1682,10 +1690,10 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
           <h3>sfc5_s54_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s54_w6_cam1">3D</button></h3>
           <div class="map">SFC5_S54_ROCKETBOX_H1M2/WORLD_00000006 · 3206 query 点</div>
           <div class="kv">
-            <div><span>History v2 3D 交接拼接</span><span>0.771</span></div>
-            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.802</span></div>
-            <div><span>History v2 像素交接拼接</span><span>0.732</span></div>
-            <div><span>Point4D head 像素交接拼接</span><span class=best>0.790</span></div>
+            <div><span>History v2 3D 交接拼接</span><span>0.723</span></div>
+            <div><span>Point4D head 3D 交接拼接</span><span class=best>0.811</span></div>
+            <div><span>History v2 像素交接拼接</span><span>0.727</span></div>
+            <div><span>Point4D head 像素交接拼接</span><span class=best>0.770</span></div>
             <div><span>History v2 整段一次</span><span>0.763</span></div>
             <div><span>Point4D head 整段一次</span><span class=best>0.836</span></div>
           </div>
@@ -1696,7 +1704,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 </section>
 <footer>
   <div class="wrap">
-    预测 <code>eval_results/point_track_relay_f23_o3_xyz</code>（3D 交接）/ <code>point_track_relay_f23_o3</code>（像素交接）/ <code>point_track_relay_f23_o3_oracle</code>（真值像素起步）/ <code>point_track_f23</code>（整段），打分目录是它们加 <code>_stitch</code> / <code>_ransac</code>；建页 <code>experiment/build_relay_f23_page.py</code>。生成于 2026-10-23。
+    预测 <code>eval_results/point_track_relay_f23_o3_xyz</code>（3D 交接）/ <code>point_track_relay_f23_o3</code>（像素交接）/ <code>point_track_relay_f23_o3_oracle</code>（真值像素起步）/ <code>point_track_f23</code>（整段），打分目录是它们加 <code>_dstitch</code>（深度云拼接）/ <code>_stitch</code>（旧版轨迹点拼接）/ <code>_ransac</code>（逐块对 GT）；建页 <code>experiment/build_relay_f23_page.py</code>。生成于 2026-10-23。
   </div>
 </footer>
 <!-- 3D 查看器：由 build_point_track_models_page.py 注入 point_track_models.html（media/point_track_3d），由 build_train_page.py 注入 train.html（media/train_3d，12 帧）。
@@ -1755,8 +1763,8 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const V3D = (() => {
-  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c, s4d_train_np5: 0xb06cff, s4d_train_step44000: 0xff5c5c, point4d_abl_step44000: 0xff7bd0, history_abl_step24000: 0xffb347, point4d_abl_step24000: 0xff7bd0, s4d_train_step24000: 0xb06cff, history_abl_v2_step24000: 0xff5c5c };
-  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train", s4d_train_np5: "s4d_train np5", s4d_train_step44000: "s4d_train step44000", point4d_abl_step44000: "Point4D head step44000", history_abl_step24000: "History head v1 step24000", point4d_abl_step24000: "Point4D head step24000", s4d_train_step24000: "s4d_train step24000", history_abl_v2_step24000: "History head v2 step24000" };
+  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c, s4d_train_np5: 0xb06cff, s4d_train_step44000: 0xff5c5c, point4d_abl_step44000: 0xff7bd0, history_abl_step24000: 0xffb347, point4d_abl_step24000: 0xff7bd0, s4d_train_step24000: 0xb06cff, history_abl_v2_step24000: 0xff5c5c, history_abl_v2_step44000: 0xff5c5c };
+  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train", s4d_train_np5: "s4d_train np5", s4d_train_step44000: "s4d_train step44000", point4d_abl_step44000: "Point4D head step44000", history_abl_step24000: "History head v1 step24000", point4d_abl_step24000: "Point4D head step24000", s4d_train_step24000: "s4d_train step24000", history_abl_v2_step24000: "History head v2 step24000", history_abl_v2_step44000: "History head v2 step44000" };
   const FAR = 1e5, el = id => document.getElementById(id);
   let renderer, scene, camera, controls, grid, frustum, camPath, cloud, raf = null;
   let D = null, frame = 0, playing = true, lastTick = 0, followCam = false;
