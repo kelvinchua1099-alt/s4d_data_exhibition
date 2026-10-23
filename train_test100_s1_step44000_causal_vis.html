@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>S4D Causal Visible Tracking</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="s4d_test100_s1、连续 12 帧，两个模型都只用 0..t 帧预测第 t 帧，只统计真值可见的（帧, 点）的 avg_pts；Point4D head 另跑整段非因果对照；附 s4d_train 链式误差的系统 / 随机分解。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+<style>
+.cmp{grid-template-columns:repeat(auto-fill,minmax(min(440px,100%),1fr))}
+.cmp .card img{width:100%;display:block;aspect-ratio:16/9;background:#000;cursor:pointer}
+.cmp .kv{grid-template-columns:repeat(3,1fr);gap:4px 6px}
+.cmp .kv div{padding-left:6px;min-width:0}.cmp .kv div span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp .best{color:var(--accent)}
+.cmp .card[data-cam="1"]{display:none}.cmp.all .card[data-cam="1"]{display:flex}
+.cmp.static .card[data-cam="0"]{display:none}.cmp.static .card[data-cam="1"]{display:flex}
+.btn3d{float:right;background:var(--panel2);color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn3d:hover{border-color:var(--accent)}
+.ctl button.on{border-color:var(--accent);color:var(--accent)}
+
+
+:root{--s1:#3987e5;--s2:#d95926;--gridc:#2a2f3a;--tipbg:#1e222b}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--s1:#2a78d6;--s2:#eb6834;--gridc:#e3e7ee;--tipbg:#fff}}
+:root[data-theme="light"]{--s1:#2a78d6;--s2:#eb6834;--gridc:#e3e7ee;--tipbg:#fff}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.ctrl td{color:var(--muted)} td.muted{color:var(--muted)}
+.key{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:8px}
+.key.s1{border-color:var(--s1)}.key.s2{border-color:var(--s2)}.key.dash{border-top-style:dashed}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin:0 0 20px}
+.chart{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 14px 8px;position:relative;min-width:0}
+.chart figcaption{display:flex;justify-content:space-between;gap:12px;font-size:14px;margin-bottom:6px}
+.chart figcaption span{color:var(--muted);font-size:12px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart .grid{stroke:var(--gridc);stroke-width:1}
+.chart .tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.chart .axis{fill:var(--muted);font-size:11px}
+.chart .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .line.s1{stroke:var(--s1)}.chart .line.s2{stroke:var(--s2)}.chart .line.dash{stroke-dasharray:5 4}
+.chart .end{stroke:var(--panel);stroke-width:2}.chart .end.s1{fill:var(--s1)}.chart .end.s2{fill:var(--s2)}
+.chart .dl{fill:var(--text);font-size:11px}.chart .dlv{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.chart .hit{fill:transparent;cursor:crosshair}
+.chart .cross{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3;opacity:0}
+.chart.on .cross{opacity:1}
+.tip{position:absolute;top:44px;background:var(--tipbg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:var(--shadow);pointer-events:none;min-width:200px;line-height:1.5}
+.tip .row{display:flex;justify-content:space-between;gap:14px}.tip .row span:last-child{font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);margin:0 0 12px}
+th[data-sort]{cursor:pointer;user-select:none}th[data-sort]:hover{color:var(--accent)}
+th[data-sort]:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.find{margin:0;padding-left:20px;display:grid;gap:8px;max-width:900px}
+.find li{padding-left:2px}
+details summary{cursor:pointer;color:var(--accent);margin:4px 0 12px}
+.h3{font-size:17px;margin:22px 0 8px}
+.formula{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0 0 14px;color:var(--text)}
+ol.find{list-style:decimal}
+
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="train_test100_s1_step44000.html">← s4d_train · step 44000 vs 4RC / Point4D head · 连续取帧</a>
+    <h1>s4d_train · step 44000 vs Point4D head · step 44000 · 因果设定 · 可见点 · 测试集 100 段 · 连续取帧</h1>
+    <p class="sub">和 <a href="train_test100_s1_step44000.html">连续取帧对比页</a> 同一批 100 段、同样 12 帧，不再跑 4RC。两个模型都按因果设定预测：第 t 帧只能用到 0..t 帧。s4d_train 本身就是因果的，跑一次即可。Point4D head 的 memory 含全部帧，所以逐帧只喂前缀、共 12 次前向。分数只统计真值可见的（帧, 点），即 TAPVid-3D 的口径。Point4D head 另跑了一组整段非因果的对照。</p>
+    <div class="stats">
+      <div class="stat"><b>0.726</b><span>s4d_train · 可见 avg_pts（因果）</span></div>
+      <div class="stat"><b>0.774</b><span>Point4D head · 可见 avg_pts（因果前缀）</span></div>
+      <div class="stat"><b>0.781</b><span>Point4D head · 可见 avg_pts（整段，非因果对照）</span></div>
+      <div class="stat"><b>11.5%</b><span>（帧, 点）里真值被遮挡、不计入可见分的比例</span></div>
+    </div>
+  </div>
+</header>
+<section id="protocol">
+  <div class="wrap">
+    <h2>约定</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>数据</td><td>4RC/data/s4d_test100_s1：测试集固定种子抽 100 段（跟拍 50 / 静态 50），源帧 0..11 连续 12 帧；query 点为第 0 帧可见的前景点。和 <a href="train_test100_s1_step44000.html">连续取帧对比页</a> 完全相同</td></tr>
+        <tr><td>s4d_train</td><td>checkpoint <code>train/epoch019-step00044000.pt</code>。causal backbone 加链式 head，第 t 帧只用到 0..t 帧，所以整段一次前向就是因果结果。纯推理，链从模型自己的 3D 估计出发</td></tr>
+        <tr><td>Point4D head · 因果</td><td>checkpoint <code>train_point4d/epoch019-step00044000.pt</code>。backbone 是因果的，但 head 的 memory 含全部帧。<code>--causal_protocol</code>：第 t 帧取 frames 0..t 那次前向的最后一帧，第 0 帧取 [0, 1] 那次，每段 12 次前向。核对过：第 11 帧与整段前向的预测逐位相同</td></tr>
+        <tr><td>Point4D head · 整段</td><td>同一 checkpoint，整段 12 帧一次前向（非因果），作为对照。不参与加粗与单段比较</td></tr>
+        <tr><td>可见点</td><td>只算真值可见的（帧, 点），即 TAPVid-3D 的口径。第 0 帧所有 query 点都可见；遮挡点按同样方式单独统计</td></tr>
+        <tr><td>打分</td><td>4RC 的打分函数原样复用：整段所有点所有帧一次 Sim(3) RANSAC 对齐，avg_pts = 误差在 0.1 / 0.3 / 0.5 / 1.0 m 内的比例取平均。可见 / 遮挡 / 逐帧都在这一次对齐的结果上取子集打分，阈值不变。视频内按点数合并，再在 100 段间平均</td></tr>
+        <tr><td>代码</td><td>s4d_train commit <code>1916652</code> 的 <code>eval/eval_point_track_models.py</code>，seed 42。RANSAC 本身没固定种子，重跑的全部点 avg_pts 与对比页差 0.002 到 0.003</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="summary">
+  <div class="wrap">
+    <h2>汇总</h2>
+    <p class="lead">加粗为两个因果设定里更好的一项。灰色行是非因果对照。</p>
+    <div class="tablewrap"><table><thead><tr><th>模型</th><th>因果</th><th class=num>可见 avg_pts<br>全部 100 段</th><th class=num>可见 avg_pts<br>跟拍 50 段</th><th class=num>可见 avg_pts<br>静态 50 段</th><th class=num>可见 EPE (m)</th><th class=num>全部点 avg_pts</th><th class=num>遮挡点 avg_pts</th><th class=num>可见 avg_pts<br>单段更好</th></tr></thead><tbody><tr class=''><td><span class='key s1'></span>s4d_train · step 44000</td><td>是</td><td class=num>0.726</td><td class=num>0.779</td><td class=num>0.674</td><td class=num><b>0.378</b></td><td class=num>0.721</td><td class=num>0.623</td><td class=num>41</td></tr><tr class=''><td><span class='key s2'></span>Point4D head · step 44000</td><td>是（逐帧前缀）</td><td class=num><b>0.774</b></td><td class=num><b>0.865</b></td><td class=num><b>0.684</b></td><td class=num>0.554</td><td class=num><b>0.768</b></td><td class=num><b>0.700</b></td><td class=num>59</td></tr><tr class='ctrl'><td><span class='key s2 dash'></span>Point4D head · step 44000 · 整段（对照）</td><td>否</td><td class=num>0.781</td><td class=num>0.866</td><td class=num>0.696</td><td class=num>0.552</td><td class=num>0.776</td><td class=num>0.707</td><td class=num>—</td></tr></tbody></table></div>
+  </div>
+</section>
+<section id="frames">
+  <div class="wrap">
+    <h2>逐帧</h2>
+    <p class="lead">各帧的可见点分数在 100 段上取平均，悬停可看每帧数值。s4d_train 在第 0 到 3 帧更好，从第 4 帧起低于 Point4D head 的因果结果，之后逐帧下降。</p>
+    <div class="legend"><span><span class='key s1'></span>s4d_train · step 44000</span><span><span class='key s2'></span>Point4D head · step 44000</span><span><span class='key s2 dash'></span>Point4D head · step 44000 · 整段（对照）</span></div>
+    <div class="charts"><figure class=chart data-key=avg_pts_vis><figcaption><b>可见点 avg_pts</b><span>越高越好</span></figcaption><svg viewBox='0 0 560 280' role=img aria-label='可见点 avg_pts，逐帧'><line class=grid x1=48 x2=428 y1=246.0 y2=246.0 /><text class=tick x=40 y=250.0 text-anchor=end>0.55</text><line class=grid x1=48 x2=428 y1=207.7 y2=207.7 /><text class=tick x=40 y=211.7 text-anchor=end>0.60</text><line class=grid x1=48 x2=428 y1=169.3 y2=169.3 /><text class=tick x=40 y=173.3 text-anchor=end>0.65</text><line class=grid x1=48 x2=428 y1=131.0 y2=131.0 /><text class=tick x=40 y=135.0 text-anchor=end>0.70</text><line class=grid x1=48 x2=428 y1=92.7 y2=92.7 /><text class=tick x=40 y=96.7 text-anchor=end>0.75</text><line class=grid x1=48 x2=428 y1=54.3 y2=54.3 /><text class=tick x=40 y=58.3 text-anchor=end>0.80</text><line class=grid x1=48 x2=428 y1=16.0 y2=16.0 /><text class=tick x=40 y=20.0 text-anchor=end>0.85</text><text class=tick x=48.0 y=264 text-anchor=middle>0</text><text class=tick x=82.5 y=264 text-anchor=middle>1</text><text class=tick x=117.1 y=264 text-anchor=middle>2</text><text class=tick x=151.6 y=264 text-anchor=middle>3</text><text class=tick x=186.2 y=264 text-anchor=middle>4</text><text class=tick x=220.7 y=264 text-anchor=middle>5</text><text class=tick x=255.3 y=264 text-anchor=middle>6</text><text class=tick x=289.8 y=264 text-anchor=middle>7</text><text class=tick x=324.4 y=264 text-anchor=middle>8</text><text class=tick x=358.9 y=264 text-anchor=middle>9</text><text class=tick x=393.5 y=264 text-anchor=middle>10</text><text class=tick x=428.0 y=264 text-anchor=middle>11</text><text class=axis x=238 y=278 text-anchor=middle>帧号（链式模型的第 k 帧 = 走过 k 跳）</text><polyline class='line s1' points='48.0,58.8 82.5,46.0 117.1,51.3 151.6,63.2 186.2,76.1 220.7,97.0 255.3,120.2 289.8,134.7 324.4,150.7 358.9,168.2 393.5,183.0 428.0,199.8' /><circle class='end s1' cx=428.0 cy=199.8 r=4 /><polyline class='line s2' points='48.0,87.1 82.5,79.6 117.1,78.6 151.6,74.9 186.2,70.1 220.7,70.5 255.3,68.4 289.8,69.5 324.4,68.7 358.9,70.7 393.5,71.8 428.0,77.4' /><circle class='end s2' cx=428.0 cy=77.4 r=4 /><polyline class='line s2 dash' points='48.0,80.1 82.5,72.8 117.1,70.1 151.6,68.6 186.2,62.6 220.7,64.4 255.3,63.9 289.8,65.5 324.4,65.6 358.9,67.6 393.5,69.0 428.0,74.9' /><circle class='end s2' cx=428.0 cy=74.9 r=4 /><text class=dl x=438 y=73.9>Point4D head · 整段</text><text class=dlv x=438 y=86.9>0.773</text><text class=dl x=438 y=99.9>Point4D head</text><text class=dlv x=438 y=112.9>0.770</text><text class=dl x=438 y=198.8>s4d_train</text><text class=dlv x=438 y=211.8>0.610</text><line class=cross x1=0 x2=0 y1=16 y2=246 /><rect class=hit data-t=0 x=30.7 y=16 width=34.5 height=230 /><rect class=hit data-t=1 x=65.3 y=16 width=34.5 height=230 /><rect class=hit data-t=2 x=99.8 y=16 width=34.5 height=230 /><rect class=hit data-t=3 x=134.4 y=16 width=34.5 height=230 /><rect class=hit data-t=4 x=168.9 y=16 width=34.5 height=230 /><rect class=hit data-t=5 x=203.5 y=16 width=34.5 height=230 /><rect class=hit data-t=6 x=238.0 y=16 width=34.5 height=230 /><rect class=hit data-t=7 x=272.5 y=16 width=34.5 height=230 /><rect class=hit data-t=8 x=307.1 y=16 width=34.5 height=230 /><rect class=hit data-t=9 x=341.6 y=16 width=34.5 height=230 /><rect class=hit data-t=10 x=376.2 y=16 width=34.5 height=230 /><rect class=hit data-t=11 x=410.7 y=16 width=34.5 height=230 /></svg><div class=tip hidden></div></figure><figure class=chart data-key=epe_vis><figcaption><b>可见点 EPE (m)</b><span>越低越好</span></figcaption><svg viewBox='0 0 560 280' role=img aria-label='可见点 EPE (m)，逐帧'><line class=grid x1=48 x2=428 y1=246.0 y2=246.0 /><text class=tick x=40 y=250.0 text-anchor=end>0.25</text><line class=grid x1=48 x2=428 y1=188.5 y2=188.5 /><text class=tick x=40 y=192.5 text-anchor=end>0.35</text><line class=grid x1=48 x2=428 y1=131.0 y2=131.0 /><text class=tick x=40 y=135.0 text-anchor=end>0.45</text><line class=grid x1=48 x2=428 y1=73.5 y2=73.5 /><text class=tick x=40 y=77.5 text-anchor=end>0.55</text><line class=grid x1=48 x2=428 y1=16.0 y2=16.0 /><text class=tick x=40 y=20.0 text-anchor=end>0.65</text><text class=tick x=48.0 y=264 text-anchor=middle>0</text><text class=tick x=82.5 y=264 text-anchor=middle>1</text><text class=tick x=117.1 y=264 text-anchor=middle>2</text><text class=tick x=151.6 y=264 text-anchor=middle>3</text><text class=tick x=186.2 y=264 text-anchor=middle>4</text><text class=tick x=220.7 y=264 text-anchor=middle>5</text><text class=tick x=255.3 y=264 text-anchor=middle>6</text><text class=tick x=289.8 y=264 text-anchor=middle>7</text><text class=tick x=324.4 y=264 text-anchor=middle>8</text><text class=tick x=358.9 y=264 text-anchor=middle>9</text><text class=tick x=393.5 y=264 text-anchor=middle>10</text><text class=tick x=428.0 y=264 text-anchor=middle>11</text><text class=axis x=238 y=278 text-anchor=middle>帧号（链式模型的第 k 帧 = 走过 k 跳）</text><polyline class='line s1' points='48.0,211.2 82.5,220.8 117.1,220.6 151.6,214.0 186.2,204.7 220.7,191.9 255.3,176.0 289.8,160.4 324.4,144.1 358.9,122.9 393.5,106.1 428.0,87.9' /><circle class='end s1' cx=428.0 cy=87.9 r=4 /><polyline class='line s2' points='48.0,49.1 82.5,60.7 117.1,64.5 151.6,68.0 186.2,73.6 220.7,76.2 255.3,79.4 289.8,78.1 324.4,76.5 358.9,75.9 393.5,77.5 428.0,73.7' /><circle class='end s2' cx=428.0 cy=73.7 r=4 /><polyline class='line s2 dash' points='48.0,52.2 82.5,65.0 117.1,68.6 151.6,70.4 186.2,74.7 220.7,76.4 255.3,78.8 289.8,76.7 324.4,76.0 358.9,74.9 393.5,76.2 428.0,73.0' /><circle class='end s2' cx=428.0 cy=73.0 r=4 /><text class=dl x=438 y=72.0>Point4D head · 整段</text><text class=dlv x=438 y=85.0>0.551</text><text class=dl x=438 y=98.0>Point4D head</text><text class=dlv x=438 y=111.0>0.550</text><text class=dl x=438 y=124.0>s4d_train</text><text class=dlv x=438 y=137.0>0.525</text><line class=cross x1=0 x2=0 y1=16 y2=246 /><rect class=hit data-t=0 x=30.7 y=16 width=34.5 height=230 /><rect class=hit data-t=1 x=65.3 y=16 width=34.5 height=230 /><rect class=hit data-t=2 x=99.8 y=16 width=34.5 height=230 /><rect class=hit data-t=3 x=134.4 y=16 width=34.5 height=230 /><rect class=hit data-t=4 x=168.9 y=16 width=34.5 height=230 /><rect class=hit data-t=5 x=203.5 y=16 width=34.5 height=230 /><rect class=hit data-t=6 x=238.0 y=16 width=34.5 height=230 /><rect class=hit data-t=7 x=272.5 y=16 width=34.5 height=230 /><rect class=hit data-t=8 x=307.1 y=16 width=34.5 height=230 /><rect class=hit data-t=9 x=341.6 y=16 width=34.5 height=230 /><rect class=hit data-t=10 x=376.2 y=16 width=34.5 height=230 /><rect class=hit data-t=11 x=410.7 y=16 width=34.5 height=230 /></svg><div class=tip hidden></div></figure></div>
+    <details><summary>逐帧数值表</summary><div class="tablewrap"><table><thead><tr><th rowspan=2 class=num>帧</th><th colspan=3>可见 avg_pts</th><th colspan=3>可见 EPE (m)</th><th rowspan=2 class=num>遮挡占比</th></tr><tr><th class=num>s4d_train</th><th class=num>Point4D 因果</th><th class=num>Point4D 整段</th><th class=num>s4d_train</th><th class=num>Point4D 因果</th><th class=num>Point4D 整段</th></tr></thead><tbody><tr><td class=num>0</td><td class=num>0.794</td><td class=num>0.757</td><td class=num>0.766</td><td class=num>0.310</td><td class=num>0.593</td><td class=num>0.587</td><td class=num>0.0%</td></tr><tr><td class=num>1</td><td class=num>0.811</td><td class=num>0.767</td><td class=num>0.776</td><td class=num>0.294</td><td class=num>0.572</td><td class=num>0.565</td><td class=num>4.3%</td></tr><tr><td class=num>2</td><td class=num>0.804</td><td class=num>0.768</td><td class=num>0.779</td><td class=num>0.294</td><td class=num>0.566</td><td class=num>0.559</td><td class=num>7.2%</td></tr><tr><td class=num>3</td><td class=num>0.788</td><td class=num>0.773</td><td class=num>0.781</td><td class=num>0.306</td><td class=num>0.560</td><td class=num>0.555</td><td class=num>9.0%</td></tr><tr><td class=num>4</td><td class=num>0.772</td><td class=num>0.779</td><td class=num>0.789</td><td class=num>0.322</td><td class=num>0.550</td><td class=num>0.548</td><td class=num>10.7%</td></tr><tr><td class=num>5</td><td class=num>0.744</td><td class=num>0.779</td><td class=num>0.787</td><td class=num>0.344</td><td class=num>0.545</td><td class=num>0.545</td><td class=num>12.2%</td></tr><tr><td class=num>6</td><td class=num>0.714</td><td class=num>0.782</td><td class=num>0.788</td><td class=num>0.372</td><td class=num>0.540</td><td class=num>0.541</td><td class=num>13.5%</td></tr><tr><td class=num>7</td><td class=num>0.695</td><td class=num>0.780</td><td class=num>0.785</td><td class=num>0.399</td><td class=num>0.542</td><td class=num>0.544</td><td class=num>15.4%</td></tr><tr><td class=num>8</td><td class=num>0.674</td><td class=num>0.781</td><td class=num>0.785</td><td class=num>0.427</td><td class=num>0.545</td><td class=num>0.546</td><td class=num>16.3%</td></tr><tr><td class=num>9</td><td class=num>0.651</td><td class=num>0.779</td><td class=num>0.783</td><td class=num>0.464</td><td class=num>0.546</td><td class=num>0.548</td><td class=num>16.4%</td></tr><tr><td class=num>10</td><td class=num>0.632</td><td class=num>0.777</td><td class=num>0.781</td><td class=num>0.493</td><td class=num>0.543</td><td class=num>0.545</td><td class=num>16.2%</td></tr><tr><td class=num>11</td><td class=num>0.610</td><td class=num>0.770</td><td class=num>0.773</td><td class=num>0.525</td><td class=num>0.550</td><td class=num>0.551</td><td class=num>16.6%</td></tr></tbody></table></div></details>
+  </div>
+</section>
+<section id="findings">
+  <div class="wrap">
+    <h2>观察</h2>
+    <ul class="find">
+      <li><b>因果约束对 Point4D head 影响很小。</b>可见 avg_pts 从整段的 0.781 降到因果前缀的 0.774，逐帧看只低 0.003 到 0.011。</li>
+      <li><b>因果设定下 Point4D head 仍然领先。</b>可见 avg_pts 0.774 对 0.726，s4d_train 只在 41 / 100 段上更好。</li>
+      <li><b>差距主要在跟拍机位。</b>跟拍 50 段差 0.086，静态 50 段只差 0.010。</li>
+      <li><b>s4d_train 的分数随跳数下降。</b>可见 avg_pts 从第 1 帧的 0.811 降到第 11 帧的 0.610。Point4D head 每帧直接查询，基本持平在 0.76 到 0.79。</li>
+      <li><b>EPE 的排序相反。</b>s4d_train 的可见 EPE 是 0.378 m，Point4D head 因果是 0.554 m，说明 Point4D head 落在阈值内的点更多，但离群误差更大。</li>
+      <li><b>只看可见点几乎不改变结论。</b>三组的可见分都只比全部点高 0.006 左右。遮挡点约占 11.5%，分数明显更低。</li>
+    </ul>
+  </div>
+</section>
+<section id="clips">
+  <div class="wrap">
+    <h2>逐段</h2>
+    <p class="lead">可见 avg_pts。加粗为两个因果设定里更好的一项，点表头排序。</p>
+    <details><summary>展开 100 段</summary><div class="tablewrap"><table class="sortable"><thead><tr><th data-sort=s>段</th><th data-sort=s>机位</th><th class=num data-sort=n>s4d_train</th><th class=num data-sort=n>Point4D 因果</th><th class=num data-sort=n>Point4D 整段</th><th class=num data-sort=n>差值<br>s4d − P4D 因果</th><th class=num data-sort=n>遮挡占比</th></tr></thead><tbody><tr><td>a2_s8_w0_cam1</td><td>静态</td><td class=num>0.450</td><td class=num><b>0.471</b></td><td class='num muted'>0.441</td><td class=num data-v=-0.0206>-0.021</td><td class=num data-v=0.0869>8.7%</td></tr><tr><td>a2_s10_w3_cam1</td><td>静态</td><td class=num>0.646</td><td class=num><b>0.764</b></td><td class='num muted'>0.763</td><td class=num data-v=-0.1179>-0.118</td><td class=num data-v=0.0236>2.4%</td></tr><tr><td>a2_s11_w2_cam1</td><td>静态</td><td class=num>0.357</td><td class=num><b>0.668</b></td><td class='num muted'>0.701</td><td class=num data-v=-0.3116>-0.312</td><td class=num data-v=0.0832>8.3%</td></tr><tr><td>a2_s24_w3_cam1</td><td>静态</td><td class=num>0.776</td><td class=num><b>0.790</b></td><td class='num muted'>0.801</td><td class=num data-v=-0.0143>-0.014</td><td class=num data-v=0.0456>4.6%</td></tr><tr><td>a2_s25_w4_cam0</td><td>跟拍</td><td class=num>0.736</td><td class=num><b>0.771</b></td><td class='num muted'>0.768</td><td class=num data-v=-0.0344>-0.034</td><td class=num data-v=0.0875>8.8%</td></tr><tr><td>a2_s26_w4_cam1</td><td>静态</td><td class=num><b>0.694</b></td><td class=num>0.544</td><td class='num muted'>0.559</td><td class=num data-v=0.1499>+0.150</td><td class=num data-v=0.0131>1.3%</td></tr><tr><td>a2_s26_w7_cam0</td><td>跟拍</td><td class=num>0.786</td><td class=num><b>0.844</b></td><td class='num muted'>0.847</td><td class=num data-v=-0.0578>-0.058</td><td class=num data-v=0.0550>5.5%</td></tr><tr><td>a2_s27_w1_cam1</td><td>静态</td><td class=num>0.272</td><td class=num><b>0.293</b></td><td class='num muted'>0.271</td><td class=num data-v=-0.0215>-0.021</td><td class=num data-v=0.1037>10.4%</td></tr><tr><td>a2_s28_w3_cam0</td><td>跟拍</td><td class=num>0.815</td><td class=num><b>0.919</b></td><td class='num muted'>0.919</td><td class=num data-v=-0.1043>-0.104</td><td class=num data-v=0.0798>8.0%</td></tr><tr><td>a2_s30_w2_cam1</td><td>静态</td><td class=num><b>0.613</b></td><td class=num>0.580</td><td class='num muted'>0.580</td><td class=num data-v=0.0324>+0.032</td><td class=num data-v=0.1031>10.3%</td></tr><tr><td>a3_s11_w7_cam1</td><td>静态</td><td class=num><b>0.752</b></td><td class=num>0.736</td><td class='num muted'>0.529</td><td class=num data-v=0.0163>+0.016</td><td class=num data-v=0.0043>0.4%</td></tr><tr><td>a3_s12_w3_cam0</td><td>跟拍</td><td class=num>0.825</td><td class=num><b>0.941</b></td><td class='num muted'>0.942</td><td class=num data-v=-0.1162>-0.116</td><td class=num data-v=0.1349>13.5%</td></tr><tr><td>a3_s12_w6_cam1</td><td>静态</td><td class=num>0.474</td><td class=num><b>0.548</b></td><td class='num muted'>0.545</td><td class=num data-v=-0.0735>-0.074</td><td class=num data-v=0.0238>2.4%</td></tr><tr><td>a3_s14_w0_cam1</td><td>静态</td><td class=num>0.888</td><td class=num><b>0.892</b></td><td class='num muted'>0.894</td><td class=num data-v=-0.0032>-0.003</td><td class=num data-v=0.0296>3.0%</td></tr><tr><td>a3_s14_w4_cam1</td><td>静态</td><td class=num><b>0.619</b></td><td class=num>0.604</td><td class='num muted'>0.601</td><td class=num data-v=0.0153>+0.015</td><td class=num data-v=0.0074>0.7%</td></tr><tr><td>a3_s26_w0_cam0</td><td>跟拍</td><td class=num>0.792</td><td class=num><b>0.875</b></td><td class='num muted'>0.874</td><td class=num data-v=-0.0830>-0.083</td><td class=num data-v=0.0324>3.2%</td></tr><tr><td>a3_s29_w1_cam1</td><td>静态</td><td class=num>0.574</td><td class=num><b>0.585</b></td><td class='num muted'>0.581</td><td class=num data-v=-0.0112>-0.011</td><td class=num data-v=0.0068>0.7%</td></tr><tr><td>a3_s33_w2_cam0</td><td>跟拍</td><td class=num>0.780</td><td class=num><b>0.849</b></td><td class='num muted'>0.855</td><td class=num data-v=-0.0689>-0.069</td><td class=num data-v=0.0492>4.9%</td></tr><tr><td>fa_s10_w2_cam1</td><td>静态</td><td class=num>0.716</td><td class=num><b>0.771</b></td><td class='num muted'>0.770</td><td class=num data-v=-0.0553>-0.055</td><td class=num data-v=0.0062>0.6%</td></tr><tr><td>fa_s10_w3_cam1</td><td>静态</td><td class=num><b>0.671</b></td><td class=num>0.615</td><td class='num muted'>0.609</td><td class=num data-v=0.0558>+0.056</td><td class=num data-v=0.0200>2.0%</td></tr><tr><td>fa_s10_w7_cam0</td><td>跟拍</td><td class=num>0.838</td><td class=num><b>0.897</b></td><td class='num muted'>0.897</td><td class=num data-v=-0.0592>-0.059</td><td class=num data-v=0.0814>8.1%</td></tr><tr><td>fa_s12_w1_cam1</td><td>静态</td><td class=num><b>0.517</b></td><td class=num>0.421</td><td class='num muted'>0.544</td><td class=num data-v=0.0953>+0.095</td><td class=num data-v=0.0243>2.4%</td></tr><tr><td>fa_s12_w6_cam0</td><td>跟拍</td><td class=num>0.879</td><td class=num><b>0.893</b></td><td class='num muted'>0.891</td><td class=num data-v=-0.0138>-0.014</td><td class=num data-v=0.0775>7.8%</td></tr><tr><td>fa_s12_w6_cam1</td><td>静态</td><td class=num>0.495</td><td class=num><b>0.535</b></td><td class='num muted'>0.563</td><td class=num data-v=-0.0407>-0.041</td><td class=num data-v=0.0384>3.8%</td></tr><tr><td>fa_s23_w5_cam1</td><td>静态</td><td class=num><b>0.682</b></td><td class=num>0.622</td><td class='num muted'>0.614</td><td class=num data-v=0.0601>+0.060</td><td class=num data-v=0.0192>1.9%</td></tr><tr><td>fa_s23_w6_cam0</td><td>跟拍</td><td class=num>0.313</td><td class=num><b>0.731</b></td><td class='num muted'>0.737</td><td class=num data-v=-0.4175>-0.418</td><td class=num data-v=0.1281>12.8%</td></tr><tr><td>fa_s23_w6_cam1</td><td>静态</td><td class=num><b>0.444</b></td><td class=num>0.307</td><td class='num muted'>0.256</td><td class=num data-v=0.1364>+0.136</td><td class=num data-v=0.0257>2.6%</td></tr><tr><td>fa_s26_w1_cam0</td><td>跟拍</td><td class=num><b>0.934</b></td><td class=num>0.917</td><td class='num muted'>0.914</td><td class=num data-v=0.0163>+0.016</td><td class=num data-v=0.0961>9.6%</td></tr><tr><td>fa_s26_w4_cam0</td><td>跟拍</td><td class=num><b>0.949</b></td><td class=num>0.903</td><td class='num muted'>0.902</td><td class=num data-v=0.0456>+0.046</td><td class=num data-v=0.0380>3.8%</td></tr><tr><td>fa_s26_w7_cam1</td><td>静态</td><td class=num>0.748</td><td class=num><b>0.757</b></td><td class='num muted'>0.759</td><td class=num data-v=-0.0087>-0.009</td><td class=num data-v=0.0291>2.9%</td></tr><tr><td>fa_s30_w0_cam0</td><td>跟拍</td><td class=num><b>0.816</b></td><td class=num>0.758</td><td class='num muted'>0.755</td><td class=num data-v=0.0577>+0.058</td><td class=num data-v=0.0869>8.7%</td></tr><tr><td>fa_s32_w2_cam0</td><td>跟拍</td><td class=num>0.433</td><td class=num><b>0.773</b></td><td class='num muted'>0.791</td><td class=num data-v=-0.3393>-0.339</td><td class=num data-v=0.1350>13.5%</td></tr><tr><td>fa_s32_w2_cam1</td><td>静态</td><td class=num>0.541</td><td class=num><b>0.599</b></td><td class='num muted'>0.642</td><td class=num data-v=-0.0579>-0.058</td><td class=num data-v=0.0706>7.1%</td></tr><tr><td>fa_s32_w4_cam0</td><td>跟拍</td><td class=num><b>0.952</b></td><td class=num>0.939</td><td class='num muted'>0.939</td><td class=num data-v=0.0133>+0.013</td><td class=num data-v=0.0889>8.9%</td></tr><tr><td>fa_s32_w5_cam0</td><td>跟拍</td><td class=num><b>0.964</b></td><td class=num>0.920</td><td class='num muted'>0.922</td><td class=num data-v=0.0440>+0.044</td><td class=num data-v=0.0017>0.2%</td></tr><tr><td>fa_s32_w6_cam0</td><td>跟拍</td><td class=num>0.770</td><td class=num><b>0.860</b></td><td class='num muted'>0.857</td><td class=num data-v=-0.0905>-0.090</td><td class=num data-v=0.0978>9.8%</td></tr><tr><td>fa_s33_w6_cam0</td><td>跟拍</td><td class=num>0.524</td><td class=num><b>0.770</b></td><td class='num muted'>0.772</td><td class=num data-v=-0.2463>-0.246</td><td class=num data-v=0.1106>11.1%</td></tr><tr><td>fv_s7_w2_cam0</td><td>跟拍</td><td class=num>0.819</td><td class=num><b>0.870</b></td><td class='num muted'>0.869</td><td class=num data-v=-0.0506>-0.051</td><td class=num data-v=0.0647>6.5%</td></tr><tr><td>fv_s8_w3_cam0</td><td>跟拍</td><td class=num>0.902</td><td class=num><b>0.911</b></td><td class='num muted'>0.911</td><td class=num data-v=-0.0091>-0.009</td><td class=num data-v=0.0880>8.8%</td></tr><tr><td>fv_s9_w2_cam1</td><td>静态</td><td class=num><b>0.485</b></td><td class=num>0.471</td><td class='num muted'>0.757</td><td class=num data-v=0.0143>+0.014</td><td class=num data-v=0.1538>15.4%</td></tr><tr><td>fv_s9_w3_cam1</td><td>静态</td><td class=num><b>0.514</b></td><td class=num>0.346</td><td class='num muted'>0.349</td><td class=num data-v=0.1679>+0.168</td><td class=num data-v=0.0930>9.3%</td></tr><tr><td>fv_s27_w1_cam1</td><td>静态</td><td class=num><b>0.684</b></td><td class=num>0.653</td><td class='num muted'>0.661</td><td class=num data-v=0.0316>+0.032</td><td class=num data-v=0.0400>4.0%</td></tr><tr><td>fv_s28_w4_cam0</td><td>跟拍</td><td class=num>0.589</td><td class=num><b>0.657</b></td><td class='num muted'>0.647</td><td class=num data-v=-0.0680>-0.068</td><td class=num data-v=0.1004>10.0%</td></tr><tr><td>fv_s34_w0_cam0</td><td>跟拍</td><td class=num>0.575</td><td class=num><b>0.773</b></td><td class='num muted'>0.777</td><td class=num data-v=-0.1981>-0.198</td><td class=num data-v=0.0755>7.6%</td></tr><tr><td>fv_s35_w3_cam0</td><td>跟拍</td><td class=num>0.495</td><td class=num><b>0.800</b></td><td class='num muted'>0.807</td><td class=num data-v=-0.3048>-0.305</td><td class=num data-v=0.0728>7.3%</td></tr><tr><td>fv_s35_w4_cam1</td><td>静态</td><td class=num>0.642</td><td class=num><b>0.753</b></td><td class='num muted'>0.767</td><td class=num data-v=-0.1112>-0.111</td><td class=num data-v=0.1100>11.0%</td></tr><tr><td>nk_s23_w3_cam0</td><td>跟拍</td><td class=num>0.507</td><td class=num><b>0.936</b></td><td class='num muted'>0.938</td><td class=num data-v=-0.4296>-0.430</td><td class=num data-v=0.0712>7.1%</td></tr><tr><td>nk_s24_w6_cam1</td><td>静态</td><td class=num><b>0.843</b></td><td class=num>0.716</td><td class='num muted'>0.725</td><td class=num data-v=0.1273>+0.127</td><td class=num data-v=0.1380>13.8%</td></tr><tr><td>nk_s25_w3_cam0</td><td>跟拍</td><td class=num>0.699</td><td class=num><b>0.791</b></td><td class='num muted'>0.791</td><td class=num data-v=-0.0923>-0.092</td><td class=num data-v=0.0511>5.1%</td></tr><tr><td>nk_s25_w4_cam0</td><td>跟拍</td><td class=num>0.462</td><td class=num><b>0.837</b></td><td class='num muted'>0.842</td><td class=num data-v=-0.3752>-0.375</td><td class=num data-v=0.0666>6.7%</td></tr><tr><td>nk_s27_w3_cam0</td><td>跟拍</td><td class=num>0.689</td><td class=num><b>0.811</b></td><td class='num muted'>0.813</td><td class=num data-v=-0.1213>-0.121</td><td class=num data-v=0.0506>5.1%</td></tr><tr><td>nk_s28_w0_cam0</td><td>跟拍</td><td class=num>0.732</td><td class=num><b>0.925</b></td><td class='num muted'>0.926</td><td class=num data-v=-0.1927>-0.193</td><td class=num data-v=0.0146>1.5%</td></tr><tr><td>nq_s7_w1_cam0</td><td>跟拍</td><td class=num>0.735</td><td class=num><b>0.746</b></td><td class='num muted'>0.745</td><td class=num data-v=-0.0116>-0.012</td><td class=num data-v=0.1619>16.2%</td></tr><tr><td>nq_s7_w1_cam1</td><td>静态</td><td class=num>0.648</td><td class=num><b>0.947</b></td><td class='num muted'>0.956</td><td class=num data-v=-0.2986>-0.299</td><td class=num data-v=0.1128>11.3%</td></tr><tr><td>nq_s7_w3_cam0</td><td>跟拍</td><td class=num><b>0.894</b></td><td class=num>0.886</td><td class='num muted'>0.893</td><td class=num data-v=0.0079>+0.008</td><td class=num data-v=0.2112>21.1%</td></tr><tr><td>nq_s7_w3_cam1</td><td>静态</td><td class=num><b>0.815</b></td><td class=num>0.734</td><td class='num muted'>0.733</td><td class=num data-v=0.0815>+0.082</td><td class=num data-v=0.0228>2.3%</td></tr><tr><td>nq_s8_w0_cam0</td><td>跟拍</td><td class=num><b>0.882</b></td><td class=num>0.859</td><td class='num muted'>0.861</td><td class=num data-v=0.0228>+0.023</td><td class=num data-v=0.0867>8.7%</td></tr><tr><td>nq_s8_w3_cam0</td><td>跟拍</td><td class=num>0.443</td><td class=num><b>0.788</b></td><td class='num muted'>0.796</td><td class=num data-v=-0.3441>-0.344</td><td class=num data-v=0.3918>39.2%</td></tr><tr><td>nq_s8_w4_cam1</td><td>静态</td><td class=num><b>0.462</b></td><td class=num>0.313</td><td class='num muted'>0.301</td><td class=num data-v=0.1489>+0.149</td><td class=num data-v=0.0223>2.2%</td></tr><tr><td>nq_s8_w5_cam1</td><td>静态</td><td class=num><b>0.799</b></td><td class=num>0.730</td><td class='num muted'>0.732</td><td class=num data-v=0.0695>+0.070</td><td class=num data-v=0.0614>6.1%</td></tr><tr><td>nq_s10_w7_cam1</td><td>静态</td><td class=num><b>0.505</b></td><td class=num>0.462</td><td class='num muted'>0.616</td><td class=num data-v=0.0431>+0.043</td><td class=num data-v=0.0741>7.4%</td></tr><tr><td>nq_s23_w2_cam0</td><td>跟拍</td><td class=num><b>0.913</b></td><td class=num>0.912</td><td class='num muted'>0.912</td><td class=num data-v=0.0008>+0.001</td><td class=num data-v=0.1099>11.0%</td></tr><tr><td>nq_s23_w2_cam1</td><td>静态</td><td class=num><b>0.668</b></td><td class=num>0.640</td><td class='num muted'>0.661</td><td class=num data-v=0.0274>+0.027</td><td class=num data-v=0.2139>21.4%</td></tr><tr><td>nq_s26_w3_cam0</td><td>跟拍</td><td class=num>0.323</td><td class=num><b>0.490</b></td><td class='num muted'>0.494</td><td class=num data-v=-0.1678>-0.168</td><td class=num data-v=0.5021>50.2%</td></tr><tr><td>nq_s26_w6_cam0</td><td>跟拍</td><td class=num><b>0.935</b></td><td class=num>0.921</td><td class='num muted'>0.923</td><td class=num data-v=0.0139>+0.014</td><td class=num data-v=0.0423>4.2%</td></tr><tr><td>nq_s26_w7_cam1</td><td>静态</td><td class=num><b>0.613</b></td><td class=num>0.487</td><td class='num muted'>0.515</td><td class=num data-v=0.1260>+0.126</td><td class=num data-v=0.1139>11.4%</td></tr><tr><td>nq_s27_w5_cam0</td><td>跟拍</td><td class=num>0.679</td><td class=num><b>0.875</b></td><td class='num muted'>0.876</td><td class=num data-v=-0.1957>-0.196</td><td class=num data-v=0.0672>6.7%</td></tr><tr><td>nq_s28_w5_cam0</td><td>跟拍</td><td class=num>0.830</td><td class=num><b>0.841</b></td><td class='num muted'>0.843</td><td class=num data-v=-0.0105>-0.010</td><td class=num data-v=0.1564>15.6%</td></tr><tr><td>nq_s29_w7_cam0</td><td>跟拍</td><td class=num><b>0.830</b></td><td class=num>0.807</td><td class='num muted'>0.807</td><td class=num data-v=0.0227>+0.023</td><td class=num data-v=0.0751>7.5%</td></tr><tr><td>nq_s29_w7_cam1</td><td>静态</td><td class=num>0.676</td><td class=num><b>0.892</b></td><td class='num muted'>0.901</td><td class=num data-v=-0.2161>-0.216</td><td class=num data-v=0.0138>1.4%</td></tr><tr><td>nq_s30_w2_cam1</td><td>静态</td><td class=num><b>0.586</b></td><td class=num>0.527</td><td class='num muted'>0.579</td><td class=num data-v=0.0592>+0.059</td><td class=num data-v=0.1016>10.2%</td></tr><tr><td>nq_s31_w1_cam1</td><td>静态</td><td class=num><b>0.456</b></td><td class=num>0.424</td><td class='num muted'>0.412</td><td class=num data-v=0.0325>+0.033</td><td class=num data-v=0.1576>15.8%</td></tr><tr><td>nq_s31_w5_cam0</td><td>跟拍</td><td class=num>0.721</td><td class=num><b>0.811</b></td><td class='num muted'>0.812</td><td class=num data-v=-0.0904>-0.090</td><td class=num data-v=0.0463>4.6%</td></tr><tr><td>nq_s32_w3_cam0</td><td>跟拍</td><td class=num>0.831</td><td class=num><b>0.838</b></td><td class='num muted'>0.834</td><td class=num data-v=-0.0071>-0.007</td><td class=num data-v=0.0898>9.0%</td></tr><tr><td>ru_s9_w1_cam0</td><td>跟拍</td><td class=num>0.846</td><td class=num><b>0.979</b></td><td class='num muted'>0.979</td><td class=num data-v=-0.1329>-0.133</td><td class=num data-v=0.2600>26.0%</td></tr><tr><td>ruc3_s7_w0_cam0</td><td>跟拍</td><td class=num><b>0.997</b></td><td class=num>0.977</td><td class='num muted'>0.977</td><td class=num data-v=0.0197>+0.020</td><td class=num data-v=0.0183>1.8%</td></tr><tr><td>ruc3_s9_w1_cam0</td><td>跟拍</td><td class=num>0.852</td><td class=num><b>0.980</b></td><td class='num muted'>0.980</td><td class=num data-v=-0.1274>-0.127</td><td class=num data-v=0.2601>26.0%</td></tr><tr><td>ruc3_s10_w0_cam0</td><td>跟拍</td><td class=num><b>0.991</b></td><td class=num>0.980</td><td class='num muted'>0.980</td><td class=num data-v=0.0101>+0.010</td><td class=num data-v=0.1411>14.1%</td></tr><tr><td>ruc5_s23_w0_cam1</td><td>静态</td><td class=num><b>0.984</b></td><td class=num>0.969</td><td class='num muted'>0.968</td><td class=num data-v=0.0152>+0.015</td><td class=num data-v=0.1169>11.7%</td></tr><tr><td>sf_s10_w5_cam1</td><td>静态</td><td class=num>0.909</td><td class=num><b>0.923</b></td><td class='num muted'>0.924</td><td class=num data-v=-0.0136>-0.014</td><td class=num data-v=0.0959>9.6%</td></tr><tr><td>sf_s20_w0_cam0</td><td>跟拍</td><td class=num>0.970</td><td class=num><b>0.972</b></td><td class='num muted'>0.972</td><td class=num data-v=-0.0025>-0.002</td><td class=num data-v=0.1900>19.0%</td></tr><tr><td>sfc3_s10_w5_cam1</td><td>静态</td><td class=num>0.705</td><td class=num><b>0.787</b></td><td class='num muted'>0.767</td><td class=num data-v=-0.0821>-0.082</td><td class=num data-v=0.0970>9.7%</td></tr><tr><td>sfc3_s16_w2_cam1</td><td>静态</td><td class=num>0.812</td><td class=num><b>0.865</b></td><td class='num muted'>0.872</td><td class=num data-v=-0.0532>-0.053</td><td class=num data-v=0.1291>12.9%</td></tr><tr><td>sfc3_s18_w2_cam1</td><td>静态</td><td class=num>0.870</td><td class=num><b>0.877</b></td><td class='num muted'>0.884</td><td class=num data-v=-0.0074>-0.007</td><td class=num data-v=0.0735>7.4%</td></tr><tr><td>sfc5_s23_w1_cam1</td><td>静态</td><td class=num><b>0.747</b></td><td class=num>0.740</td><td class='num muted'>0.747</td><td class=num data-v=0.0069>+0.007</td><td class=num data-v=0.0772>7.7%</td></tr><tr><td>sfc5_s26_w3_cam1</td><td>静态</td><td class=num>0.571</td><td class=num><b>0.909</b></td><td class='num muted'>0.916</td><td class=num data-v=-0.3380>-0.338</td><td class=num data-v=0.0487>4.9%</td></tr><tr><td>sfc5_s27_w0_cam1</td><td>静态</td><td class=num><b>0.967</b></td><td class=num>0.937</td><td class='num muted'>0.941</td><td class=num data-v=0.0305>+0.030</td><td class=num data-v=0.0986>9.9%</td></tr><tr><td>sfc5_s27_w3_cam1</td><td>静态</td><td class=num>0.834</td><td class=num><b>0.915</b></td><td class='num muted'>0.916</td><td class=num data-v=-0.0806>-0.081</td><td class=num data-v=0.1032>10.3%</td></tr><tr><td>sfc5_s31_w3_cam0</td><td>跟拍</td><td class=num>0.964</td><td class=num><b>0.968</b></td><td class='num muted'>0.968</td><td class=num data-v=-0.0040>-0.004</td><td class=num data-v=0.1701>17.0%</td></tr><tr><td>sfc5_s32_w2_cam0</td><td>跟拍</td><td class=num>0.938</td><td class=num><b>0.948</b></td><td class='num muted'>0.948</td><td class=num data-v=-0.0101>-0.010</td><td class=num data-v=0.1547>15.5%</td></tr><tr><td>sfc5_s38_w1_cam0</td><td>跟拍</td><td class=num>0.897</td><td class=num><b>0.943</b></td><td class='num muted'>0.942</td><td class=num data-v=-0.0452>-0.045</td><td class=num data-v=0.1236>12.4%</td></tr><tr><td>sfc5_s41_w0_cam0</td><td>跟拍</td><td class=num><b>0.992</b></td><td class=num>0.974</td><td class='num muted'>0.974</td><td class=num data-v=0.0179>+0.018</td><td class=num data-v=0.0969>9.7%</td></tr><tr><td>sfc5_s47_w1_cam1</td><td>静态</td><td class=num><b>0.810</b></td><td class=num>0.730</td><td class='num muted'>0.792</td><td class=num data-v=0.0797>+0.080</td><td class=num data-v=0.1318>13.2%</td></tr><tr><td>sfc5_s49_w1_cam0</td><td>跟拍</td><td class=num>0.915</td><td class=num><b>0.927</b></td><td class='num muted'>0.925</td><td class=num data-v=-0.0117>-0.012</td><td class=num data-v=0.2052>20.5%</td></tr><tr><td>sfc5_s50_w0_cam1</td><td>静态</td><td class=num><b>0.845</b></td><td class=num>0.752</td><td class='num muted'>0.806</td><td class=num data-v=0.0928>+0.093</td><td class=num data-v=0.3822>38.2%</td></tr><tr><td>sfc5_s52_w1_cam1</td><td>静态</td><td class=num>0.802</td><td class=num><b>0.906</b></td><td class='num muted'>0.908</td><td class=num data-v=-0.1034>-0.103</td><td class=num data-v=0.2023>20.2%</td></tr><tr><td>sfc5_s53_w0_cam0</td><td>跟拍</td><td class=num><b>0.996</b></td><td class=num>0.969</td><td class='num muted'>0.969</td><td class=num data-v=0.0269>+0.027</td><td class=num data-v=0.0304>3.0%</td></tr><tr><td>sfc5_s53_w0_cam1</td><td>静态</td><td class=num><b>0.931</b></td><td class=num>0.918</td><td class='num muted'>0.916</td><td class=num data-v=0.0136>+0.014</td><td class=num data-v=0.0437>4.4%</td></tr><tr><td>sfc5_s53_w2_cam1</td><td>静态</td><td class=num><b>0.900</b></td><td class=num>0.881</td><td class='num muted'>0.887</td><td class=num data-v=0.0190>+0.019</td><td class=num data-v=0.2812>28.1%</td></tr><tr><td>sfc5_s54_w6_cam1</td><td>静态</td><td class=num>0.666</td><td class=num><b>0.878</b></td><td class='num muted'>0.883</td><td class=num data-v=-0.2126>-0.213</td><td class=num data-v=0.0817>8.2%</td></tr></tbody></table></div></details>
+  </div>
+</section>
+
+<section id="chain">
+  <div class="wrap">
+    <h2>链式误差：系统偏差还是随机误差</h2>
+    <p class="lead">结论：s4d_train 链式 motion_head 的误差以系统偏差为主，不是逐跳独立的随机误差。但它也不是一个全局常量偏差，而是按段变化、能持续 3 到 4 跳的偏差。下面用真值起点的预测做分解，checkpoint 为 step 44000，测试集 100 段，共 11 跳。</p>
+    <h3 class="h3">测法</h3>
+    <p class="lead">每一跳回归的是相对上一跳的位移，再累加成位置。所以终点误差可以严格拆开：</p>
+    <pre class="formula">E_t = E_0 + Σ_(k≤t) ε_k            ε_k = 第 k 跳预测位移 − 真值位移
+E‖S_K‖² = Σ_k E‖ε_k‖²  +  2 Σ_(i&lt;j) E[ε_i · ε_j]
+          对角项：像独立误差     交叉项：跳间相关，即系统性累积
+R = E‖S_K‖² / Σ_k E‖ε_k‖²       逐跳独立时 R ≈ 1，偏差一直不变时 R ≈ K</pre>
+    <ol class="find">
+      <li><b>用真值起点，并且只用第 0 帧对齐。</b>这样起点误差为零。整段一起拟合的 Sim(3) 会把段级的尺度和平移漂移吸收掉，所以这里不用。</li>
+      <li><b>算交叉项占比和 R。</b>它们回答误差是否在跳与跳之间相关。</li>
+      <li><b>看不同间隔的跳之间误差的相关。</b>它说明偏差能持续几跳。</li>
+      <li><b>按来源拆。</b>分成三部分：所有段共有的常量、段内所有点共同的平移、点自己的误差。</li>
+      <li><b>每段用少量参数校正累积位移，看能消掉多少误差。</b>参数有缩放、平移、3×3 线性变换。消得掉的部分就是和条件相关的系统偏差。</li>
+      <li><b>算反馈系数。</b>它等于下一跳误差在已累积误差上的投影。负值说明模型会把误差拉回来，正值说明误差在放大。</li>
+    </ol>
+    <h3 class="h3">结果</h3>
+    <p class="lead">灰色列是自估起点的对照。它的第 0 帧对齐尺度来自模型自己估的起点形状，会连带缩放位移，所以它的位移比值不可信。</p>
+    <div class="tablewrap"><table><thead><tr><th>指标</th><th class=num>连续取帧<br>真值起点</th><th class=num>每 10 帧取 1 帧<br>真值起点</th><th class=num>连续取帧<br>自估起点（对照）</th></tr></thead><tbody><tr><td>第 11 帧 RMSE (m)</td><td class='num'>0.44</td><td class='num'>4.77</td><td class='num muted'>0.88</td></tr><tr><td>交叉项占终点 MSE</td><td class='num'>69%</td><td class='num'>73%</td><td class='num muted'>85%</td></tr><tr><td>R（独立 = 1，持续 = 11）</td><td class='num'>3.3</td><td class='num'>3.7</td><td class='num muted'>6.8</td></tr><tr><td>间隔 1 / 3 / 5 跳的误差相关</td><td class='num'>0.69 / 0.23 / 0.00</td><td class='num'>0.60 / 0.31 / 0.11</td><td class='num muted'>0.82 / 0.60 / 0.48</td></tr><tr><td>段内共同平移占比</td><td class='num'>55%</td><td class='num'>73%</td><td class='num muted'>88%</td></tr><tr><td>全局常量偏差占比</td><td class='num'>1.3%</td><td class='num'>3.6%</td><td class='num muted'>7.5%</td></tr><tr><td>预测位移 / 真值位移</td><td class='num'>0.90</td><td class='num'>0.62</td><td class='num muted'>1.23</td></tr><tr><td>全局缩放能解释</td><td class='num'>3.6%</td><td class='num'>51%</td><td class='num muted'>24%</td></tr><tr><td>每段缩放 + 平移能消掉</td><td class='num'>74%</td><td class='num'>82%</td><td class='num muted'>94%</td></tr><tr><td>每段 3×3 线性 + 平移能消掉</td><td class='num'>84%</td><td class='num'>93%</td><td class='num muted'>96%</td></tr><tr><td>反馈系数</td><td class='num'>+0.07</td><td class='num'>+0.09</td><td class='num muted'>+0.18</td></tr><tr><td>跟拍 / 静态机位终点 RMSE (m)</td><td class='num'>0.34 / 0.58</td><td class='num'>5.41 / 3.32</td><td class='num muted'>0.72 / 1.11</td></tr></tbody></table></div>
+    <ul class="find" style="margin-top:20px">
+      <li><b>主要是系统偏差。</b>69% 到 73% 的终点误差来自跳与跳之间的正相关。如果是独立随机误差，这一项应该接近零。</li>
+      <li><b>偏差按段而定，持续 3 到 4 跳。</b>全局常量偏差只占 1.3% 到 3.6%，大部分是整段点一起往同一方向漂。每段只用几个参数就能消掉 74% 到 93%。这些参数拟合不了逐点独立的噪声，只能吸收空间上平滑的误差，所以这个比例可以看作段级系统偏差占比的上限。</li>
+      <li><b>位移被系统性地低估，跳越大越严重。</b>每 10 帧取一帧时，三个方向都只预测出真值的 0.62 到 0.64，光这一项就占终点误差的 51%。连续取帧时只低估 10%，占比 3.6%。</li>
+      <li><b>链没有自我纠正。</b>训练时在跳之间截断梯度，本意是让每一跳去修正累积误差。但实测反馈系数是 +0.07 和 +0.09，说明误差略有放大。</li>
+      <li><b>连续取帧时静态机位更差。</b>静态机位终点误差 0.58 m，跟拍机位 0.34 m。</li>
+      <li><b>自估起点时系统性更强。</b>R 为 6.75，段内共同误差占 88%。这是因为起点几何的尺度和位移的尺度不一致，这也是段级的系统偏差。</li>
+    </ul>
+
+    <h3 class="h3" id="ceiling">去掉系统偏差后的上限（自估起点）</h3>
+    <p class="lead">用本页的 s4d_train 预测，即因果、连续取帧、自 query 起点。第 0 帧的预测保持不动，只校正链累积出的位移，再用和主指标相同的 4RC 打分重算。除"全部段共用一个缩放"外，校正参数都是对每段用真值拟合的，所以给出的是上限，不是能直接做到的分数。每段约 3000 个点，这几十个参数拟合不了逐点独立的噪声，只能去掉段级的系统偏差。RANSAC 固定了种子，不校正一行比正式评测低 0.003。EPE 对 RANSAC 解很敏感，有一段因此从 0.63 m 变成 5.3 m，所以这里不报 EPE。</p>
+    <p class="lead"><b>两种校正的定义。</b>第 i 个点从第 0 帧到第 t 帧，预测的累积位移记为 Dp，真值的累积位移记为 Dg。校正只改 Dp，第 0 帧的起点不动。</p>
+    <pre class="formula">Dp[t,i] = p[t,i] − p[0,i]          Dg[t,i] = g[t,i] − g[0,i]
+
+每帧共同平移：
+  b[t]     = mean_i ( Dp[t,i] − Dg[t,i] )          每帧一个 3 维向量，11 帧共 33 个参数
+  Dp'[t,i] = Dp[t,i] − b[t]
+
+3×3 线性 + 每帧共同平移：
+  cp[t,i]  = Dp[t,i] − mean_i Dp[t,i]             先去掉每帧的平均位移
+  cg[t,i]  = Dg[t,i] − mean_i Dg[t,i]
+  A        = argmin Σ_(t,i) ‖A·cp[t,i] − cg[t,i]‖²    每段一个 3×3 矩阵，各帧共用，9 个参数
+  Dp'[t,i] = A·cp[t,i] + mean_i Dg[t,i]            再加 33 个平移参数，共 42 个</pre>
+    <ul class="find" style="margin-bottom:20px">
+      <li><b>每帧共同平移修正的是整个人一起漂。</b>每一帧算出段内所有点的平均误差，从每个点上减掉。修正后预测点云的重心轨迹和真值完全一致，但各点相对重心怎么动仍是模型自己的预测。比如第 5 帧整个人比真值落后 10 cm，就把所有点一起往前挪 10 cm。它对应上表的"段内共同平移"。</li>
+      <li><b>3×3 线性修正的是各点相对重心的运动在形状上错得有规律。</b>去掉每帧平均位移后，每段用一个矩阵把预测的相对位移映射到真值。它能表示幅度不对（比如四肢摆幅只预测出八成），各方向缩放不同（比如深度方向比横向压得更扁），以及运动方向的偏转和剪切。</li>
+      <li><b>每段缩放加每帧平移是它的简化版。</b>矩阵换成一个标量，只修幅度。</li>
+      <li><b>这些校正只能去掉段级系统偏差。</b>每段约 3000 个点，只有 33 到 42 个参数，修不了点与点之间不相关的随机误差，只能去掉整段共享、并且随位移线性变化的误差。</li>
+      <li><b>所以表里的分数是上限。</b>参数用真值拟合，部署时没法这样算。每帧平移逐帧拟合，也会顺带吸收一部分逐帧变化、不一定持续的共同误差，所以 0.781 和 0.814 比只去掉持续偏差能达到的分数略高。</li>
+    </ul>
+    <div class="tablewrap"><table><thead><tr><th>校正（只改累积位移，起点不动）</th><th class=num>每段参数</th><th class=num>可见 avg_pts</th><th class=num>相对不校正</th><th class=num>第 11 帧<br>可见 avg_pts</th><th class=num>全部点 avg_pts</th><th class=num>好过 Point4D<br>因果的段数</th></tr></thead><tbody><tr><td>不校正</td><td class=num>0</td><td class=num>0.723</td><td class=num>+0.000</td><td class=num>0.617</td><td class=num>0.718</td><td class=num>39</td></tr><tr><td>全部段共用一个位移缩放</td><td class=num>全局 1 个（0.70）</td><td class=num>0.724</td><td class=num>+0.000</td><td class=num>0.581</td><td class=num>0.719</td><td class=num>31</td></tr><tr><td>每段一个位移缩放</td><td class=num>1</td><td class=num>0.770</td><td class=num>+0.046</td><td class=num>0.705</td><td class=num>0.762</td><td class=num>51</td></tr><tr><td>每段每帧去掉共同平移</td><td class=num>33</td><td class=num>0.781</td><td class=num>+0.058</td><td class=num>0.722</td><td class=num>0.774</td><td class=num>53</td></tr><tr><td>每段缩放 + 每帧共同平移</td><td class=num>34</td><td class=num>0.796</td><td class=num>+0.073</td><td class=num>0.742</td><td class=num>0.790</td><td class=num>64</td></tr><tr><td>每段 3×3 线性 + 每帧共同平移</td><td class=num>42</td><td class=num>0.814</td><td class=num>+0.090</td><td class=num>0.766</td><td class=num>0.808</td><td class=num>65</td></tr><tr><td>链完全正确，只剩起点误差</td><td class=num>—</td><td class=num>0.856</td><td class=num>+0.133</td><td class=num>0.852</td><td class=num>0.852</td><td class=num>83</td></tr><tr class=ctrl><td><span class='key s2'></span>参考：Point4D head 因果</td><td class=num>—</td><td class=num>0.774</td><td class=num>—</td><td class=num>0.770</td><td class=num>0.768</td><td class=num>—</td></tr><tr class=ctrl><td><span class='key s2 dash'></span>参考：Point4D head 整段</td><td class=num>—</td><td class=num>0.781</td><td class=num>—</td><td class=num>0.773</td><td class=num>0.776</td><td class=num>—</td></tr></tbody></table></div>
+    <ul class="find" style="margin-top:20px">
+      <li><b>去掉段级系统偏差后，可见 avg_pts 的上限在 0.80 到 0.81。</b>不校正时是 0.723。这已经超过 Point4D head 的因果结果 0.774 和整段结果 0.781。</li>
+      <li><b>只去掉每帧的共同平移就有 +0.058。</b>它对应前面"段内共同平移"那一项，是最大的单项系统偏差。每段一个缩放给 +0.046。</li>
+      <li><b>全部段共用一个缩放没有用。</b>可见 avg_pts 几乎不变，第 11 帧还从 0.617 降到 0.581。各段的尺度偏差方向不一，而且整段 Sim(3) 会吸收一部分全局尺度。</li>
+      <li><b>自 query 起点本身的上限是 0.856。</b>这时链完全正确，误差只来自起点，各帧都在 0.85 左右。它和前面只用第 0 帧单独对齐得到的起点分数 0.86 一致。</li>
+      <li><b>去掉系统偏差后，第 11 帧从 0.617 升到 0.742 到 0.766。</b>Point4D head 因果在第 11 帧是 0.770，去掉系统偏差后已经接近它。</li>
+    </ul>
+
+    <h3 class="h3">还缺的两个实验</h3>
+    <p class="lead">模型是确定性的，所以严格的"随机误差"需要人为制造样本分布。这两项要改一点代码，还要 GPU。</p>
+    <ul class="find">
+      <li><b>输入扰动集成。</b>对 query 像素抖 ±1 px 或加图像噪声，跑 N 次。各次之间的方差是随机部分，集成均值的误差是系统部分。</li>
+      <li><b>每跳都喂真值位置。</b>现在的 teacher forcing 只作用在起点。每跳都给真值输入，能把单跳本身的误差和喂回自身预测造成的误差分开。</li>
+      <li><b>已有的多路径平均不能用来判断。</b>np5、np10 的随机路线会跨 2 帧，跳的分布变了，分数也是变差的。</li>
+    </ul>
+    <p class="lead" style="margin-top:16px">数据：真值起点预测在 <code>point_track_f12_gt/s4d_train_step44000/</code> 的 s4d_test100_s1 与 s4d_test100_s10，自估起点用本页的 s4d_train 预测。分解脚本只用 CPU，汇总数字在 <code>point_track_f12_causal/chain_bias_var/</code>。</p>
+  </div>
+</section>
+
+<footer><div class="wrap">结果：<code>experiment/eval_results/point_track_f12_causal/</code>，三个子目录分别为 s4d_train_step44000、point4d_abl_step44000_causalproto、point4d_abl_step44000，各含 track_eval_s4d_test100_s1.txt 与 results.json。生成于 2026-10-21。</div></footer>
+<script>
+const PF = {"labels": ["s4d_train \u00b7 step 44000", "Point4D head \u00b7 step 44000", "Point4D head \u00b7 step 44000 \u00b7 \u6574\u6bb5\uff08\u5bf9\u7167\uff09"], "cls": ["s1", "s2", "s2 dash"], "avg_pts_vis": [[0.7942, 0.8108, 0.804, 0.7884, 0.7716, 0.7444, 0.7141, 0.6951, 0.6743, 0.6515, 0.6321, 0.6103], [0.7572, 0.7671, 0.7683, 0.7732, 0.7794, 0.7789, 0.7816, 0.7803, 0.7813, 0.7786, 0.7773, 0.7698], [0.7664, 0.7759, 0.7795, 0.7814, 0.7892, 0.7869, 0.7876, 0.7854, 0.7853, 0.7827, 0.7808, 0.7731]], "epe_vis": [[0.3104, 0.2939, 0.2941, 0.3057, 0.3217, 0.344, 0.3718, 0.3989, 0.4272, 0.4642, 0.4934, 0.5249], [0.5925, 0.5722, 0.5657, 0.5596, 0.5499, 0.5454, 0.5398, 0.5421, 0.5449, 0.5458, 0.543, 0.5497], [0.5871, 0.5648, 0.5585, 0.5555, 0.548, 0.5449, 0.5408, 0.5444, 0.5457, 0.5475, 0.5452, 0.5508]], "occ": [0.0, 0.0431, 0.0718, 0.0896, 0.1066, 0.1218, 0.1349, 0.1543, 0.1629, 0.1643, 0.1625, 0.1658]};
+document.querySelectorAll('.chart').forEach(fig => {
+  const key = fig.dataset.key, tip = fig.querySelector('.tip'), cross = fig.querySelector('.cross'), svg = fig.querySelector('svg');
+  const unit = key === 'epe_vis' ? ' m' : '';
+  fig.querySelectorAll('.hit').forEach(h => {
+    const show = () => {
+      const t = +h.dataset.t, cx = +h.getAttribute('x') + +h.getAttribute('width') / 2;
+      cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); fig.classList.add('on');
+      tip.innerHTML = '<b>帧 ' + t + '</b>' + PF.labels.map((l, i) =>
+        '<div class=row><span><span class="key ' + PF.cls[i] + '"></span>' + l.replace(' · step 44000', '') + '</span><span>' + PF[key][i][t].toFixed(3) + unit + '</span></div>').join('') +
+        '<div class=row><span>遮挡占比</span><span>' + (PF.occ[t] * 100).toFixed(1) + '%</span></div>';
+      tip.hidden = false;
+      const r = svg.getBoundingClientRect(), px = cx / svg.viewBox.baseVal.width * r.width;
+      tip.style.left = Math.min(Math.max(px + 22, 8), fig.clientWidth - tip.offsetWidth - 8) + 'px';
+      if (px + 22 + tip.offsetWidth > fig.clientWidth - 8) tip.style.left = Math.max(px - tip.offsetWidth - 14, 8) + 'px';
+    };
+    h.addEventListener('mouseenter', show); h.addEventListener('click', show);
+  });
+  fig.addEventListener('mouseleave', () => { tip.hidden = true; fig.classList.remove('on'); });
+});
+document.querySelectorAll('table.sortable').forEach(tb => {
+  tb.querySelectorAll('th[data-sort]').forEach((th, ci) => {
+    th.tabIndex = 0;
+    const go = () => {
+      const body = tb.tBodies[0], rows = [...body.rows], num = th.dataset.sort === 'n', dir = th.dataset.dir === 'asc' ? -1 : 1;
+      const v = r => { const c = r.cells[ci]; return num ? +(c.dataset.v ?? c.textContent) : c.textContent; };
+      rows.sort((a, b) => (num ? v(a) - v(b) : v(a).localeCompare(v(b))) * dir);
+      th.dataset.dir = dir === 1 ? 'asc' : 'desc'; rows.forEach(r => body.appendChild(r));
+    };
+    th.addEventListener('click', go); th.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+});
+</script>
+</body>
+</html>
