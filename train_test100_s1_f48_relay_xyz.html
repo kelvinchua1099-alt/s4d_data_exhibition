@@ -1,0 +1,2105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4D Relay 48 Frames</title>
+<meta name="description" content="History head v2 与 Point4D head（都是 step 24000）在连续 48 帧上 5 块接力（Point4D 式 3D 交接）、按 Point4D 用共享帧深度云 Sim(3) 拼接的对比，每段带 3D 查看器。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+<style>
+.summary tr.main td{font-weight:600}
+.summary tr.ref td{opacity:.6}
+.summary td.best{color:var(--accent)}
+.cmp{grid-template-columns:repeat(auto-fill,minmax(min(440px,100%),1fr))}
+.cmp .card img{width:100%;display:block;aspect-ratio:16/9;background:#000;cursor:pointer}
+.cmp .kv{grid-template-columns:repeat(2,1fr);gap:4px 6px}
+.cmp .kv div{padding-left:6px;min-width:0}.cmp .kv div span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp .best{color:var(--accent)}
+.cmp .card[data-cam="1"]{display:none}.cmp.all .card[data-cam="1"]{display:flex}
+.cmp.static .card[data-cam="0"]{display:none}.cmp.static .card[data-cam="1"]{display:flex}
+.btn3d{float:right;background:var(--panel2);color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn3d:hover{border-color:var(--accent)}
+.ctl button.on{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="index.html">← S4D Data Exhibition</a>
+    <h1>History head v2 vs Point4D head · 48 帧 5 块接力（3D 交接）+ 块间 Sim(3) 拼接 · 测试集 100 段</h1>
+    <p class="sub"><a href="train_test100_s1_f23_relay_stitch.html">23 帧两块接力页</a>的加长版：同一批 100 段测试集（和 <a href="train_test100_s1_f48_relay.html">48 帧接力页</a>同一份数据、同样的第 0 帧 query），连续 48 帧（1.6 s）。两个 step 24000 的模型都按 Point4D <code>track_long_video</code> 切块接力：块长 13 帧、相邻块<b>共享 3 帧</b>，共 5 块（0–12 / 10–22 / 20–32 / 30–42 / 40–47，末块 8 帧），每块独立前向；块间用 Point4D 的 <b>3D 交接</b>（共享帧深度云估块间 Sim(3)，把上一块在交接帧的预测 3D 点搬进下一块当起点）。打分前照 Point4D 的拼法把块 1–4 逐个拼到块 0 的坐标系：块间 Sim(3) 就是交接时共享帧深度云估的那个，链式复合后取逆搬过去，共享帧从前一块平滑过渡到后一块；拼成一条后整段一次 RANSAC Sim(3) 对齐到 GT——不借助 GT 的接力结果。每块各自对齐到 GT、整段 48 帧一次前向（训练长度的 4 倍），以及旧版拼接（用共享帧上的轨迹点拟合块间 Sim(3)）作对照。</p>
+    <div class="stats">
+      <div class="stat"><b>100</b><span>测试段（跟拍 50 / 静态 50）</span></div>
+      <div class="stat"><b>48</b><span>帧 / 段，切 5 块、4 次交接</span></div>
+      <div class="stat"><b>0.592</b><span>History v2 · 3D 交接拼接后 avg_pts</span></div>
+      <div class="stat"><b>0.623</b><span>Point4D head · 3D 交接拼接后 avg_pts</span></div>
+    </div>
+  </div>
+</header>
+<section id="protocol">
+  <div class="wrap">
+    <h2>约定</h2>
+    <p class="lead">除帧数和块数外和 <a href="train_test100_s1_f23_relay_stitch.html">23 帧两块接力页</a>的主行完全相同（同一个评测脚本、同样的 3D 交接和拼接），那页的约定表逐条适用；前两块的推理和 23 帧页是同一回事，差别只在打分时整段对齐用的帧更多。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:20%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>数据</td><td><code>4RC/data/s4d_test100_s1_f48</code> 全部 48 帧（源帧 0–47 连续，1280×720），query = 第 0 帧前景 mask 内每 4 像素取 1 个，真值在第 0 帧相机系、米制</td></tr>
+        <tr><td>切块</td><td>stride = 13 − 3 = 10：块 k = 帧 10k – 10k+12（末块截到 47）；拼接行的共享帧照 Point4D 默认的 <code>overlap_strategy="smooth"</code> 混合（帧 10k 取块 k−1、10k+1 两块各半、10k+2 取块 k）；逐块对 GT 行和旧版拼接行的共享帧归前一块，块 k（k ≥ 1）贡献帧 10k+3 – 10k+12</td></tr>
+        <tr><td>3D 交接</td><td><code>eval_point_track_relay.py --handoff xyz</code>：块 k+1 先前向一次拿深度云，和块 k 在 3 个共享帧上的深度云配对、按 Point4D <code>_chunk_sim3</code> 估块 k → 块 k+1 的 Sim(3)，块 k 在交接帧（块 k+1 的第 0 帧）的预测 3D 经它搬过去当块 k+1 的起点，再前向一次；query 像素 = 起点 3D 投影、裁到画内（patch 从这里裁，原版沿用出生处 patch）</td></tr>
+        <tr><td>块间拼接（打分）</td><td>照 Point4D <code>track_long_video</code>：块 0 不动；块 k−1 → 块 k 的 Sim(3) 就是 3D 交接时共享帧深度云估的那个，从块 0 起链式复合、取逆把块 k 搬到块 0 第 0 帧相机系，共享帧按上面的权重混合（<code>rescore_point_track.py --stitch --stitch_mode point4d</code>）。误差会沿 4 个接缝累积。只用模型自己的预测，不碰 GT。<b>旧版拼接</b>（灰色行，这页之前的主行）：块 k 在和块 k−1 共享的 3 帧上与已拼好的轨迹点逐点配对，拟合一次 RANSAC Sim(3)（1000 次 3 点、内点 5 cm 模型单位、精化，<code>--stitch_mode tracks</code>）——只有前景点、而且把两块轨迹在共享帧上的差异吸收进对齐里，不是 Point4D 的做法</td></tr>
+        <tr><td>打分</td><td>4RC <code>track_eval.py</code> 口径（avg_pts = 0.1 / 0.3 / 0.5 / 1.0 m 内比例的平均，dyn 只算总运动 &gt; 0.01 m 的点，EPE 全部点·帧平均），全部 RANSAC Sim(3)：拼接 / 整段行整段一次，逐块对 GT 行每块一次（借 GT 的尺度和位姿，是拼接完美时的参照）。survival 同 PIPs++ 口径。RANSAC 没设种子，汇总表另给 5 次重复打分的均值 ± std</td></tr>
+        <tr><td>3D 查看器</td><td>GT（黑）与两个模型 3D 交接 + 块间拼接后的轨迹（整段一次 RANSAC Sim(3) 对齐到 GT），每段最多 300 条、GT 相机视锥；右下角逐帧平均误差曲线（帧 13 / 23 / 33 / 43 起换块）</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="summary">
+  <div class="wrap">
+    <h2>汇总</h2>
+    <div class="tablewrap"><table class="summary">
+      <thead><tr><th>设置</th><th>模型</th><th>avg_pts<br><small>全部 100 段</small></th><th>avg_pts_dyn</th><th>avg_pts<br><small>跟拍 50 段</small></th><th>avg_pts<br><small>静态 50 段</small></th><th>EPE (m)</th><th>survival (%)</th><th>单段较好</th><th>5 次 RANSAC 均值 ± std<br><small>avg_pts / EPE / survival</small></th></tr></thead>
+      <tbody>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.592</td><td>0.592</td><td>0.657</td><td>0.526</td><td class=best>0.686</td><td>63.2</td><td>26</td><td>0.592 ± 0.002 / 0.72 ± 0.05 / 62.5 ± 1.2</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td class=best>0.623</td><td class=best>0.617</td><td class=best>0.697</td><td class=best>0.548</td><td>0.876</td><td class=best>70.4</td><td>74</td><td>0.618 ± 0.004 / 0.90 ± 0.03 / 71.1 ± 0.7</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.573</td><td>0.574</td><td>0.643</td><td>0.504</td><td class=best>0.763</td><td>63.5</td><td>23</td><td>0.577 ± 0.003 / 0.75 ± 0.05 / 62.2 ± 0.8</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td class=best>0.626</td><td class=best>0.627</td><td class=best>0.701</td><td class=best>0.551</td><td>0.861</td><td class=best>71.1</td><td>77</td><td>0.627 ± 0.003 / 0.88 ± 0.03 / 71.9 ± 0.5</td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.624</td><td>0.624</td><td>0.688</td><td>0.561</td><td class=best>0.803</td><td>58.9</td><td>26</td><td>0.627 ± 0.003 / 0.79 ± 0.02 / 58.7 ± 0.4</td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td class=best>0.668</td><td class=best>0.670</td><td class=best>0.737</td><td class=best>0.599</td><td>0.840</td><td class=best>71.2</td><td>74</td><td>0.666 ± 0.001 / 0.86 ± 0.01 / 71.2 ± 0.3</td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>History head v2 · step 24000</td><td class=best>0.569</td><td class=best>0.572</td><td class=best>0.616</td><td class=best>0.523</td><td class=best>0.724</td><td>55.5</td><td>65</td><td>0.571 ± 0.003 / 0.75 ± 0.05 / 56.2 ± 0.9</td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>Point4D head · step 24000</td><td>0.525</td><td>0.528</td><td>0.550</td><td>0.499</td><td>1.068</td><td class=best>59.3</td><td>35</td><td>0.526 ± 0.002 / 1.05 ± 0.01 / 59.1 ± 0.5</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:14px">加粗两行是主行（3D 交接 + 深度云 Sim(3) 拼接）。蓝色为同一设置下两模型中较好的那个；单段较好 = 逐段比 avg_pts 各赢几段。两种拼接行和逐块对 GT 行是同一批预测，只差各块怎么对齐。前几列和其余各节都是第 1 次打分，最后一列是重复 5 次的均值 ± 标准差（深度云拼接是确定的，只有最后对齐到 GT 的 RANSAC 重做；旧版轨迹点拼接连块间 RANSAC 一起重做）；差 &lt;0.02 的不要当结论。</p>
+    <h3 style="margin-top:18px">各阈值内的点比例</h3>
+    <p class="lead">avg_pts 就是这四列的平均（每段先算比例再对 100 段平均）。5 次打分的均值，括号是标准差。</p>
+    <div class="tablewrap"><table class="summary">
+      <thead><tr><th>设置</th><th>模型</th><th>&lt; 0.1 m</th><th>&lt; 0.3 m</th><th>&lt; 0.5 m</th><th>&lt; 1.0 m</th><th>avg_pts</th></tr></thead>
+      <tbody>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.189<small>（0.002）</small></td><td>0.562<small>（0.003）</small></td><td class=best>0.739<small>（0.004）</small></td><td class=best>0.876<small>（0.006）</small></td><td>0.592</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td class=best>0.282<small>（0.002）</small></td><td class=best>0.612<small>（0.004）</small></td><td>0.735<small>（0.006）</small></td><td>0.842<small>（0.005）</small></td><td>0.618</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.183<small>（0.001）</small></td><td>0.543<small>（0.004）</small></td><td>0.721<small>（0.005）</small></td><td class=best>0.860<small>（0.005）</small></td><td>0.577</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td class=best>0.299<small>（0.001）</small></td><td class=best>0.622<small>（0.003）</small></td><td class=best>0.739<small>（0.003）</small></td><td>0.848<small>（0.006）</small></td><td>0.627</td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.241<small>（0.001）</small></td><td>0.618<small>（0.003）</small></td><td class=best>0.772<small>（0.004）</small></td><td class=best>0.875<small>（0.006）</small></td><td>0.627</td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td class=best>0.370<small>（0.001）</small></td><td class=best>0.675<small>（0.001）</small></td><td>0.771<small>（0.002）</small></td><td>0.850<small>（0.002）</small></td><td>0.666</td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>History head v2 · step 24000</td><td>0.179<small>（0.001）</small></td><td class=best>0.531<small>（0.005）</small></td><td class=best>0.715<small>（0.005）</small></td><td class=best>0.860<small>（0.004）</small></td><td>0.571</td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>Point4D head · step 24000</td><td class=best>0.220<small>（0.001）</small></td><td>0.478<small>（0.002）</small></td><td>0.623<small>（0.004）</small></td><td>0.782<small>（0.006）</small></td><td>0.526</td></tr>
+      </tbody>
+    </table></div>
+<p class="note" style="margin-top:14px"><b>结论（step 24000，5 次打分）</b>：① 深度云 Sim(3) 拼接后 Point4D head 0.618 ± 0.004 仍高于 History v2 0.592 ± 0.002（逐段 74 : 26），survival 71.1 vs 62.5；History 的 EPE 更低（0.72 vs 0.90 m）。② History 只在块 0 领先（0.719 vs 0.697），块 1 起被反超且逐块拉开（块 4：0.445 vs 0.497）。③ 拼接方式换成深度云后 History +0.015（0.577 → 0.592），Point4D −0.009（0.627 → 0.618），差距从 0.050 缩到 0.026，排名不变；History 的块间尺度中位数逐块从 0.997 降到 0.974，Point4D 一直在 1.00 附近。④ 整段 48 帧一次前向反而 History 好（0.571 vs 0.526）：接力给 Point4D 带来 +0.09，给 History 只 +0.02。⑤ 逐块对 GT（借 GT 尺度和位姿）是拼接的上限：0.627 / 0.666，拼接本身各损失约 0.035 / 0.048。</p>
+  </div>
+</section>
+<section id="chunks">
+  <div class="wrap">
+    <h2>逐块 / 逐帧</h2>
+    <p class="lead">每块贡献的帧范围内的 avg_pts / EPE（100 段平均）。</p>
+    <div class="tablewrap"><table class="summary">
+      <thead><tr><th>设置</th><th>模型</th><th>块 0<br><small>帧 0–12</small></th><th>块 1<br><small>帧 13–22</small></th><th>块 2<br><small>帧 23–32</small></th><th>块 3<br><small>帧 33–42</small></th><th>块 4<br><small>帧 43–47</small></th></tr></thead>
+      <tbody>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.719<br><small>EPE 0.58</small></td><td>0.623<br><small>EPE 0.63</small></td><td>0.557<br><small>EPE 0.69</small></td><td>0.502<br><small>EPE 0.77</small></td><td>0.445<br><small>EPE 0.88</small></td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.697<br><small>EPE 0.82</small></td><td>0.668<br><small>EPE 0.78</small></td><td>0.609<br><small>EPE 0.82</small></td><td>0.556<br><small>EPE 0.95</small></td><td>0.497<br><small>EPE 1.18</small></td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.711<br><small>EPE 0.65</small></td><td>0.610<br><small>EPE 0.70</small></td><td>0.536<br><small>EPE 0.77</small></td><td>0.475<br><small>EPE 0.85</small></td><td>0.414<br><small>EPE 0.97</small></td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td>0.707<br><small>EPE 0.78</small></td><td>0.676<br><small>EPE 0.76</small></td><td>0.611<br><small>EPE 0.81</small></td><td>0.554<br><small>EPE 0.96</small></td><td>0.492<br><small>EPE 1.17</small></td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.741<br><small>EPE 0.47</small></td><td>0.636<br><small>EPE 0.70</small></td><td>0.587<br><small>EPE 0.91</small></td><td>0.542<br><small>EPE 1.16</small></td><td>0.539<br><small>EPE 0.94</small></td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.740<br><small>EPE 0.63</small></td><td>0.682<br><small>EPE 0.85</small></td><td>0.652<br><small>EPE 0.87</small></td><td>0.612<br><small>EPE 0.96</small></td><td>0.597<br><small>EPE 1.08</small></td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>History head v2 · step 24000</td><td>0.713<br><small>EPE 0.56</small></td><td>0.618<br><small>EPE 0.63</small></td><td>0.530<br><small>EPE 0.74</small></td><td>0.460<br><small>EPE 0.86</small></td><td>0.396<br><small>EPE 1.04</small></td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>Point4D head · step 24000</td><td>0.709<br><small>EPE 0.84</small></td><td>0.647<br><small>EPE 0.85</small></td><td>0.383<br><small>EPE 1.22</small></td><td>0.374<br><small>EPE 1.29</small></td><td>0.390<br><small>EPE 1.34</small></td></tr>
+      </tbody>
+    </table></div>
+    <h3 style="margin-top:18px">逐帧 avg_pts</h3>
+    <p class="lead">100 段平均。帧 10–12 / 20–22 / 30–32 / 40–42 是共享帧（拼接行两块混合，其余行归前一块），帧 13 / 23 / 33 / 43 起完全由块 1–4 给出。</p>
+    <div class="tablewrap"><table class="summary">
+      <thead><tr><th>设置</th><th>模型</th><th>0</th><th>6</th><th>12</th><th>13</th><th>17</th><th>22</th><th>23</th><th>27</th><th>32</th><th>33</th><th>37</th><th>42</th><th>43</th><th>47</th></tr></thead>
+      <tbody>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>History head v2 · step 24000</td><td>0.756</td><td>0.723</td><td>0.673</td><td>0.663</td><td>0.626</td><td>0.587</td><td>0.582</td><td>0.556</td><td>0.542</td><td>0.536</td><td>0.507</td><td>0.463</td><td>0.456</td><td>0.434</td></tr>
+        <tr class="main"><td>3D 交接 · 块间拼接</td><td>Point4D head · step 24000</td><td>0.687</td><td>0.703</td><td>0.685</td><td>0.682</td><td>0.674</td><td>0.633</td><td>0.626</td><td>0.611</td><td>0.584</td><td>0.581</td><td>0.562</td><td>0.515</td><td>0.507</td><td>0.488</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>History head v2 · step 24000</td><td>0.745</td><td>0.719</td><td>0.659</td><td>0.654</td><td>0.610</td><td>0.571</td><td>0.567</td><td>0.535</td><td>0.517</td><td>0.515</td><td>0.480</td><td>0.435</td><td>0.426</td><td>0.403</td></tr>
+        <tr class="ref"><td>3D 交接 · 轨迹点拼接（旧版）</td><td>Point4D head · step 24000</td><td>0.697</td><td>0.710</td><td>0.704</td><td>0.692</td><td>0.676</td><td>0.659</td><td>0.631</td><td>0.610</td><td>0.599</td><td>0.581</td><td>0.560</td><td>0.526</td><td>0.504</td><td>0.481</td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>History head v2 · step 24000</td><td>0.803</td><td>0.743</td><td>0.660</td><td>0.651</td><td>0.645</td><td>0.600</td><td>0.587</td><td>0.593</td><td>0.571</td><td>0.537</td><td>0.554</td><td>0.516</td><td>0.531</td><td>0.533</td></tr>
+        <tr class="ref"><td>3D 交接 · 逐块对 GT</td><td>Point4D head · step 24000</td><td>0.733</td><td>0.744</td><td>0.726</td><td>0.681</td><td>0.684</td><td>0.670</td><td>0.649</td><td>0.656</td><td>0.646</td><td>0.611</td><td>0.621</td><td>0.588</td><td>0.594</td><td>0.589</td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>History head v2 · step 24000</td><td>0.741</td><td>0.723</td><td>0.666</td><td>0.660</td><td>0.620</td><td>0.576</td><td>0.567</td><td>0.532</td><td>0.501</td><td>0.496</td><td>0.465</td><td>0.419</td><td>0.409</td><td>0.384</td></tr>
+        <tr class="ref"><td>整段 48 帧一次</td><td>Point4D head · step 24000</td><td>0.699</td><td>0.712</td><td>0.702</td><td>0.703</td><td>0.681</td><td>0.526</td><td>0.483</td><td>0.371</td><td>0.340</td><td>0.342</td><td>0.369</td><td>0.406</td><td>0.408</td><td>0.363</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="stitch">
+  <div class="wrap">
+    <h2>接缝诊断</h2>
+    <p class="lead">每个接缝、每种拼接一行。块间尺度 = 拼接时块 k → 块 0 的尺度（深度云拼接 = 链式复合的深度云 Sim(3) 取逆，旧版 = 轨迹点 RANSAC Sim(3)）；出界 = 尺度 &lt;0.5 或 &gt;2 的段；拼接残差 = 块 k 搬过去后（混合前）共享帧上两块轨迹预测的距离中位数 ÷ 块 0 第 0 帧预测深度中位数（旧版是在这些点上拟合的，残差天然小）；块 k 损失 = 块 k 独有帧上的 avg_pts（拼接 − 逐块对 GT）；裁到画内 = 交接时起点 3D 投到画外被裁回的 query 比例。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>接缝</th><th>拼接</th><th>模型</th><th>块间尺度<br><small>中位（p10 – p90）</small></th><th>出界</th><th>拼接残差 / 深度<br><small>中位（p90）</small></th><th>块 k 损失<br><small>均值 / 中位</small></th><th>块 k 掉 &gt;0.1 的段</th><th>裁到画内</th></tr></thead>
+      <tbody>
+        <tr><td>块 0 → 1<br><small>共享帧 10–12</small></td><td>深度云</td><td>History head v2 · step 24000</td><td>0.997（0.950 – 1.075）</td><td>0</td><td>0.7%（2.2%）</td><td>-0.013 / -0.008</td><td>12</td><td>2.5%</td></tr>
+        <tr><td>块 0 → 1<br><small>共享帧 10–12</small></td><td>深度云</td><td>Point4D head · step 24000</td><td>1.002（0.953 – 1.076）</td><td>0</td><td>1.2%（2.6%）</td><td>-0.013 / -0.011</td><td>9</td><td>2.9%</td></tr>
+        <tr><td>块 0 → 1<br><small>共享帧 10–12</small></td><td>轨迹点（旧版）</td><td>History head v2 · step 24000</td><td>0.997（0.935 – 1.076）</td><td>1</td><td>0.7%（1.9%）</td><td>-0.026 / -0.015</td><td>11</td><td>2.5%</td></tr>
+        <tr><td>块 0 → 1<br><small>共享帧 10–12</small></td><td>轨迹点（旧版）</td><td>Point4D head · step 24000</td><td>1.008（0.951 – 1.090）</td><td>1</td><td>1.1%（2.1%）</td><td>-0.006 / -0.008</td><td>10</td><td>2.9%</td></tr>
+        <tr><td>块 1 → 2<br><small>共享帧 20–22</small></td><td>深度云</td><td>History head v2 · step 24000</td><td>0.993（0.886 – 1.145）</td><td>2</td><td>0.8%（1.8%）</td><td>-0.030 / -0.014</td><td>17</td><td>3.2%</td></tr>
+        <tr><td>块 1 → 2<br><small>共享帧 20–22</small></td><td>深度云</td><td>Point4D head · step 24000</td><td>1.000（0.894 – 1.178）</td><td>2</td><td>1.3%（3.0%）</td><td>-0.043 / -0.019</td><td>17</td><td>3.3%</td></tr>
+        <tr><td>块 1 → 2<br><small>共享帧 20–22</small></td><td>轨迹点（旧版）</td><td>History head v2 · step 24000</td><td>0.991（0.885 – 1.121）</td><td>2</td><td>0.7%（1.7%）</td><td>-0.051 / -0.016</td><td>19</td><td>3.2%</td></tr>
+        <tr><td>块 1 → 2<br><small>共享帧 20–22</small></td><td>轨迹点（旧版）</td><td>Point4D head · step 24000</td><td>1.018（0.895 – 1.196）</td><td>2</td><td>1.1%（2.7%）</td><td>-0.041 / -0.016</td><td>14</td><td>3.3%</td></tr>
+        <tr><td>块 2 → 3<br><small>共享帧 30–32</small></td><td>深度云</td><td>History head v2 · step 24000</td><td>0.985（0.834 – 1.207）</td><td>2</td><td>0.7%（1.9%）</td><td>-0.040 / -0.022</td><td>20</td><td>5.6%</td></tr>
+        <tr><td>块 2 → 3<br><small>共享帧 30–32</small></td><td>深度云</td><td>Point4D head · step 24000</td><td>1.001（0.837 – 1.244）</td><td>3</td><td>1.3%（3.1%）</td><td>-0.055 / -0.034</td><td>23</td><td>5.2%</td></tr>
+        <tr><td>块 2 → 3<br><small>共享帧 30–32</small></td><td>轨迹点（旧版）</td><td>History head v2 · step 24000</td><td>0.980（0.834 – 1.130）</td><td>2</td><td>0.7%（1.9%）</td><td>-0.067 / -0.033</td><td>30</td><td>5.6%</td></tr>
+        <tr><td>块 2 → 3<br><small>共享帧 30–32</small></td><td>轨迹点（旧版）</td><td>Point4D head · step 24000</td><td>1.014（0.860 – 1.293）</td><td>3</td><td>1.1%（2.5%）</td><td>-0.058 / -0.025</td><td>18</td><td>5.2%</td></tr>
+        <tr><td>块 3 → 4<br><small>共享帧 40–42</small></td><td>深度云</td><td>History head v2 · step 24000</td><td>0.974（0.792 – 1.248）</td><td>2</td><td>0.7%（2.7%）</td><td>-0.093 / -0.056</td><td>40</td><td>7.1%</td></tr>
+        <tr><td>块 3 → 4<br><small>共享帧 40–42</small></td><td>深度云</td><td>Point4D head · step 24000</td><td>0.987（0.800 – 1.294）</td><td>2</td><td>1.3%（3.7%）</td><td>-0.100 / -0.061</td><td>37</td><td>6.6%</td></tr>
+        <tr><td>块 3 → 4<br><small>共享帧 40–42</small></td><td>轨迹点（旧版）</td><td>History head v2 · step 24000</td><td>0.966（0.791 – 1.213）</td><td>2</td><td>0.7%（2.5%）</td><td>-0.125 / -0.068</td><td>46</td><td>7.1%</td></tr>
+        <tr><td>块 3 → 4<br><small>共享帧 40–42</small></td><td>轨迹点（旧版）</td><td>Point4D head · step 24000</td><td>1.010（0.802 – 1.353）</td><td>4</td><td>1.2%（3.9%）</td><td>-0.105 / -0.051</td><td>36</td><td>6.6%</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="wrap">
+    <h2>每段结果</h2>
+    <p class="lead">封面是第 0 帧（翻回正向），点封面或 <b>3D</b> 打开查看器（3D 交接拼接后的轨迹）。数值是该段 avg_pts：深度云拼接 / 逐块对 GT / 整段一次，蓝色为同一设置下较高的模型。</p>
+    <div class="ctl"><button id="cmpFollow" class="on">跟拍 50 段</button><button id="cmpStatic">静态 50 段</button><button id="cmpAll">全部 100 段</button><button id="theme">切换深浅色</button></div>
+    <div class="grid cmp" id="cmpGrid">
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s10_w3_cam1.jpg" alt="a2_s10_w3_cam1" data-name="a2_s10_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s10_w3_cam1">3D</button></h3>
+          <div class="map">A2_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1135 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.618</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.634</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.548</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.672</span></div>
+            <div><span>History v2 整段</span><span>0.426</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.596</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s11_w2_cam1.jpg" alt="a2_s11_w2_cam1" data-name="a2_s11_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s11_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s11_w2_cam1">3D</button></h3>
+          <div class="map">A2_S11_ROCKETBOX_H1M2/WORLD_00000002 · 578 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.672</span></div>
+            <div><span>Point4D head 拼接</span><span>0.655</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.705</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.670</span></div>
+            <div><span>History v2 整段</span><span class=best>0.663</span></div>
+            <div><span>Point4D head 整段</span><span>0.354</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s24_w3_cam1.jpg" alt="a2_s24_w3_cam1" data-name="a2_s24_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s24_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s24_w3_cam1">3D</button></h3>
+          <div class="map">A2_S24_ROCKETBOX_H1M2/WORLD_00000003 · 918 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.523</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.634</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.684</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.738</span></div>
+            <div><span>History v2 整段</span><span>0.588</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.665</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s25_w4_cam0.jpg" alt="a2_s25_w4_cam0" data-name="a2_s25_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>a2_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s25_w4_cam0">3D</button></h3>
+          <div class="map">A2_S25_ROCKETBOX_H1M2/WORLD_00000004 · 5438 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.621</span></div>
+            <div><span>Point4D head 拼接</span><span>0.583</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.620</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.621</span></div>
+            <div><span>History v2 整段</span><span class=best>0.490</span></div>
+            <div><span>Point4D head 整段</span><span>0.413</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s26_w4_cam1.jpg" alt="a2_s26_w4_cam1" data-name="a2_s26_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s26_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s26_w4_cam1">3D</button></h3>
+          <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000004 · 1092 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.404</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.428</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.329</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.447</span></div>
+            <div><span>History v2 整段</span><span class=best>0.357</span></div>
+            <div><span>Point4D head 整段</span><span>0.320</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s26_w7_cam0.jpg" alt="a2_s26_w7_cam0" data-name="a2_s26_w7_cam0" loading="lazy">
+        <div class="body">
+          <h3>a2_s26_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s26_w7_cam0">3D</button></h3>
+          <div class="map">A2_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1674 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.764</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.799</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.772</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.805</span></div>
+            <div><span>History v2 整段</span><span class=best>0.795</span></div>
+            <div><span>Point4D head 整段</span><span>0.627</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s27_w1_cam1.jpg" alt="a2_s27_w1_cam1" data-name="a2_s27_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s27_w1_cam1">3D</button></h3>
+          <div class="map">A2_S27_ROCKETBOX_H1M2/WORLD_00000001 · 1270 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.117</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.297</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.296</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.325</span></div>
+            <div><span>History v2 整段</span><span class=best>0.237</span></div>
+            <div><span>Point4D head 整段</span><span>0.137</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s28_w3_cam0.jpg" alt="a2_s28_w3_cam0" data-name="a2_s28_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>a2_s28_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a2_s28_w3_cam0">3D</button></h3>
+          <div class="map">A2_S28_ROCKETBOX_H1M2/WORLD_00000003 · 1298 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.582</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.723</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.726</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.758</span></div>
+            <div><span>History v2 整段</span><span>0.568</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.589</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s30_w2_cam1.jpg" alt="a2_s30_w2_cam1" data-name="a2_s30_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s30_w2_cam1">3D</button></h3>
+          <div class="map">A2_S30_ROCKETBOX_H1M2/WORLD_00000002 · 3620 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.454</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.580</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.472</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.562</span></div>
+            <div><span>History v2 整段</span><span class=best>0.521</span></div>
+            <div><span>Point4D head 整段</span><span>0.456</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a2_s8_w0_cam1.jpg" alt="a2_s8_w0_cam1" data-name="a2_s8_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>a2_s8_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a2_s8_w0_cam1">3D</button></h3>
+          <div class="map">A2_S8_ROCKETBOX_H1M2/WORLD_00000000 · 746 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.373</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.444</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.302</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.369</span></div>
+            <div><span>History v2 整段</span><span class=best>0.409</span></div>
+            <div><span>Point4D head 整段</span><span>0.210</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s11_w7_cam1.jpg" alt="a3_s11_w7_cam1" data-name="a3_s11_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s11_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s11_w7_cam1">3D</button></h3>
+          <div class="map">A3_S11_ROCKETBOX_H1M2/WORLD_00000007 · 1328 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.532</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.555</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.512</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.482</span></div>
+            <div><span>History v2 整段</span><span class=best>0.510</span></div>
+            <div><span>Point4D head 整段</span><span>0.445</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s12_w3_cam0.jpg" alt="a3_s12_w3_cam0" data-name="a3_s12_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>a3_s12_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s12_w3_cam0">3D</button></h3>
+          <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000003 · 2522 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.687</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.822</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.726</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.840</span></div>
+            <div><span>History v2 整段</span><span>0.661</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.698</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s12_w6_cam1.jpg" alt="a3_s12_w6_cam1" data-name="a3_s12_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s12_w6_cam1">3D</button></h3>
+          <div class="map">A3_S12_ROCKETBOX_H1M2/WORLD_00000006 · 637 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.200</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.202</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.342</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.259</span></div>
+            <div><span>History v2 整段</span><span>0.199</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.199</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s14_w0_cam1.jpg" alt="a3_s14_w0_cam1" data-name="a3_s14_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s14_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w0_cam1">3D</button></h3>
+          <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000000 · 1033 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.710</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.715</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.762</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.679</span></div>
+            <div><span>History v2 整段</span><span class=best>0.706</span></div>
+            <div><span>Point4D head 整段</span><span>0.697</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s14_w4_cam1.jpg" alt="a3_s14_w4_cam1" data-name="a3_s14_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s14_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s14_w4_cam1">3D</button></h3>
+          <div class="map">A3_S14_ROCKETBOX_H1M2/WORLD_00000004 · 3015 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.445</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.486</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.370</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.592</span></div>
+            <div><span>History v2 整段</span><span>0.389</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.548</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s26_w0_cam0.jpg" alt="a3_s26_w0_cam0" data-name="a3_s26_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>a3_s26_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s26_w0_cam0">3D</button></h3>
+          <div class="map">A3_S26_ROCKETBOX_H1M2/WORLD_00000000 · 4896 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.749</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.788</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.756</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.795</span></div>
+            <div><span>History v2 整段</span><span class=best>0.698</span></div>
+            <div><span>Point4D head 整段</span><span>0.618</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s29_w1_cam1.jpg" alt="a3_s29_w1_cam1" data-name="a3_s29_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>a3_s29_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="a3_s29_w1_cam1">3D</button></h3>
+          <div class="map">A3_S29_ROCKETBOX_H1M2/WORLD_00000001 · 419 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.518</span></div>
+            <div><span>Point4D head 拼接</span><span>0.474</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.477</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.523</span></div>
+            <div><span>History v2 整段</span><span class=best>0.535</span></div>
+            <div><span>Point4D head 整段</span><span>0.486</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/a3_s33_w2_cam0.jpg" alt="a3_s33_w2_cam0" data-name="a3_s33_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>a3_s33_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="a3_s33_w2_cam0">3D</button></h3>
+          <div class="map">A3_S33_ROCKETBOX_H1M2/WORLD_00000002 · 2148 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.682</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.737</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.680</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.765</span></div>
+            <div><span>History v2 整段</span><span class=best>0.638</span></div>
+            <div><span>Point4D head 整段</span><span>0.549</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s10_w2_cam1.jpg" alt="fa_s10_w2_cam1" data-name="fa_s10_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s10_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w2_cam1">3D</button></h3>
+          <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000002 · 4118 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.371</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.567</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.373</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.679</span></div>
+            <div><span>History v2 整段</span><span>0.416</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.583</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s10_w3_cam1.jpg" alt="fa_s10_w3_cam1" data-name="fa_s10_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s10_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s10_w3_cam1">3D</button></h3>
+          <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000003 · 1117 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.429</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.549</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.537</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.581</span></div>
+            <div><span>History v2 整段</span><span class=best>0.543</span></div>
+            <div><span>Point4D head 整段</span><span>0.525</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s10_w7_cam0.jpg" alt="fa_s10_w7_cam0" data-name="fa_s10_w7_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s10_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s10_w7_cam0">3D</button></h3>
+          <div class="map">FA_S10_ROCKETBOX_H1M2/WORLD_00000007 · 4040 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.721</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.764</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.723</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.782</span></div>
+            <div><span>History v2 整段</span><span class=best>0.731</span></div>
+            <div><span>Point4D head 整段</span><span>0.529</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s12_w1_cam1.jpg" alt="fa_s12_w1_cam1" data-name="fa_s12_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s12_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w1_cam1">3D</button></h3>
+          <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000001 · 457 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.579</span></div>
+            <div><span>Point4D head 拼接</span><span>0.478</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.611</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.526</span></div>
+            <div><span>History v2 整段</span><span class=best>0.543</span></div>
+            <div><span>Point4D head 整段</span><span>0.396</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s12_w6_cam0.jpg" alt="fa_s12_w6_cam0" data-name="fa_s12_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s12_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s12_w6_cam0">3D</button></h3>
+          <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 1888 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.723</span></div>
+            <div><span>Point4D head 拼接</span><span>0.634</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.713</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.669</span></div>
+            <div><span>History v2 整段</span><span class=best>0.514</span></div>
+            <div><span>Point4D head 整段</span><span>0.465</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s12_w6_cam1.jpg" alt="fa_s12_w6_cam1" data-name="fa_s12_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s12_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s12_w6_cam1">3D</button></h3>
+          <div class="map">FA_S12_ROCKETBOX_H1M2/WORLD_00000006 · 430 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.519</span></div>
+            <div><span>Point4D head 拼接</span><span>0.087</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.394</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.211</span></div>
+            <div><span>History v2 整段</span><span class=best>0.394</span></div>
+            <div><span>Point4D head 整段</span><span>0.092</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s23_w5_cam1.jpg" alt="fa_s23_w5_cam1" data-name="fa_s23_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s23_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w5_cam1">3D</button></h3>
+          <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000005 · 672 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.424</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.505</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.603</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.620</span></div>
+            <div><span>History v2 整段</span><span>0.249</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.507</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s23_w6_cam0.jpg" alt="fa_s23_w6_cam0" data-name="fa_s23_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s23_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s23_w6_cam0">3D</button></h3>
+          <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 2564 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.473</span></div>
+            <div><span>Point4D head 拼接</span><span>0.404</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.477</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.552</span></div>
+            <div><span>History v2 整段</span><span class=best>0.457</span></div>
+            <div><span>Point4D head 整段</span><span>0.333</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s23_w6_cam1.jpg" alt="fa_s23_w6_cam1" data-name="fa_s23_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s23_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s23_w6_cam1">3D</button></h3>
+          <div class="map">FA_S23_ROCKETBOX_H1M2/WORLD_00000006 · 872 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.210</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.210</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.223</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.313</span></div>
+            <div><span>History v2 整段</span><span>0.223</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.225</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s26_w1_cam0.jpg" alt="fa_s26_w1_cam0" data-name="fa_s26_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s26_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w1_cam0">3D</button></h3>
+          <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000001 · 1590 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.773</span></div>
+            <div><span>Point4D head 拼接</span><span>0.759</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.781</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.780</span></div>
+            <div><span>History v2 整段</span><span class=best>0.721</span></div>
+            <div><span>Point4D head 整段</span><span>0.604</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s26_w4_cam0.jpg" alt="fa_s26_w4_cam0" data-name="fa_s26_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s26_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s26_w4_cam0">3D</button></h3>
+          <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000004 · 3890 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.506</span></div>
+            <div><span>Point4D head 拼接</span><span>0.504</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.597</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.648</span></div>
+            <div><span>History v2 整段</span><span>0.500</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.596</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s26_w7_cam1.jpg" alt="fa_s26_w7_cam1" data-name="fa_s26_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s26_w7_cam1">3D</button></h3>
+          <div class="map">FA_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1694 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.602</span></div>
+            <div><span>Point4D head 拼接</span><span>0.394</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.629</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.553</span></div>
+            <div><span>History v2 整段</span><span>0.569</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.606</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s30_w0_cam0.jpg" alt="fa_s30_w0_cam0" data-name="fa_s30_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s30_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s30_w0_cam0">3D</button></h3>
+          <div class="map">FA_S30_ROCKETBOX_H1M2/WORLD_00000000 · 2682 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.470</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.527</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.497</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.624</span></div>
+            <div><span>History v2 整段</span><span class=best>0.478</span></div>
+            <div><span>Point4D head 整段</span><span>0.459</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s32_w2_cam0.jpg" alt="fa_s32_w2_cam0" data-name="fa_s32_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w2_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 2069 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.423</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.469</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.519</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.586</span></div>
+            <div><span>History v2 整段</span><span class=best>0.419</span></div>
+            <div><span>Point4D head 整段</span><span>0.388</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s32_w2_cam1.jpg" alt="fa_s32_w2_cam1" data-name="fa_s32_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fa_s32_w2_cam1">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000002 · 1793 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.423</span></div>
+            <div><span>Point4D head 拼接</span><span>0.284</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.454</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.398</span></div>
+            <div><span>History v2 整段</span><span>0.432</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.494</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s32_w4_cam0.jpg" alt="fa_s32_w4_cam0" data-name="fa_s32_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w4_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000004 · 2898 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.792</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.838</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.804</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.846</span></div>
+            <div><span>History v2 整段</span><span class=best>0.697</span></div>
+            <div><span>Point4D head 整段</span><span>0.545</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s32_w5_cam0.jpg" alt="fa_s32_w5_cam0" data-name="fa_s32_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w5_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000005 · 2430 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.836</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.862</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.842</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.876</span></div>
+            <div><span>History v2 整段</span><span class=best>0.837</span></div>
+            <div><span>Point4D head 整段</span><span>0.721</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s32_w6_cam0.jpg" alt="fa_s32_w6_cam0" data-name="fa_s32_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s32_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s32_w6_cam0">3D</button></h3>
+          <div class="map">FA_S32_ROCKETBOX_H1M2/WORLD_00000006 · 3551 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.616</span></div>
+            <div><span>Point4D head 拼接</span><span>0.502</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.486</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.458</span></div>
+            <div><span>History v2 整段</span><span>0.366</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.572</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fa_s33_w6_cam0.jpg" alt="fa_s33_w6_cam0" data-name="fa_s33_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>fa_s33_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fa_s33_w6_cam0">3D</button></h3>
+          <div class="map">FA_S33_ROCKETBOX_H1M2/WORLD_00000006 · 3207 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.461</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.598</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.530</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.615</span></div>
+            <div><span>History v2 整段</span><span class=best>0.441</span></div>
+            <div><span>Point4D head 整段</span><span>0.415</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s27_w1_cam1.jpg" alt="fv_s27_w1_cam1" data-name="fv_s27_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s27_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s27_w1_cam1">3D</button></h3>
+          <div class="map">FV_S27_ROCKETBOX_H1M2/WORLD_00000001 · 928 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.652</span></div>
+            <div><span>Point4D head 拼接</span><span>0.467</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.509</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.457</span></div>
+            <div><span>History v2 整段</span><span class=best>0.623</span></div>
+            <div><span>Point4D head 整段</span><span>0.505</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s28_w4_cam0.jpg" alt="fv_s28_w4_cam0" data-name="fv_s28_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s28_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s28_w4_cam0">3D</button></h3>
+          <div class="map">FV_S28_ROCKETBOX_H1M2/WORLD_00000004 · 1605 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.490</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.499</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.503</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.549</span></div>
+            <div><span>History v2 整段</span><span class=best>0.428</span></div>
+            <div><span>Point4D head 整段</span><span>0.319</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s34_w0_cam0.jpg" alt="fv_s34_w0_cam0" data-name="fv_s34_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s34_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s34_w0_cam0">3D</button></h3>
+          <div class="map">FV_S34_ROCKETBOX_H1M2/WORLD_00000000 · 2822 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.443</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.453</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.499</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.516</span></div>
+            <div><span>History v2 整段</span><span class=best>0.416</span></div>
+            <div><span>Point4D head 整段</span><span>0.368</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s35_w3_cam0.jpg" alt="fv_s35_w3_cam0" data-name="fv_s35_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s35_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s35_w3_cam0">3D</button></h3>
+          <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000003 · 2766 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.626</span></div>
+            <div><span>Point4D head 拼接</span><span>0.596</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.638</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.666</span></div>
+            <div><span>History v2 整段</span><span class=best>0.605</span></div>
+            <div><span>Point4D head 整段</span><span>0.467</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s35_w4_cam1.jpg" alt="fv_s35_w4_cam1" data-name="fv_s35_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s35_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s35_w4_cam1">3D</button></h3>
+          <div class="map">FV_S35_ROCKETBOX_H1M2/WORLD_00000004 · 2353 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.245</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.309</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.413</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.455</span></div>
+            <div><span>History v2 整段</span><span>0.263</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.306</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s7_w2_cam0.jpg" alt="fv_s7_w2_cam0" data-name="fv_s7_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s7_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s7_w2_cam0">3D</button></h3>
+          <div class="map">FV_S7_ROCKETBOX_H1M2/WORLD_00000002 · 2999 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.611</span></div>
+            <div><span>Point4D head 拼接</span><span>0.606</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.628</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.628</span></div>
+            <div><span>History v2 整段</span><span class=best>0.428</span></div>
+            <div><span>Point4D head 整段</span><span>0.372</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s8_w3_cam0.jpg" alt="fv_s8_w3_cam0" data-name="fv_s8_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>fv_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="fv_s8_w3_cam0">3D</button></h3>
+          <div class="map">FV_S8_ROCKETBOX_H1M2/WORLD_00000003 · 3712 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.656</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.730</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.670</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.712</span></div>
+            <div><span>History v2 整段</span><span class=best>0.655</span></div>
+            <div><span>Point4D head 整段</span><span>0.366</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s9_w2_cam1.jpg" alt="fv_s9_w2_cam1" data-name="fv_s9_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s9_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w2_cam1">3D</button></h3>
+          <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.348</span></div>
+            <div><span>Point4D head 拼接</span><span>0.328</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.484</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.508</span></div>
+            <div><span>History v2 整段</span><span class=best>0.478</span></div>
+            <div><span>Point4D head 整段</span><span>0.352</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/fv_s9_w3_cam1.jpg" alt="fv_s9_w3_cam1" data-name="fv_s9_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>fv_s9_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="fv_s9_w3_cam1">3D</button></h3>
+          <div class="map">FV_S9_ROCKETBOX_H1M2/WORLD_00000003 · 962 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.343</span></div>
+            <div><span>Point4D head 拼接</span><span>0.306</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.326</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.324</span></div>
+            <div><span>History v2 整段</span><span>0.300</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.312</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nk_s23_w3_cam0.jpg" alt="nk_s23_w3_cam0" data-name="nk_s23_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s23_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s23_w3_cam0">3D</button></h3>
+          <div class="map">NK_S23_ROCKETBOX_H1M2/WORLD_00000003 · 4330 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.774</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.836</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.759</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.847</span></div>
+            <div><span>History v2 整段</span><span class=best>0.712</span></div>
+            <div><span>Point4D head 整段</span><span>0.477</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nk_s24_w6_cam1.jpg" alt="nk_s24_w6_cam1" data-name="nk_s24_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>nk_s24_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="nk_s24_w6_cam1">3D</button></h3>
+          <div class="map">NK_S24_ROCKETBOX_H1M2/WORLD_00000006 · 64 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.736</span></div>
+            <div><span>Point4D head 拼接</span><span>0.710</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.830</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.724</span></div>
+            <div><span>History v2 整段</span><span>0.703</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.704</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nk_s25_w3_cam0.jpg" alt="nk_s25_w3_cam0" data-name="nk_s25_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s25_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w3_cam0">3D</button></h3>
+          <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000003 · 1343 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.741</span></div>
+            <div><span>Point4D head 拼接</span><span>0.700</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.756</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.713</span></div>
+            <div><span>History v2 整段</span><span class=best>0.607</span></div>
+            <div><span>Point4D head 整段</span><span>0.370</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nk_s25_w4_cam0.jpg" alt="nk_s25_w4_cam0" data-name="nk_s25_w4_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s25_w4_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s25_w4_cam0">3D</button></h3>
+          <div class="map">NK_S25_ROCKETBOX_H1M2/WORLD_00000004 · 1712 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.661</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.674</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.704</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.715</span></div>
+            <div><span>History v2 整段</span><span>0.356</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.384</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nk_s27_w3_cam0.jpg" alt="nk_s27_w3_cam0" data-name="nk_s27_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s27_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s27_w3_cam0">3D</button></h3>
+          <div class="map">NK_S27_ROCKETBOX_H1M2/WORLD_00000003 · 1897 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.680</span></div>
+            <div><span>Point4D head 拼接</span><span>0.660</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.709</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.690</span></div>
+            <div><span>History v2 整段</span><span class=best>0.525</span></div>
+            <div><span>Point4D head 整段</span><span>0.396</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nk_s28_w0_cam0.jpg" alt="nk_s28_w0_cam0" data-name="nk_s28_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>nk_s28_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nk_s28_w0_cam0">3D</button></h3>
+          <div class="map">NK_S28_ROCKETBOX_H1M2/WORLD_00000000 · 2375 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.875</span></div>
+            <div><span>Point4D head 拼接</span><span>0.848</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.870</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.863</span></div>
+            <div><span>History v2 整段</span><span class=best>0.824</span></div>
+            <div><span>Point4D head 整段</span><span>0.618</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s10_w7_cam1.jpg" alt="nq_s10_w7_cam1" data-name="nq_s10_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s10_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s10_w7_cam1">3D</button></h3>
+          <div class="map">NQ_S10_ROCKETBOX_H1M2/WORLD_00000007 · 279 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.419</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.555</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.574</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.600</span></div>
+            <div><span>History v2 整段</span><span>0.527</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.541</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s23_w2_cam0.jpg" alt="nq_s23_w2_cam0" data-name="nq_s23_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s23_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s23_w2_cam0">3D</button></h3>
+          <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1829 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.562</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.677</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.610</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.694</span></div>
+            <div><span>History v2 整段</span><span class=best>0.680</span></div>
+            <div><span>Point4D head 整段</span><span>0.441</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s23_w2_cam1.jpg" alt="nq_s23_w2_cam1" data-name="nq_s23_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s23_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s23_w2_cam1">3D</button></h3>
+          <div class="map">NQ_S23_ROCKETBOX_H1M2/WORLD_00000002 · 1046 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.531</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.575</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.481</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.578</span></div>
+            <div><span>History v2 整段</span><span>0.442</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.548</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s26_w3_cam0.jpg" alt="nq_s26_w3_cam0" data-name="nq_s26_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s26_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000003 · 719 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.576</span></div>
+            <div><span>Point4D head 拼接</span><span>0.544</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.668</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.577</span></div>
+            <div><span>History v2 整段</span><span class=best>0.476</span></div>
+            <div><span>Point4D head 整段</span><span>0.242</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s26_w6_cam0.jpg" alt="nq_s26_w6_cam0" data-name="nq_s26_w6_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s26_w6_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s26_w6_cam0">3D</button></h3>
+          <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000006 · 1769 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.492</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.506</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.655</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.768</span></div>
+            <div><span>History v2 整段</span><span class=best>0.492</span></div>
+            <div><span>Point4D head 整段</span><span>0.418</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s26_w7_cam1.jpg" alt="nq_s26_w7_cam1" data-name="nq_s26_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s26_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s26_w7_cam1">3D</button></h3>
+          <div class="map">NQ_S26_ROCKETBOX_H1M2/WORLD_00000007 · 1422 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.412</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.483</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.474</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.502</span></div>
+            <div><span>History v2 整段</span><span class=best>0.548</span></div>
+            <div><span>Point4D head 整段</span><span>0.386</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s27_w5_cam0.jpg" alt="nq_s27_w5_cam0" data-name="nq_s27_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s27_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s27_w5_cam0">3D</button></h3>
+          <div class="map">NQ_S27_ROCKETBOX_H1M2/WORLD_00000005 · 2042 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.605</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.640</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.624</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.737</span></div>
+            <div><span>History v2 整段</span><span class=best>0.640</span></div>
+            <div><span>Point4D head 整段</span><span>0.552</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s28_w5_cam0.jpg" alt="nq_s28_w5_cam0" data-name="nq_s28_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s28_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s28_w5_cam0">3D</button></h3>
+          <div class="map">NQ_S28_ROCKETBOX_H1M2/WORLD_00000005 · 2504 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.608</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.671</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.695</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.700</span></div>
+            <div><span>History v2 整段</span><span class=best>0.700</span></div>
+            <div><span>Point4D head 整段</span><span>0.633</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s29_w7_cam0.jpg" alt="nq_s29_w7_cam0" data-name="nq_s29_w7_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s29_w7_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s29_w7_cam0">3D</button></h3>
+          <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 3481 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.739</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.799</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.791</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.796</span></div>
+            <div><span>History v2 整段</span><span class=best>0.673</span></div>
+            <div><span>Point4D head 整段</span><span>0.584</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s29_w7_cam1.jpg" alt="nq_s29_w7_cam1" data-name="nq_s29_w7_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s29_w7_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s29_w7_cam1">3D</button></h3>
+          <div class="map">NQ_S29_ROCKETBOX_H1M2/WORLD_00000007 · 1639 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.785</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.831</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.802</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.864</span></div>
+            <div><span>History v2 整段</span><span>0.689</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.694</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s30_w2_cam1.jpg" alt="nq_s30_w2_cam1" data-name="nq_s30_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s30_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s30_w2_cam1">3D</button></h3>
+          <div class="map">NQ_S30_ROCKETBOX_H1M2/WORLD_00000002 · 637 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.543</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.636</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.542</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.667</span></div>
+            <div><span>History v2 整段</span><span class=best>0.556</span></div>
+            <div><span>Point4D head 整段</span><span>0.481</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s31_w1_cam1.jpg" alt="nq_s31_w1_cam1" data-name="nq_s31_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s31_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s31_w1_cam1">3D</button></h3>
+          <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000001 · 654 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.353</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.399</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.386</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.354</span></div>
+            <div><span>History v2 整段</span><span class=best>0.473</span></div>
+            <div><span>Point4D head 整段</span><span>0.257</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s31_w5_cam0.jpg" alt="nq_s31_w5_cam0" data-name="nq_s31_w5_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s31_w5_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s31_w5_cam0">3D</button></h3>
+          <div class="map">NQ_S31_ROCKETBOX_H1M2/WORLD_00000005 · 2347 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.515</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.665</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.612</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.735</span></div>
+            <div><span>History v2 整段</span><span class=best>0.582</span></div>
+            <div><span>Point4D head 整段</span><span>0.552</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s32_w3_cam0.jpg" alt="nq_s32_w3_cam0" data-name="nq_s32_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s32_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s32_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S32_ROCKETBOX_H1M2/WORLD_00000003 · 3598 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.531</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.558</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.635</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.642</span></div>
+            <div><span>History v2 整段</span><span>0.539</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.608</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s7_w1_cam0.jpg" alt="nq_s7_w1_cam0" data-name="nq_s7_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w1_cam0">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 3415 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.453</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.507</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.398</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.554</span></div>
+            <div><span>History v2 整段</span><span class=best>0.508</span></div>
+            <div><span>Point4D head 整段</span><span>0.396</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s7_w1_cam1.jpg" alt="nq_s7_w1_cam1" data-name="nq_s7_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w1_cam1">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000001 · 20843 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.406</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.563</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.722</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.869</span></div>
+            <div><span>History v2 整段</span><span>0.284</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.365</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s7_w3_cam0.jpg" alt="nq_s7_w3_cam0" data-name="nq_s7_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s7_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 1958 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.559</span></div>
+            <div><span>Point4D head 拼接</span><span>0.551</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.691</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.623</span></div>
+            <div><span>History v2 整段</span><span class=best>0.630</span></div>
+            <div><span>Point4D head 整段</span><span>0.474</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s7_w3_cam1.jpg" alt="nq_s7_w3_cam1" data-name="nq_s7_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s7_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s7_w3_cam1">3D</button></h3>
+          <div class="map">NQ_S7_ROCKETBOX_H1M2/WORLD_00000003 · 2190 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.374</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.467</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.500</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.697</span></div>
+            <div><span>History v2 整段</span><span>0.374</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.616</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s8_w0_cam0.jpg" alt="nq_s8_w0_cam0" data-name="nq_s8_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w0_cam0">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000000 · 1644 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.563</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.586</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.622</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.708</span></div>
+            <div><span>History v2 整段</span><span>0.587</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.610</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s8_w3_cam0.jpg" alt="nq_s8_w3_cam0" data-name="nq_s8_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="nq_s8_w3_cam0">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000003 · 1328 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.491</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.575</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.584</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.581</span></div>
+            <div><span>History v2 整段</span><span>0.431</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.457</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s8_w4_cam1.jpg" alt="nq_s8_w4_cam1" data-name="nq_s8_w4_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w4_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w4_cam1">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000004 · 508 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.254</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.376</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.418</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.359</span></div>
+            <div><span>History v2 整段</span><span class=best>0.321</span></div>
+            <div><span>Point4D head 整段</span><span>0.220</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/nq_s8_w5_cam1.jpg" alt="nq_s8_w5_cam1" data-name="nq_s8_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>nq_s8_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="nq_s8_w5_cam1">3D</button></h3>
+          <div class="map">NQ_S8_ROCKETBOX_H1M2/WORLD_00000005 · 615 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.659</span></div>
+            <div><span>Point4D head 拼接</span><span>0.602</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.750</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.676</span></div>
+            <div><span>History v2 整段</span><span class=best>0.647</span></div>
+            <div><span>Point4D head 整段</span><span>0.569</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/ru_s9_w1_cam0.jpg" alt="ru_s9_w1_cam0" data-name="ru_s9_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>ru_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ru_s9_w1_cam0">3D</button></h3>
+          <div class="map">RU_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.721</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.868</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.765</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.876</span></div>
+            <div><span>History v2 整段</span><span>0.738</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.753</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/ruc3_s10_w0_cam0.jpg" alt="ruc3_s10_w0_cam0" data-name="ruc3_s10_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>ruc3_s10_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s10_w0_cam0">3D</button></h3>
+          <div class="map">RUC3_S10_ROCKETBOX_H1M2/WORLD_00000000 · 10348 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.841</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.922</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.837</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.927</span></div>
+            <div><span>History v2 整段</span><span class=best>0.832</span></div>
+            <div><span>Point4D head 整段</span><span>0.796</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/ruc3_s7_w0_cam0.jpg" alt="ruc3_s7_w0_cam0" data-name="ruc3_s7_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>ruc3_s7_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s7_w0_cam0">3D</button></h3>
+          <div class="map">RUC3_S7_ROCKETBOX_H1M2/WORLD_00000000 · 8445 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.928</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.940</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.929</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.961</span></div>
+            <div><span>History v2 整段</span><span class=best>0.858</span></div>
+            <div><span>Point4D head 整段</span><span>0.825</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/ruc3_s9_w1_cam0.jpg" alt="ruc3_s9_w1_cam0" data-name="ruc3_s9_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>ruc3_s9_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="ruc3_s9_w1_cam0">3D</button></h3>
+          <div class="map">RUC3_S9_ROCKETBOX_H1M2/WORLD_00000001 · 7801 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.743</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.870</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.754</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.866</span></div>
+            <div><span>History v2 整段</span><span>0.735</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.744</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/ruc5_s23_w0_cam1.jpg" alt="ruc5_s23_w0_cam1" data-name="ruc5_s23_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>ruc5_s23_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="ruc5_s23_w0_cam1">3D</button></h3>
+          <div class="map">RUC5_S23_ROCKETBOX_H1M2/WORLD_00000000 · 3887 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.834</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.860</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.853</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.870</span></div>
+            <div><span>History v2 整段</span><span class=best>0.806</span></div>
+            <div><span>Point4D head 整段</span><span>0.736</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sf_s10_w5_cam1.jpg" alt="sf_s10_w5_cam1" data-name="sf_s10_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>sf_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sf_s10_w5_cam1">3D</button></h3>
+          <div class="map">SF_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1151 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.764</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.831</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.755</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.856</span></div>
+            <div><span>History v2 整段</span><span class=best>0.721</span></div>
+            <div><span>Point4D head 整段</span><span>0.695</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sf_s20_w0_cam0.jpg" alt="sf_s20_w0_cam0" data-name="sf_s20_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>sf_s20_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sf_s20_w0_cam0">3D</button></h3>
+          <div class="map">SF_S20_ROCKETBOX_H1M2/WORLD_00000000 · 7779 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.834</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.952</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.851</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.954</span></div>
+            <div><span>History v2 整段</span><span class=best>0.863</span></div>
+            <div><span>Point4D head 整段</span><span>0.793</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc3_s10_w5_cam1.jpg" alt="sfc3_s10_w5_cam1" data-name="sfc3_s10_w5_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc3_s10_w5_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s10_w5_cam1">3D</button></h3>
+          <div class="map">SFC3_S10_ROCKETBOX_H1M2/WORLD_00000005 · 1692 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.741</span></div>
+            <div><span>Point4D head 拼接</span><span>0.627</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.762</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.729</span></div>
+            <div><span>History v2 整段</span><span class=best>0.697</span></div>
+            <div><span>Point4D head 整段</span><span>0.487</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc3_s16_w2_cam1.jpg" alt="sfc3_s16_w2_cam1" data-name="sfc3_s16_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc3_s16_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s16_w2_cam1">3D</button></h3>
+          <div class="map">SFC3_S16_ROCKETBOX_H1M2/WORLD_00000002 · 2322 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.655</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.695</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.689</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.740</span></div>
+            <div><span>History v2 整段</span><span class=best>0.661</span></div>
+            <div><span>Point4D head 整段</span><span>0.659</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc3_s18_w2_cam1.jpg" alt="sfc3_s18_w2_cam1" data-name="sfc3_s18_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc3_s18_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc3_s18_w2_cam1">3D</button></h3>
+          <div class="map">SFC3_S18_ROCKETBOX_H1M2/WORLD_00000002 · 3586 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.658</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.711</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.562</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.766</span></div>
+            <div><span>History v2 整段</span><span class=best>0.703</span></div>
+            <div><span>Point4D head 整段</span><span>0.614</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s23_w1_cam1.jpg" alt="sfc5_s23_w1_cam1" data-name="sfc5_s23_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s23_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s23_w1_cam1">3D</button></h3>
+          <div class="map">SFC5_S23_ROCKETBOX_H1M2/WORLD_00000001 · 2161 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.601</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.603</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.610</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.668</span></div>
+            <div><span>History v2 整段</span><span class=best>0.550</span></div>
+            <div><span>Point4D head 整段</span><span>0.451</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s26_w3_cam1.jpg" alt="sfc5_s26_w3_cam1" data-name="sfc5_s26_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s26_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s26_w3_cam1">3D</button></h3>
+          <div class="map">SFC5_S26_ROCKETBOX_H1M2/WORLD_00000003 · 1858 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.729</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.800</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.738</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.831</span></div>
+            <div><span>History v2 整段</span><span>0.610</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.696</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s27_w0_cam1.jpg" alt="sfc5_s27_w0_cam1" data-name="sfc5_s27_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s27_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w0_cam1">3D</button></h3>
+          <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000000 · 1740 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.768</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.850</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.819</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.868</span></div>
+            <div><span>History v2 整段</span><span class=best>0.789</span></div>
+            <div><span>Point4D head 整段</span><span>0.720</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s27_w3_cam1.jpg" alt="sfc5_s27_w3_cam1" data-name="sfc5_s27_w3_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s27_w3_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s27_w3_cam1">3D</button></h3>
+          <div class="map">SFC5_S27_ROCKETBOX_H1M2/WORLD_00000003 · 5969 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.646</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.725</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.667</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.746</span></div>
+            <div><span>History v2 整段</span><span>0.579</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.672</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s31_w3_cam0.jpg" alt="sfc5_s31_w3_cam0" data-name="sfc5_s31_w3_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s31_w3_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s31_w3_cam0">3D</button></h3>
+          <div class="map">SFC5_S31_ROCKETBOX_H1M2/WORLD_00000003 · 8063 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.761</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.852</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.779</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.883</span></div>
+            <div><span>History v2 整段</span><span>0.636</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.791</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s32_w2_cam0.jpg" alt="sfc5_s32_w2_cam0" data-name="sfc5_s32_w2_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s32_w2_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s32_w2_cam0">3D</button></h3>
+          <div class="map">SFC5_S32_ROCKETBOX_H1M2/WORLD_00000002 · 8534 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.688</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.762</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.695</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.775</span></div>
+            <div><span>History v2 整段</span><span>0.680</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.710</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s38_w1_cam0.jpg" alt="sfc5_s38_w1_cam0" data-name="sfc5_s38_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s38_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s38_w1_cam0">3D</button></h3>
+          <div class="map">SFC5_S38_ROCKETBOX_H1M2/WORLD_00000001 · 7478 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.803</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.862</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.797</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.886</span></div>
+            <div><span>History v2 整段</span><span class=best>0.727</span></div>
+            <div><span>Point4D head 整段</span><span>0.695</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s41_w0_cam0.jpg" alt="sfc5_s41_w0_cam0" data-name="sfc5_s41_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s41_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s41_w0_cam0">3D</button></h3>
+          <div class="map">SFC5_S41_ROCKETBOX_H1M2/WORLD_00000000 · 10216 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.885</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.923</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.911</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.945</span></div>
+            <div><span>History v2 整段</span><span>0.773</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.825</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s47_w1_cam1.jpg" alt="sfc5_s47_w1_cam1" data-name="sfc5_s47_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s47_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s47_w1_cam1">3D</button></h3>
+          <div class="map">SFC5_S47_ROCKETBOX_H1M2/WORLD_00000001 · 2618 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.566</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.628</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.602</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.653</span></div>
+            <div><span>History v2 整段</span><span class=best>0.619</span></div>
+            <div><span>Point4D head 整段</span><span>0.563</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s49_w1_cam0.jpg" alt="sfc5_s49_w1_cam0" data-name="sfc5_s49_w1_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s49_w1_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s49_w1_cam0">3D</button></h3>
+          <div class="map">SFC5_S49_ROCKETBOX_H1M2/WORLD_00000001 · 7994 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.633</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.794</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.613</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.808</span></div>
+            <div><span>History v2 整段</span><span>0.547</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.641</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s50_w0_cam1.jpg" alt="sfc5_s50_w0_cam1" data-name="sfc5_s50_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s50_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s50_w0_cam1">3D</button></h3>
+          <div class="map">SFC5_S50_ROCKETBOX_H1M2/WORLD_00000000 · 6146 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.559</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.568</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.517</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.641</span></div>
+            <div><span>History v2 整段</span><span class=best>0.646</span></div>
+            <div><span>Point4D head 整段</span><span>0.516</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s52_w1_cam1.jpg" alt="sfc5_s52_w1_cam1" data-name="sfc5_s52_w1_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s52_w1_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s52_w1_cam1">3D</button></h3>
+          <div class="map">SFC5_S52_ROCKETBOX_H1M2/WORLD_00000001 · 4007 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.583</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.653</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.574</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.658</span></div>
+            <div><span>History v2 整段</span><span class=best>0.663</span></div>
+            <div><span>Point4D head 整段</span><span>0.649</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="0">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s53_w0_cam0.jpg" alt="sfc5_s53_w0_cam0" data-name="sfc5_s53_w0_cam0" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s53_w0_cam0<span class="tag">跟拍</span><button class="btn3d" data-name="sfc5_s53_w0_cam0">3D</button></h3>
+          <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 6986 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.902</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.911</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.907</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.942</span></div>
+            <div><span>History v2 整段</span><span class=best>0.888</span></div>
+            <div><span>Point4D head 整段</span><span>0.725</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s53_w0_cam1.jpg" alt="sfc5_s53_w0_cam1" data-name="sfc5_s53_w0_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s53_w0_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w0_cam1">3D</button></h3>
+          <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000000 · 1914 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span class=best>0.834</span></div>
+            <div><span>Point4D head 拼接</span><span>0.822</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.815</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.836</span></div>
+            <div><span>History v2 整段</span><span class=best>0.830</span></div>
+            <div><span>Point4D head 整段</span><span>0.688</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s53_w2_cam1.jpg" alt="sfc5_s53_w2_cam1" data-name="sfc5_s53_w2_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s53_w2_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s53_w2_cam1">3D</button></h3>
+          <div class="map">SFC5_S53_ROCKETBOX_H1M2/WORLD_00000002 · 3281 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.492</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.531</span></div>
+            <div><span>History v2 逐块对 GT</span><span>0.529</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span class=best>0.587</span></div>
+            <div><span>History v2 整段</span><span>0.689</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.709</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" data-cam="1">
+        <img src="media/train_test100_s1_f48_relay_xyz_3d/sfc5_s54_w6_cam1.jpg" alt="sfc5_s54_w6_cam1" data-name="sfc5_s54_w6_cam1" loading="lazy">
+        <div class="body">
+          <h3>sfc5_s54_w6_cam1<span class="tag">静态</span><button class="btn3d" data-name="sfc5_s54_w6_cam1">3D</button></h3>
+          <div class="map">SFC5_S54_ROCKETBOX_H1M2/WORLD_00000006 · 3206 query 点</div>
+          <div class="kv">
+            <div><span>History v2 拼接</span><span>0.697</span></div>
+            <div><span>Point4D head 拼接</span><span class=best>0.721</span></div>
+            <div><span>History v2 逐块对 GT</span><span class=best>0.709</span></div>
+            <div><span>Point4D head 逐块对 GT</span><span>0.660</span></div>
+            <div><span>History v2 整段</span><span>0.449</span></div>
+            <div><span>Point4D head 整段</span><span class=best>0.720</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    预测 <code>eval_results/point_track_relay_f48_o3_xyz</code>（3D 交接接力）/ <code>point_track_f48</code>（整段），打分目录 <code>point_track_relay_f48_o3_xyz_{dstitch,stitch,ransac}</code>（深度云拼接 / 旧版轨迹点拼接 / 逐块对 GT） / <code>point_track_f48_ransac</code>（重复打分加 <code>_r2.._r5</code>）；建页 <code>experiment/build_relay_f48_xyz_page.py</code>。生成于 2026-10-23。
+  </div>
+</footer>
+<!-- 3D 查看器：由 build_point_track_models_page.py 注入 point_track_models.html（media/point_track_3d），由 build_train_page.py 注入 train.html（media/train_3d，12 帧）。
+     数据来自 export_point_track_3d.py 的 <name>.bin；V3D.open(name, dir) 的 dir 选目录 -->
+<style>
+#v3d{position:fixed;inset:0;z-index:50;background:#0b0d12;color:#e8eaf0;display:flex;flex-direction:column;font-size:13px}
+#v3d[hidden]{display:none}
+#v3d .bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:8px 12px;border-bottom:1px solid #2a2f3a;background:#13161d}
+#v3d .bar label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;cursor:pointer}
+#v3d .bar .sw{display:inline-block;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 1px #6b7280}
+#v3d .bar button,#v3d .bar select{background:#1e222b;color:#e8eaf0;border:1px solid #2a2f3a;border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer}
+#v3d .bar button:hover,#v3d .bar select:hover{border-color:#5cc8ff}
+#v3d .bar button.on{border-color:#5cc8ff;color:#5cc8ff}
+#v3d .bar h3{margin:0;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+#v3d .bar .sp{flex:1}
+#v3d .stage{flex:1;position:relative;min-height:0}
+#v3d canvas{display:block;width:100%;height:100%}
+#v3d .hud{position:absolute;left:12px;top:10px;background:rgba(11,13,18,.72);border:1px solid #2a2f3a;border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums;pointer-events:none;line-height:1.5}
+#v3d .hud .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-0.5px;box-shadow:0 0 0 1px #6b7280}
+#v3d .chart{position:absolute;right:12px;bottom:10px;width:300px;height:150px;background:rgba(11,13,18,.72);border:1px solid #2a2f3a;border-radius:8px;cursor:pointer}
+@media (max-width:700px){#v3d .chart{width:200px;height:110px}}
+#v3d .hud .dim{color:#9aa3b2}
+#v3d .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa3b2;pointer-events:none}
+#v3d .foot{display:flex;gap:12px;align-items:center;padding:8px 12px;border-top:1px solid #2a2f3a;background:#13161d}
+#v3d .foot input[type=range]{flex:1;min-width:0}
+#v3d .foot .t{font-variant-numeric:tabular-nums;white-space:nowrap;min-width:5.5em}
+#v3d .help{color:#9aa3b2;white-space:nowrap}
+@media (max-width:700px){#v3d .help{display:none}}
+</style>
+<div id="v3d" hidden>
+  <div class="bar">
+    <h3 id="v3dName">—</h3>
+    <span id="v3dSets"></span>
+    <label>着色 <select id="v3dColor"><option value="set">按模型</option><option value="track">按轨迹</option></select></label>
+    <label>拖尾 <select id="v3dTrail"><option value="0">无</option><option value="6" selected>6 帧</option><option value="16">16 帧</option><option value="64">全程</option></select></label>
+    <label>点大小 <input type="range" id="v3dSize" min="2" max="14" value="6" style="width:70px"></label>
+    <label>轨迹 <select id="v3dNTr"><option value="300" selected>全部</option><option value="100">100 条</option><option value="30">30 条</option><option value="10">10 条</option></select></label>
+    <label><input type="checkbox" id="v3dOcc" checked> 画被遮挡的 GT 点</label>
+    <label title="当前帧每个预测点到它的 GT 点连一条线（模型颜色）"><input type="checkbox" id="v3dErr"> 误差连线</label>
+    <label id="v3dCloudWrap" hidden><input type="checkbox" id="v3dCloud" checked> 深度点云 <input type="range" id="v3dCloudSize" min="1" max="16" value="8" style="width:60px"> <input type="checkbox" id="v3dCloudAcc" checked> 累积到当前帧 <select id="v3dCloudCol" title="暗场景的原图颜色接近黑色，和 GT 分不开"><option value="raw">原图色</option><option value="lift" selected>提亮</option><option value="gray">灰色</option></select></label>
+    <button id="v3dCam">相机视角</button>
+    <button id="v3dReset">复位视角</button>
+    <span class="sp"></span>
+    <span class="help">左键旋转 · 右键平移 · 滚轮缩放 · 空格播放/暂停 · ←→ 逐帧 · Esc 关闭</span>
+    <button id="v3dClose">关闭</button>
+  </div>
+  <div class="stage"><canvas id="v3dCanvas"></canvas><div class="hud" id="v3dHud"></div><canvas class="chart" id="v3dChart" title="各模型逐帧平均误差（m，画出的轨迹上），点击跳到该帧"></canvas><div class="msg" id="v3dMsg"></div></div>
+  <div class="foot">
+    <button id="v3dPlay">暂停</button>
+    <span class="t" id="v3dT">t = 00 / 63</span>
+    <input type="range" id="v3dFrame" min="0" max="63" value="0">
+    <label>速度 <select id="v3dSpeed"><option value="4">4 fps</option><option value="7.5" selected>7.5 fps</option><option value="15">15 fps</option></select></label>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const V3D = (() => {
+  const COLORS = { gt: 0x1a1a1a, "4rc": 0x5cc8ff, traceanything: 0xffb347, any4d: 0x7bd88f, point4d: 0xff7bd0, s4d_train: 0xff5c5c, s4d_train_np5: 0xb06cff, s4d_train_step44000: 0xff5c5c, point4d_abl_step44000: 0xff7bd0, history_abl_step24000: 0xffb347, point4d_abl_step24000: 0xff7bd0, s4d_train_step24000: 0xb06cff, history_abl_v2_step24000: 0xff5c5c, history_abl_v2_step44000: 0xff5c5c };
+  const NAMES = { gt: "GT", "4rc": "4RC", traceanything: "TraceAnything", any4d: "Any4D", point4d: "Point4D", s4d_train: "s4d_train", s4d_train_np5: "s4d_train np5", s4d_train_step44000: "s4d_train step44000", point4d_abl_step44000: "Point4D head step44000", history_abl_step24000: "History head v1 step24000", point4d_abl_step24000: "Point4D head step24000", s4d_train_step24000: "s4d_train step24000", history_abl_v2_step24000: "History head v2 step24000", history_abl_v2_step44000: "History head v2 step44000" };
+  const FAR = 1e5, el = id => document.getElementById(id);
+  let renderer, scene, camera, controls, grid, frustum, camPath, cloud, raf = null;
+  let D = null, frame = 0, playing = true, lastTick = 0, followCam = false;
+  let pts = {}, trails = {}, errs = {}, enabled = {}, shown = null;
+
+  function parse(buf) {
+    const dv = new DataView(buf);
+    if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== "PT3D") throw new Error("bad magic");
+    const hl = dv.getUint32(4, true);
+    const head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, hl)));
+    let off = 8 + hl;
+    const S = head.sets.length, T = head.T, N = head.N;
+    // 各块的偏移不保证 4 字节对齐，typed array 一律从 slice 建
+    const q = new Int16Array(buf.slice(off, off + S * T * N * 6)); off += S * T * N * 6;
+    const c2w = new Float32Array(buf.slice(off, off + T * 64)); off += T * 64;
+    const vis = new Uint8Array(buf.slice(off, off + T * N)); off += T * N;
+    const K = new Float32Array(buf.slice(off, off + 24)); off += 24;
+    // cm -> m，并把 OpenCV（x 右 y 下 z 前）换成 three（y 上 z 向观者）：(x, -y, -z)
+    const toM = q => {
+      const xyz = new Float32Array(q.length);
+      for (let i = 0; i < q.length / 3; i++) {
+        const a = q[i * 3], b = q[i * 3 + 1], c = q[i * 3 + 2];
+        if (a === -32768 || b === -32768 || c === -32768) { xyz[i * 3] = xyz[i * 3 + 1] = xyz[i * 3 + 2] = NaN; }
+        else { xyz[i * 3] = a / 100; xyz[i * 3 + 1] = -b / 100; xyz[i * 3 + 2] = -c / 100; }
+      }
+      return xyz;
+    };
+    const xyz = toM(q);
+    // 可选：某个模型自己预测的逐帧深度点云（export_point_track_3d.py --cloud），已用该模型轨迹的 Sim(3) 搬到 GT 坐标系
+    let cl = null;
+    if (head.cloud) {
+      const M = head.cloud.gh * head.cloud.gw;
+      cl = { M, xyz: toM(new Int16Array(buf.slice(off, off + T * M * 6))), rgb: new Uint8Array(buf.slice(off + T * M * 6, off + T * M * 9)) };
+    }
+    const cams = [];
+    for (let t = 0; t < T; t++) {
+      const m = new THREE.Matrix4().fromArray(c2w.subarray(t * 16, t * 16 + 16)).transpose(); // 行主序 -> three 列主序
+      m.elements[12] /= 100; m.elements[13] /= 100; m.elements[14] /= 100;
+      const F = new THREE.Matrix4().makeScale(1, -1, -1);
+      cams.push(new THREE.Matrix4().multiplyMatrices(F, m).multiply(F));
+    }
+    return { head, S, T, N, xyz, vis, cams, cloud: cl, fx: K[0], fy: K[1], W: K[4], H: K[5] };
+  }
+
+  function init() {
+    if (renderer) return;
+    const cv = el("v3dCanvas");
+    renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
+    camera = new THREE.PerspectiveCamera(50, 1, 0.05, 2000);
+    controls = new THREE.OrbitControls(camera, cv);
+    controls.enableDamping = true; controls.dampingFactor = 0.1;
+    new ResizeObserver(resize).observe(cv.parentElement);
+    el("v3dClose").onclick = close;
+    el("v3dPlay").onclick = () => setPlaying(!playing);
+    el("v3dFrame").oninput = e => { if (!D) return; setPlaying(false); setFrame(+e.target.value); };
+    el("v3dColor").onchange = () => D && recolor(); el("v3dOcc").onchange = () => D && setFrame(frame);
+    el("v3dTrail").onchange = () => D && setFrame(frame);
+    el("v3dSize").oninput = e => { for (const k in pts) pts[k].material.size = (k === "gt" ? 1.2 : 1) * e.target.value / 100; };
+    el("v3dCloud").onchange = e => { if (cloud) cloud.visible = e.target.checked; };
+    el("v3dCloudSize").oninput = e => { if (cloud) cloud.material.size = e.target.value / 100; };
+    el("v3dCloudAcc").onchange = () => D && setFrame(frame);
+    el("v3dCloudCol").onchange = () => D && cloud && colorCloud();
+    el("v3dNTr").onchange = () => { if (!D) return; pickShown(); setFrame(frame); };
+    el("v3dErr").onchange = () => { if (!D) return; for (const k in errs) errs[k].visible = enabled[k] && el("v3dErr").checked; setFrame(frame); };
+    el("v3dChart").onclick = e => {   // 点曲线跳到对应帧
+      if (!D) return; const r = e.currentTarget.getBoundingClientRect(), pad = 30;
+      setPlaying(false); setFrame(Math.max(0, Math.min(D.T - 1, Math.round((e.clientX - r.left - pad) / (r.width - pad - 10) * (D.T - 1)))));
+    };
+    el("v3dCam").onclick = () => { if (!D) return; followCam = !followCam; el("v3dCam").classList.toggle("on", followCam); controls.enabled = !followCam; if (!followCam) resetView(); else setFrame(frame); };
+    el("v3dReset").onclick = () => { if (!D) return; followCam = false; el("v3dCam").classList.remove("on"); controls.enabled = true; resetView(); };
+    addEventListener("keydown", e => {
+      if (el("v3d").hidden || !D) return;
+      if (e.key === "Escape") close();
+      else if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+      else if (e.key === "ArrowRight") { setPlaying(false); setFrame((frame + 1) % D.T); }
+      else if (e.key === "ArrowLeft") { setPlaying(false); setFrame((frame - 1 + D.T) % D.T); }
+    });
+  }
+
+  function resize() {
+    const cv = el("v3dCanvas"), w = cv.parentElement.clientWidth, h = cv.parentElement.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+
+  function clearScene() {
+    for (const k in pts) { scene.remove(pts[k]); pts[k].geometry.dispose(); pts[k].material.dispose(); }
+    for (const k in trails) { scene.remove(trails[k]); trails[k].geometry.dispose(); trails[k].material.dispose(); }
+    for (const k in errs) { scene.remove(errs[k]); errs[k].geometry.dispose(); errs[k].material.dispose(); }
+    pts = {}; trails = {}; errs = {};
+    for (const o of [grid, frustum, camPath, cloud]) if (o) { scene.remove(o); o.geometry.dispose(); o.material.dispose(); }
+    grid = frustum = camPath = cloud = null;
+  }
+
+  function build() {
+    clearScene();
+    const { S, T, N, head } = D, size = +el("v3dSize").value / 100;
+    const setsEl = el("v3dSets"); setsEl.innerHTML = "";
+    el("v3dFrame").max = T - 1;
+    head.sets.forEach((k, s) => {
+      if (!head.have[s]) return;
+      enabled[k] = enabled[k] !== false;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+      g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+      const p = new THREE.Points(g, new THREE.PointsMaterial({ size: (k === "gt" ? 1.2 : 1) * size, vertexColors: true, sizeAttenuation: true }));
+      p.frustumCulled = false; scene.add(p); pts[k] = p;
+      const tg = new THREE.BufferGeometry();
+      tg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 63 * 2 * 3), 3));
+      tg.setAttribute("color", new THREE.BufferAttribute(new Float32Array(N * 63 * 2 * 3), 3));
+      const l = new THREE.LineSegments(tg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55 }));
+      l.frustumCulled = false; scene.add(l); trails[k] = l;
+      if (k !== "gt") {   // 当前帧 预测点 -> GT 点
+        const eg = new THREE.BufferGeometry();
+        eg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 2 * 3), 3));
+        const e = new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: COLORS[k], transparent: true, opacity: 0.8 }));
+        e.frustumCulled = false; scene.add(e); errs[k] = e;
+      }
+      const lab = document.createElement("label");
+      lab.innerHTML = `<input type="checkbox" ${enabled[k] ? "checked" : ""}> <span class="sw" style="background:#${COLORS[k].toString(16).padStart(6, "0")}"></span>${NAMES[k] || k}`;
+      const vis = () => { pts[k].visible = trails[k].visible = enabled[k]; if (errs[k]) errs[k].visible = enabled[k] && el("v3dErr").checked; };
+      lab.querySelector("input").onchange = e => { enabled[k] = e.target.checked; vis(); drawChart(); };
+      vis();
+      setsEl.appendChild(lab);
+    });
+    // 预测深度点云：T 帧全部放进一个缓冲区、按输入图像着色，setFrame 只改 drawRange（当前帧一团，或累积 0..t）
+    el("v3dCloudWrap").hidden = !D.cloud;
+    if (D.cloud) {
+      const { M, xyz: cx } = D.cloud, cpos = new Float32Array(T * M * 3), ccol = new Float32Array(T * M * 3);
+      for (let i = 0; i < T * M; i++) {
+        const x = cx[i * 3];
+        if (isFinite(x)) cpos.set([x, cx[i * 3 + 1], cx[i * 3 + 2]], i * 3); else cpos.set([FAR, FAR, FAR], i * 3);
+      }
+      const cg = new THREE.BufferGeometry();
+      cg.setAttribute("position", new THREE.BufferAttribute(cpos, 3));
+      cg.setAttribute("color", new THREE.BufferAttribute(ccol, 3));
+      cloud = new THREE.Points(cg, new THREE.PointsMaterial({ size: +el("v3dCloudSize").value / 100, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.5, depthWrite: false }));
+      cloud.frustumCulled = false; cloud.visible = el("v3dCloud").checked; scene.add(cloud);
+      colorCloud();
+    }
+    // 相机路径与当前帧视锥
+    const cp = new Float32Array(T * 3);
+    for (let t = 0; t < T; t++) { const e = D.cams[t].elements; cp[t * 3] = e[12]; cp[t * 3 + 1] = e[13]; cp[t * 3 + 2] = e[14]; }
+    camPath = new THREE.Line(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(cp, 3)), new THREE.LineBasicMaterial({ color: 0x6b7280, transparent: true, opacity: 0.8 }));
+    camPath.frustumCulled = false; scene.add(camPath);
+    const d = 0.6, hx = d * D.W / (2 * D.fx), hy = d * D.H / (2 * D.fy);
+    const c = [[0, 0, 0], [hx, hy, -d], [-hx, hy, -d], [-hx, -hy, -d], [hx, -hy, -d]];
+    const seg = [0, 1, 0, 2, 0, 3, 0, 4, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2]; // 最后一条重复上边，画粗一点代表"上"
+    const fv = new Float32Array(seg.length * 3); seg.forEach((i, j) => fv.set(c[i], j * 3));
+    frustum = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(fv, 3)), new THREE.LineBasicMaterial({ color: 0xffcf66 }));
+    frustum.matrixAutoUpdate = false; frustum.frustumCulled = false; scene.add(frustum);
+    // 地面网格：GT 第 0 帧最低点当地面
+    let ymin = Infinity, cx = 0, cz = 0, n = 0;
+    for (let i = 0; i < N; i++) { const y = D.xyz[i * 3 + 1]; if (isFinite(y)) { ymin = Math.min(ymin, y); cx += D.xyz[i * 3]; cz += D.xyz[i * 3 + 2]; n++; } }
+    if (n) { cx /= n; cz /= n; }
+    grid = new THREE.GridHelper(400, 80, 0xc9cdd6, 0xe4e7ed);
+    grid.position.set(Math.round(cx), isFinite(ymin) ? ymin : 0, Math.round(cz)); scene.add(grid);
+    D.center = new THREE.Vector3(cx, isFinite(ymin) ? ymin + 1 : 0, cz);
+    pickShown();
+    recolor();
+    resetView();
+    setFrame(0);
+  }
+
+  function colorCloud() {
+    // 原图色：暗场景接近黑色，和黑色 GT 点混在一起；提亮 = 往白色拉一半；灰色 = 只看几何
+    const mode = el("v3dCloudCol").value, rgb = D.cloud.rgb, col = cloud.geometry.attributes.color.array;
+    for (let i = 0; i < rgb.length; i++) {
+      const v = mode === "gray" ? 0.62 : rgb[i] / 255;
+      col[i] = mode === "lift" ? 0.45 + 0.55 * v : v;
+    }
+    cloud.geometry.attributes.color.needsUpdate = true;
+  }
+
+  function pickShown() {
+    // 轨迹数：在已导出的 N 条里再等距取（各模型同一批）
+    const n = Math.min(D.N, +el("v3dNTr").value);
+    shown = new Uint8Array(D.N);
+    for (let j = 0; j < n; j++) shown[Math.round(j * (D.N - 1) / Math.max(1, n - 1))] = 1;
+  }
+
+  function drawChart() {
+    // 右下角：各模型逐帧平均误差（导出时在画出的 N 条轨迹上算的），竖线 = 当前帧
+    const cv = el("v3dChart"), dpr = Math.min(devicePixelRatio, 2), w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return;
+    if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+    const { T, head } = D, keys = head.sets.filter(k => head.err_per_frame[k] && enabled[k]);
+    const L = 30, R = 10, Tp = 16, B = 18, ymax = Math.max(1e-3, ...keys.flatMap(k => head.err_per_frame[k].filter(isFinite)));
+    const X = t => L + (w - L - R) * t / Math.max(1, T - 1), Y = v => Tp + (h - Tp - B) * (1 - v / ymax);
+    g.font = "10px ui-monospace,monospace"; g.fillStyle = "#9aa3b2"; g.strokeStyle = "#2a2f3a"; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(L, Tp); g.lineTo(L, h - B); g.lineTo(w - R, h - B); g.stroke();
+    g.textAlign = "right"; g.fillText(ymax.toFixed(2), L - 3, Tp + 4); g.fillText("0", L - 3, h - B + 3);
+    g.textAlign = "left"; g.fillText("误差 m", L + 4, 11);
+    g.textAlign = "center"; g.fillText("0", X(0), h - 5); g.fillText(String(T - 1), X(T - 1), h - 5);
+    g.strokeStyle = "#ffcf66"; g.beginPath(); g.moveTo(X(frame), Tp); g.lineTo(X(frame), h - B); g.stroke();
+    g.lineWidth = 1.6;
+    for (const k of keys) {
+      const e = head.err_per_frame[k]; g.strokeStyle = g.fillStyle = "#" + COLORS[k].toString(16).padStart(6, "0");
+      g.beginPath(); let pen = false;
+      for (let t = 0; t < T; t++) { if (!isFinite(e[t])) { pen = false; continue; } pen ? g.lineTo(X(t), Y(e[t])) : g.moveTo(X(t), Y(e[t])); pen = true; }
+      g.stroke();
+      if (isFinite(e[frame])) { g.beginPath(); g.arc(X(frame), Y(e[frame]), 2.5, 0, 7); g.fill(); }
+    }
+  }
+
+  function resetView() {
+    // 从第 0 帧相机的位置稍微抬高后退看向主体
+    const c = D.center, e = D.cams[0].elements, cam0 = new THREE.Vector3(e[12], e[13], e[14]);
+    const dir = new THREE.Vector3().subVectors(c, cam0), dist = Math.max(dir.length(), 3);
+    dir.normalize();
+    camera.position.copy(cam0).addScaledVector(dir, -dist * 0.35).add(new THREE.Vector3(0, dist * 0.45, 0));
+    controls.target.copy(c); camera.fov = 50; camera.updateProjectionMatrix(); controls.update();
+  }
+
+  function recolor() {
+    const byTrack = el("v3dColor").value === "track", { N, head } = D;
+    const u = head.track_u0, umin = Math.min(...u), ur = Math.max(1e-6, Math.max(...u) - umin), tmp = new THREE.Color();
+    for (const k in pts) {
+      pts[k].userData.full = null;
+      const col = pts[k].geometry.attributes.color.array, tcol = trails[k].geometry.attributes.color.array;
+      for (let i = 0; i < N; i++) {
+        if (byTrack) tmp.setHSL((u[i] - umin) / ur * 0.83, 1, k === "gt" ? 0.3 : 0.5); else tmp.setHex(COLORS[k]);
+        col.set([tmp.r, tmp.g, tmp.b], i * 3);
+        for (let j = 0; j < 63 * 2; j++) tcol.set([tmp.r, tmp.g, tmp.b], (i * 126 + j) * 3);
+      }
+      pts[k].geometry.attributes.color.needsUpdate = true; trails[k].geometry.attributes.color.needsUpdate = true;
+    }
+    setFrame(frame);
+  }
+
+  function setFrame(t) {
+    frame = t; const { N, T, head, xyz, vis } = D, trailN = +el("v3dTrail").value, occ = el("v3dOcc").checked;
+    el("v3dFrame").value = t; el("v3dT").textContent = `t = ${String(t).padStart(2, "0")} / ${T - 1}`;
+    head.sets.forEach((k, s) => {
+      if (!pts[k]) return;
+      const pos = pts[k].geometry.attributes.position.array, col = pts[k].geometry.attributes.color;
+      const base = (s * T + t) * N * 3;
+      for (let i = 0; i < N; i++) {
+        const x = xyz[base + i * 3], hide = !shown[i] || !isFinite(x) || (k === "gt" && !occ && !vis[t * N + i]);
+        if (hide) pos.set([FAR, FAR, FAR], i * 3); else pos.set([x, xyz[base + i * 3 + 1], xyz[base + i * 3 + 2]], i * 3);
+      }
+      pts[k].geometry.attributes.position.needsUpdate = true;
+      if (k === "gt") { // 被遮挡的 GT 点向白底淡化
+        const c = col.array; if (!pts[k].userData.full) pts[k].userData.full = Float32Array.from(c);
+        const full = pts[k].userData.full;
+        for (let i = 0; i < N; i++) { const f = vis[t * N + i] ? 1 : 0.3; c[i * 3] = full[i * 3] * f + 1 - f; c[i * 3 + 1] = full[i * 3 + 1] * f + 1 - f; c[i * 3 + 2] = full[i * 3 + 2] * f + 1 - f; }
+        col.needsUpdate = true;
+      }
+      const tp = trails[k].geometry.attributes.position.array; let m = 0;
+      const t0 = Math.max(0, t - trailN);
+      for (let i = 0; i < N; i++) for (let u = t0; u < t; u++) {
+        if (!shown[i]) break;
+        const a = (s * T + u) * N * 3 + i * 3, b = (s * T + u + 1) * N * 3 + i * 3;
+        if (!isFinite(xyz[a]) || !isFinite(xyz[b])) continue;
+        tp.set([xyz[a], xyz[a + 1], xyz[a + 2], xyz[b], xyz[b + 1], xyz[b + 2]], m * 6); m++;
+      }
+      trails[k].geometry.setDrawRange(0, m * 2); trails[k].geometry.attributes.position.needsUpdate = true;
+      if (errs[k] && errs[k].visible) {
+        const ep = errs[k].geometry.attributes.position.array, g0 = t * N * 3; let n = 0;   // set 0 是 GT
+        for (let i = 0; i < N; i++) {
+          const a = base + i * 3, b = g0 + i * 3;
+          if (!shown[i] || !isFinite(xyz[a]) || !isFinite(xyz[b])) continue;
+          ep.set([xyz[a], xyz[a + 1], xyz[a + 2], xyz[b], xyz[b + 1], xyz[b + 2]], n * 6); n++;
+        }
+        errs[k].geometry.setDrawRange(0, n * 2); errs[k].geometry.attributes.position.needsUpdate = true;
+      }
+    });
+    if (cloud) {
+      const M = D.cloud.M, acc = el("v3dCloudAcc").checked;
+      cloud.geometry.setDrawRange(acc ? 0 : t * M, acc ? (t + 1) * M : M);
+    }
+    frustum.matrix.copy(D.cams[t]); frustum.visible = !followCam;
+    if (followCam) {
+      const m = D.cams[t]; camera.position.setFromMatrixPosition(m); camera.quaternion.setFromRotationMatrix(m);
+      camera.fov = 2 * Math.atan(D.H / (2 * D.fy)) * 180 / Math.PI; camera.updateProjectionMatrix();
+    }
+    const hud = [`<span class="dim">${head.n_query} query 点，画 ${N} 条 · 第 0 帧相机系，米 · 黄色视锥 = GT 相机${head.cloud ? ` · 深度点云 = ${NAMES[head.cloud.set] || head.cloud.set} 预测（${head.cloud.gh}×${head.cloud.gw}，同其轨迹的 Sim(3)）` : ""}</span>`];
+    for (const k of head.sets) if (head.err_per_frame[k]) hud.push(`<span class="sw" style="background:#${COLORS[k].toString(16).padStart(6, "0")}"></span>${NAMES[k]} <span class="dim">误差</span> ${head.err_per_frame[k][t].toFixed(2)} m <span class="dim">· Sim(3) 尺度 ${head.sim3_scale[k].toFixed(2)}</span>`);
+    el("v3dHud").innerHTML = hud.join("<br>");
+    drawChart();
+  }
+
+  function setPlaying(p) { playing = p; el("v3dPlay").textContent = p ? "暂停" : "播放"; }
+
+  function loop(ts) {
+    raf = requestAnimationFrame(loop);
+    if (D && playing && ts - lastTick > 1000 / +el("v3dSpeed").value) { lastTick = ts; setFrame((frame + 1) % D.T); }
+    if (controls.enabled) controls.update();
+    renderer.render(scene, camera);
+  }
+
+  async function open(name, dir = "media/point_track_3d") {
+    init(); D = null;
+    el("v3d").hidden = false; document.body.style.overflow = "hidden";
+    el("v3dName").textContent = name; el("v3dMsg").textContent = "加载中…"; el("v3dHud").innerHTML = "";
+    resize();
+    if (!raf) raf = requestAnimationFrame(loop);
+    try {
+      const r = await fetch(`${dir}/${name}.bin`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      D = parse(await r.arrayBuffer());
+      el("v3dMsg").textContent = "";
+      followCam = false; el("v3dCam").classList.remove("on"); controls.enabled = true;
+      build(); setPlaying(true);
+    } catch (e) {
+      el("v3dMsg").textContent = `加载 ${dir}/${name}.bin 失败：${e.message}（本地打开 html 文件时 fetch 会被浏览器拦住，请用 http 服务或 GitHub Pages 打开）`;
+    }
+  }
+
+  function close() {
+    el("v3d").hidden = true; document.body.style.overflow = "";
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+  }
+
+  return { open, close };
+})();
+</script>
+
+<script>
+(() => {
+  const grid = document.getElementById("cmpGrid");
+  const btns = { follow: document.getElementById("cmpFollow"), static: document.getElementById("cmpStatic"), all: document.getElementById("cmpAll") };
+  const show = m => { grid.classList.toggle("all", m === "all"); grid.classList.toggle("static", m === "static"); for (const k in btns) btns[k].classList.toggle("on", k === m); };
+  for (const k in btns) btns[k].onclick = () => show(k);
+  grid.addEventListener("click", e => { const t = e.target.closest("[data-name]"); if (t) V3D.open(t.dataset.name, "media/train_test100_s1_f48_relay_xyz_3d"); });
+  document.getElementById("theme").onclick = () => {
+    const r = document.documentElement; const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    const cur = r.dataset.theme || (dark ? "dark" : "light");
+    r.dataset.theme = cur === "dark" ? "light" : "dark";
+    try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+  };
+  try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+})();
+</script>
+</body>
+</html>
