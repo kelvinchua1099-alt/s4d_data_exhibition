@@ -111,6 +111,7 @@ footer code{word-break:break-all}
     <p class="note"><b>起点误差集中在前景轮廓，而且偏远。</b>轮廓圈只占 17.6% 的点，原版 &gt;1 m 的误差却有 61% 落在这一圈，轮廓圈中位误差 0.40 m，内部只有 0.033 m；&gt;0.3 m 的误差里 71% 对齐后落在真值后面（取到了背景深度），Point4D head 也是 73%，History 只有 37%。换最小二乘对齐，除 History（0.840）外都掉到 0.5–0.6，是这些飞点把对齐拉偏了。</p>
     <p class="note"><b>原版按 12/3 拼 10 条接缝会明显漂移，而且越拼越远。</b>同一批 500 点上，12/3 拼接的 100 帧 avg_pts 0.348，整段 100 帧一次不拼接 0.428，低 0.08（逐段 69:29）。前 3 块两者差不多（偏移中位 0.28 / 0.45 / 0.62 m vs 不拼接 0.25 / 0.34 / 0.41 m），从第 4 块起拼接误差开始累积：到末块（帧 91–99）偏移 2.89 m vs 1.12 m，旋转 65° vs 23°，尺度比 0.67 vs 0.96。拼接多出来的主要是尺度：每过一条接缝平均缩 4%（块间 Sim(3) 是用共享帧上两块的深度云估的，推测是相邻两块深度的尺度对不齐、每次交接都偏小一点），不拼接时尺度基本不变。</p>
     <p class="note"><b>不拼接的整段一次也在变形，所以漂移不全是拼接造成的。</b>同样按 12/3 切块看，100 帧一次前向的第 1 块相对第 0 块已经偏 0.25 m、旋转 10°，到末块 1.12 m、23°；逐块各自对齐比整段一次高 0.11（12/3 拼接是 0.14）。100 帧也超过了 README 默认的块长 64。</p>
+    <p class="note"><b>自身漂移比拼接漂移大，拼接主要放大后半段、带来尺度漂移。</b>逐段配对看，前 4 块（到帧 47）拼接只多 0.04–0.13 m，自身已偏 0.25–0.45 m；最后 3 块拼接多 0.68–0.99 m，和自身的 1.10–1.22 m 相当。尺度漂移几乎全来自拼接（自身末块 0.96，拼接后 0.67）。按 avg_pts，自身漂移代价 0.11，块间拼接只多 0.03，另 0.05 来自短块块内精度（见<a href="#split">拆分表</a>）。</p>
     <p class="note"><b>两个头同样 12/3 接力漂得少得多。</b>同一批点上 Point4D head / History v2 拼接后 avg_pts 0.580 / 0.507（原版 0.348），末块偏移 0.68 / 0.88 m、旋转 16° / 21°、尺度比 0.99 / 0.89，偏移比原版不拼接的整段一次还小；拼接代价 0.06 / 0.07。也就是说，在 s4d 上训过之后，同样的 3D 交接 + 深度云 Sim(3) 拼接不再是主要的误差来源。</p>
   </div>
 </section>
@@ -300,6 +301,28 @@ footer code{word-break:break-all}
         <tr><td>10</td><td class="num">93–99</td><td class="num">2.885 <small>(93%)</small></td><td class="num">1.120 <small>(86%)</small></td><td class="num">0.679 <small>(71%)</small></td><td class="num">0.885 <small>(83%)</small></td><td class="num">65.5</td><td class="num">22.8</td><td class="num">15.8</td><td class="num">21.1</td><td class="num">0.673</td><td class="num">0.955</td><td class="num">0.990</td><td class="num">0.894</td></tr>
       </tbody>
     </table></div>
+  </div>
+</section>
+<section id="split">
+  <div class="wrap">
+    <h2>自身漂移 vs 拼接漂移</h2>
+    <p class="lead">原版 Point4D，每段同一批 500 点。<b>自身</b> = 整段 100 帧一次前向（不拼接）按同样 12/3 切块；<b>拼接后</b> = 12/3 拼接。"拼接多出的" = 每段拼接后偏移减自身偏移、再取 100 段中位（配对比较，不等于两列中位相减）；"拼接更差" = 拼接后偏移大于自身的段占比。块内 avg_pts 用整段一次对齐、只算这一块独有的帧。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>块</th><th class="num">帧</th><th class="num">偏移 m<br><small>自身</small></th><th class="num">偏移 m<br><small>拼接后</small></th><th class="num">拼接多出的<br><small>m</small></th><th class="num">拼接更差</th><th class="num">旋转 °<br><small>自身</small></th><th class="num">旋转 °<br><small>拼接后</small></th><th class="num">尺度比<br><small>自身</small></th><th class="num">尺度比<br><small>拼接后</small></th><th class="num">块内 avg_pts<br><small>自身</small></th><th class="num">块内 avg_pts<br><small>拼接后</small></th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="num">12–20</td><td class="num">0.25</td><td class="num">0.28</td><td class="num">+0.04</td><td class="num">55%</td><td class="num">10.4</td><td class="num">8.6</td><td class="num">1.000</td><td class="num">0.987</td><td class="num">0.509</td><td class="num">0.501</td></tr>
+        <tr><td>2</td><td class="num">21–29</td><td class="num">0.34</td><td class="num">0.45</td><td class="num">+0.04</td><td class="num">56%</td><td class="num">11.6</td><td class="num">11.0</td><td class="num">0.997</td><td class="num">0.977</td><td class="num">0.493</td><td class="num">0.458</td></tr>
+        <tr><td>3</td><td class="num">30–38</td><td class="num">0.41</td><td class="num">0.62</td><td class="num">+0.08</td><td class="num">55%</td><td class="num">11.4</td><td class="num">14.1</td><td class="num">1.006</td><td class="num">0.958</td><td class="num">0.484</td><td class="num">0.414</td></tr>
+        <tr><td>4</td><td class="num">39–47</td><td class="num">0.45</td><td class="num">0.74</td><td class="num">+0.13</td><td class="num">62%</td><td class="num">13.1</td><td class="num">15.7</td><td class="num">1.010</td><td class="num">0.923</td><td class="num">0.473</td><td class="num">0.368</td></tr>
+        <tr><td>5</td><td class="num">48–56</td><td class="num">0.72</td><td class="num">1.18</td><td class="num">+0.27</td><td class="num">67%</td><td class="num">14.0</td><td class="num">21.6</td><td class="num">0.991</td><td class="num">0.877</td><td class="num">0.444</td><td class="num">0.319</td></tr>
+        <tr><td>6</td><td class="num">57–65</td><td class="num">0.64</td><td class="num">1.44</td><td class="num">+0.28</td><td class="num">68%</td><td class="num">14.7</td><td class="num">21.6</td><td class="num">0.988</td><td class="num">0.876</td><td class="num">0.411</td><td class="num">0.283</td></tr>
+        <tr><td>7</td><td class="num">66–74</td><td class="num">0.75</td><td class="num">1.65</td><td class="num">+0.42</td><td class="num">65%</td><td class="num">14.3</td><td class="num">25.5</td><td class="num">0.999</td><td class="num">0.823</td><td class="num">0.377</td><td class="num">0.255</td></tr>
+        <tr><td>8</td><td class="num">75–83</td><td class="num">1.10</td><td class="num">2.12</td><td class="num">+0.68</td><td class="num">74%</td><td class="num">17.6</td><td class="num">33.6</td><td class="num">0.971</td><td class="num">0.753</td><td class="num">0.356</td><td class="num">0.224</td></tr>
+        <tr><td>9</td><td class="num">84–92</td><td class="num">1.22</td><td class="num">2.77</td><td class="num">+0.99</td><td class="num">73%</td><td class="num">21.5</td><td class="num">67.2</td><td class="num">0.970</td><td class="num">0.663</td><td class="num">0.323</td><td class="num">0.194</td></tr>
+        <tr><td>10</td><td class="num">93–99</td><td class="num">1.12</td><td class="num">2.89</td><td class="num">+0.88</td><td class="num">74%</td><td class="num">22.8</td><td class="num">65.5</td><td class="num">0.955</td><td class="num">0.673</td><td class="num">0.301</td><td class="num">0.177</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:14px"><b>按 avg_pts 分解拼接掉的 0.08</b>（不拼接 0.428 → 12/3 拼接 0.348）：自身漂移的代价 = 不拼接时逐块各自对齐减整段一次 = 0.538 − 0.428 = 0.11；拼接后这个差是 0.488 − 0.348 = 0.14，块间漂移只多了 <b>0.03</b>；其余 <b>0.05</b> 是 12 帧短块本身块内就不如整段准（各自对齐后 0.488 vs 0.538：上下文短、交接起点带着上一块的误差）。avg_pts 每点超过 1 m 就记零分，后几块很多点已经超过，所以它低估了后半段拼接漂移的影响，偏移和尺度两列更直接。</p>
   </div>
 </section>
 <footer>
