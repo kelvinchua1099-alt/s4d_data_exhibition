@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyframes vs Relay</title>
+<meta name="description" content="同样的深度反投影起点、同一段时间（源帧 0–95）：每 5 帧取 1 帧一条链跑完 vs 逐帧 100 帧 12 帧一块拼接，在两者都有预测的 20 个关键帧上比 History v2 与 Point4D head（step 44000）。">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3a;--accent:#5cc8ff;--shadow:0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}}
+:root[data-theme="light"]{--bg:#f6f7fa;--panel:#fff;--panel2:#eef1f6;--text:#1a1d24;--muted:#5b6474;--line:#dde2ea;--accent:#0b78c2;--shadow:0 8px 24px rgba(20,30,60,.08)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.hero{padding:40px 0 28px;border-bottom:1px solid var(--line)}
+header.hero .back{font-size:14px}
+header.hero h1{font-size:clamp(28px,4vw,44px);margin:8px 0 8px;letter-spacing:.5px}
+header.hero p.sub{color:var(--muted);margin:0 0 20px;font-size:17px;max-width:860px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+section{padding:40px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:24px;margin:0 0 6px}
+section p.lead{color:var(--muted);margin:0 0 20px;max-width:880px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(520px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card video{width:100%;display:block;aspect-ratio:32/9;background:#000}
+.card .body{padding:12px 16px 14px}
+.card h3{margin:0 0 2px;font-size:16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.card .map{color:var(--muted);font-size:13px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;font-size:13px}
+.kv div{display:flex;flex-direction:column;border-left:2px solid var(--line);padding:0 0 0 8px}
+.kv div span:first-child{color:var(--muted);font-size:12px}
+.kv div span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-weight:600}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--panel2);padding:1px 6px;border-radius:6px}
+.note{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:8px;color:var(--muted);font-size:14px;margin:0 0 12px}
+.note b{color:var(--text)}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px;font-size:13px}
+.ctl button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.ctl button:hover{border-color:var(--accent)}
+footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:repeat(2,1fr)}}
+</style>
+<style>
+:root{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--grid:#2a2f3a;--axis:#3a4050}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--grid:#e8ebf0;--axis:#c3c8d2}}
+:root[data-theme="light"]{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--grid:#e8ebf0;--axis:#c3c8d2}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.ref td{opacity:.65}
+tr.main td{font-weight:600}
+td small,th small{color:var(--muted);font-weight:400}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 12px 6px;position:relative;margin:0 0 14px}
+.chart svg{width:100%;height:auto;display:block;touch-action:none}
+.chart .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin:2px 4px 8px}
+.chart .legend span{display:inline-flex;align-items:center;gap:6px}
+.key{display:inline-block;width:16px;height:0;border-top:2px solid}
+.chart .tip{position:absolute;pointer-events:none;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;box-shadow:var(--shadow);display:none;min-width:150px}
+.chart .tip .h{color:var(--muted);margin-bottom:2px}
+.chart .tip div.r{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.chart .tip b{font-variant-numeric:tabular-nums;min-width:42px}
+.chart .tip span.l{color:var(--muted)}
+.ax text{fill:var(--muted);font-size:12px}
+.lab{fill:var(--text);font-size:12px}
+details{margin:6px 0 0}details summary{cursor:pointer;color:var(--accent);font-size:14px}
+footer code{word-break:break-all}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="index.html">← S4D Data Exhibition</a>
+    <h1>跳帧一条链 vs 逐帧 12/3 拼接 · 同一批 20 个关键帧</h1>
+    <p class="sub">长视频要覆盖源帧 0–95 这段时间，有两种走法：<b>逐帧拼接</b>——连续 100 帧切成 12 帧一块、相邻块共享 3 帧，用 3D 交接 + 深度云 Sim(3) 拼成一条（Point4D <code>track_long_video</code> 的做法），误差来自块内追踪和 10 条接缝；<b>跳帧一条链</b>——每 5 帧取 1 帧共 24 帧，一次前向跑完，没有接缝，但每一步的位移是逐帧的 5 倍。跳帧只有关键帧有预测，所以只在两者都有的 20 个关键帧（源帧 0,5,…,95）上比。两头都从第 0 帧深度反投影起步，都是 step 44000。</p>
+    <div class="stats">
+      <div class="stat"><b>0.668</b><span>History v2 · 跳帧一条链 · avg_pts</span></div>
+      <div class="stat"><b>0.585</b><span>Point4D head · 逐帧 12/3 拼接 · avg_pts</span></div>
+      <div class="stat"><b>0.670</b><span>Point4D head · 跳帧一块 · avg_pts（同样跳帧的对照）</span></div>
+      <div class="stat"><b>70 : 25</b><span>逐段：History 跳帧 高 : 低 于 Point4D 12/3（100 段）</span></div>
+    </div>
+  </div>
+</header>
+<section id="protocol">
+  <div class="wrap">
+    <h2>约定</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="width:18%">项</th><th>约定</th></tr></thead>
+      <tbody>
+        <tr><td>数据</td><td><code>s4d_test100_s1_f100</code>（连续 100 帧）与 <code>s4d_test100_s5</code>（每 5 帧取 1 帧共 24 帧，源帧 0–115）：同一批 100 段测试集、同一批 query 点（第 0 帧可见的前景点），s5 的第 0–19 帧和 s1_f100 的第 0,5,…,95 帧图像与真值逐点一致。s5 的帧 20–23（源帧 100–115）在 100 帧窗口外，不参与这页的打分（整段 24 帧的分数见结论最后一条）</td></tr>
+        <tr><td>模型与起点</td><td>s4d_train 上训到 step 44000 的 History head v2 与 Point4D head 消融。起点都是第 0 帧 dense_head 深度 + 预测内参在 query 像素处反投影（Point4D head 本来就是；History 用 <code>history_abl_v2_step44000_depth</code>，和 100 帧接力页同口径）。同一模型两种方案的第 0 帧预测：逐点相对差（|Δ| / 第 0 帧预测点距离中位）History 跳帧 vs 逐帧 12/3 中位 0.0002、&gt;5% 的点 0.01%（数值误差级；跳帧 vs 逐帧整段一条链中位 0.0000、&gt;5% 的点 0.00%），Point4D head 跳帧 vs 逐帧 12/3 中位 0.0020、&gt;5% 的点 1.1%。dense_head 深度是因果的，第 0 帧只看第 0 帧；Point4D head 解码第 0 帧时还看得到同一块里的其它帧，24 帧块和 12 帧块不同，所以有少量点不一样</td></tr>
+        <tr><td>逐帧 12/3</td><td>沿用 100 帧接力的预测（<code>point_track_relay_f100_c12o3_xyz</code>，深度云 Sim(3) 拼接 <code>_dstitch</code>）：块 k 覆盖帧 [9k, 9k+12)，共 11 块；拼好的整段在第 0 块第 0 帧相机系，这里只取第 0,5,…,95 帧</td></tr>
+        <tr><td>跳帧</td><td>s5 × 24 帧一次前向（<code>point_track_f24</code>），取前 20 帧。History 是因果的，前 20 帧和只喂 20 帧逐位相同；Point4D head 一块里是双向的，前 20 帧的解码看得到帧 20–23</td></tr>
+        <tr><td>打分</td><td>各方案只取这 20 帧，每段在这 20 帧全部点上一次 RANSAC Sim(3) 对齐到 GT（4RC 口径：&gt;16384 点抽样、5 cm 内点、1000 次），avg_pts = 误差在 0.1 / 0.3 / 0.5 / 1 m 内的比例取平均，逐段平均；EPE = 对齐后平均距离（米）；survival 是 PIPs++ 口径（<code>compute_survival.py</code>）。<code>estimate_sim3</code> 没播种，每个方案打 5 次取平均，± 是 5 次的标准差。逐段胜负用 5 次平均后的逐段 avg_pts，差 &gt; 0.005 算高 / 低</td></tr>
+        <tr><td>处理帧次</td><td>模型实际编码 / 解码的帧数：12/3 切 100 帧 = 10 块 × 12 + 末块 10 = 130；整段 100 帧 = 100；跳帧 24 帧一次 = 24</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="findings">
+  <div class="wrap">
+    <h2>结论</h2>
+    <p class="note"><b>同样的深度起点、同一批关键帧上，跳帧一条链明显领先逐帧拼接。</b>History v2 每 5 帧取 1 帧一次跑完 avg_pts 0.668，Point4D head 逐帧 12/3 拼接 0.585，高 0.084（5 次打分的标准差 0.003 / 0.004），逐段 70:25；EPE 0.90 vs 1.42 m，survival 77.1 vs 71.2。逐帧看：源帧 0 是 0.750 vs 0.724，源帧 50 是 0.689 vs 0.575，源帧 95 是 0.482 vs 0.390。</p>
+    <p class="note"><b>但赢在跳帧，不在链式。</b>Point4D head 同样每 5 帧取 1 帧、24 帧一块跑完是 0.670，和 History 跳帧（0.668）打平（逐段 48:48），EPE 0.82 vs 0.90 m、survival 80.7 vs 77.1。也就是说，上面那 0.08 的差距来自"跳帧 vs 逐帧拼接"，换成同样的走法两个头就分不太开。分段看 Point4D 跳帧在源帧 25–70 更高（0.742 / 0.685 vs 0.726 / 0.655），源帧 75–95 被 History 反超（0.496 vs 0.532）——24 帧一块是 Point4D head 训练长度（12 帧）的两倍。注意 Point4D head 一块里是双向的，前 20 帧的解码用到了帧 20–23，History 没有。</p>
+    <p class="note"><b>误差按步数和接缝累积，不按时间跨度。</b>同一段时间、同一个 History：19 跳一条链 0.668，逐帧 99 跳一条链 0.424，逐帧 12/3 接力 0.515；同一个 Point4D head：没有接缝 0.670，10 条接缝 0.585。跳帧后每一步的位移是逐帧的 5 倍，但少走 5 倍步数的收益大得多。逐帧 12/3 上两个头的排序（Point4D 0.585 &gt; History 0.515）和 100 帧接力页一致。</p>
+    <p class="note"><b>整段 24 帧（含帧 20–23，正式评测单次 RANSAC）</b>：History 跳帧 0.633 / EPE 0.99 m，Point4D head 跳帧 0.622 / 1.02 m。参照：s4d_train 链式头 self-query 起点在这 20 帧上 0.589（起点不同，不参与比较）。</p>
+    <p class="note"><b>代价与局限。</b>跳帧方案只有 20 个关键帧有预测，中间 80 帧要另外补；它处理 24 帧次，逐帧 12/3 是 130 帧次。两种走法各自只在这 20 帧上拟合 Sim(3)；逐帧 12/3 在这 20 帧上 0.585，在 100 帧全部帧上 0.584，只取关键帧没有压低它的分数。</p>
+  </div>
+</section>
+<section id="summary">
+  <div class="wrap">
+    <h2>20 个关键帧 · 汇总</h2>
+    <p class="lead">加粗两行是这页要比的两种走法；最后一行起点不同，只作参照。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>方案</th><th class="num">处理<br><small>帧次</small></th><th class="num">avg_pts</th><th class="num">&lt;0.1 m</th><th class="num">&lt;0.3 m</th><th class="num">&lt;0.5 m</th><th class="num">&lt;1 m</th><th class="num">EPE m</th><th class="num">EPE m<br><small>逐段中位</small></th><th class="num">survival<br><small>%</small></th><th class="num">逐段 vs<br><small>Point4D 12/3 高 / 平 / 低</small></th></tr></thead>
+      <tbody>
+        <tr class="main"><td><i class="key" style="border-color:var(--s1);margin-right:8px"></i>History v2 · 跳帧一条链<br><small>s5 × 24 帧一次因果前向：19 跳到源帧 95，无接缝</small></td><td class="num">24</td><td class="num">0.668 <small>±0.003</small></td><td class="num">0.368</td><td class="num">0.671</td><td class="num">0.771</td><td class="num">0.864</td><td class="num">0.903</td><td class="num">0.622</td><td class="num">77.1</td><td class="num">70 / 5 / 25</td></tr>
+        <tr class="main"><td><i class="key" style="border-color:var(--s2);margin-right:8px"></i>Point4D head · 逐帧 12/3 拼接<br><small>s1 × 100 帧切 11 块、10 条接缝，3D 交接 + 共享帧深度云 Sim(3) 拼接</small></td><td class="num">130</td><td class="num">0.585 <small>±0.004</small></td><td class="num">0.290</td><td class="num">0.577</td><td class="num">0.683</td><td class="num">0.789</td><td class="num">1.423</td><td class="num">0.807</td><td class="num">71.2</td><td class="num">—</td></tr>
+        <tr><td><i class="key" style="border-color:var(--s3);margin-right:8px"></i>Point4D head · 跳帧一块<br><small>s5 × 24 帧一块（双向 memory 里含帧 20–23），无接缝</small></td><td class="num">24</td><td class="num">0.670 <small>±0.004</small></td><td class="num">0.399</td><td class="num">0.669</td><td class="num">0.761</td><td class="num">0.850</td><td class="num">0.820</td><td class="num">0.620</td><td class="num">80.7</td><td class="num">80 / 0 / 20</td></tr>
+        <tr><td><i class="key" style="border-color:var(--s4);margin-right:8px"></i>History v2 · 逐帧 12/3 接力<br><small>同上 11 块、10 条接缝，块内链式</small></td><td class="num">130</td><td class="num">0.515 <small>±0.003</small></td><td class="num">0.178</td><td class="num">0.476</td><td class="num">0.628</td><td class="num">0.779</td><td class="num">1.331</td><td class="num">0.945</td><td class="num">59.7</td><td class="num">10 / 4 / 86</td></tr>
+        <tr><td>History v2 · 逐帧整段一条链<br><small>s1 × 100 帧一次因果前向：99 跳，无接缝</small></td><td class="num">100</td><td class="num">0.424 <small>±0.002</small></td><td class="num">0.138</td><td class="num">0.354</td><td class="num">0.498</td><td class="num">0.704</td><td class="num">1.515</td><td class="num">1.022</td><td class="num">44.6</td><td class="num">17 / 6 / 77</td></tr>
+        <tr class="ref"><td>s4d_train 链式头 · 跳帧一条链<br><small>s5 × 24 帧，self-query 起点（起点和其余行不同，只作参照）</small></td><td class="num">24</td><td class="num">0.589 <small>±0.002</small></td><td class="num">0.278</td><td class="num">0.564</td><td class="num">0.687</td><td class="num">0.827</td><td class="num">0.690</td><td class="num">0.418</td><td class="num">68.9</td><td class="num">47 / 5 / 48</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="curves">
+  <div class="wrap">
+    <h2>逐关键帧 avg_pts</h2>
+    <p class="lead">每帧 100 段平均（5 次打分再平均）。横轴是源帧号；底部短刻度是逐帧 12/3 的换块帧（源帧 9、18、…、90）。鼠标悬停看每帧数值。</p>
+    <div class="chart" data-chart="kf20"><div style="font-size:15px;font-weight:600;margin:0 4px 4px">逐关键帧 avg_pts（同一批 20 帧、各自在这 20 帧上对齐）</div><div class="legend"><span><i class="key" style="border-color:var(--s1)"></i>History v2 · 跳帧一条链</span><span><i class="key" style="border-color:var(--s2)"></i>Point4D head · 逐帧 12/3 拼接</span><span><i class="key" style="border-color:var(--s3)"></i>Point4D head · 跳帧一块</span><span><i class="key" style="border-color:var(--s4)"></i>History v2 · 逐帧 12/3 接力</span></div><svg viewBox="0 0 960 300" role="img" aria-label="逐关键帧 avg_pts（同一批 20 帧、各自在这 20 帧上对齐）"><g class="ax"><line x1="44" x2="764" y1="270.0" y2="270.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="274.0" text-anchor="end">0.3</text><line x1="44" x2="764" y1="218.0" y2="218.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="222.0" text-anchor="end">0.4</text><line x1="44" x2="764" y1="166.0" y2="166.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="170.0" text-anchor="end">0.5</text><line x1="44" x2="764" y1="114.0" y2="114.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="118.0" text-anchor="end">0.6</text><line x1="44" x2="764" y1="62.0" y2="62.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="66.0" text-anchor="end">0.7</text><line x1="44" x2="764" y1="10.0" y2="10.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="14.0" text-anchor="end">0.8</text><line x1="44" x2="764" y1="270" y2="270" stroke="var(--axis)" stroke-width="1"/><text x="44.0" y="288" text-anchor="middle">0</text><text x="119.8" y="288" text-anchor="middle">10</text><text x="195.6" y="288" text-anchor="middle">20</text><text x="271.4" y="288" text-anchor="middle">30</text><text x="347.2" y="288" text-anchor="middle">40</text><text x="422.9" y="288" text-anchor="middle">50</text><text x="498.7" y="288" text-anchor="middle">60</text><text x="574.5" y="288" text-anchor="middle">70</text><text x="650.3" y="288" text-anchor="middle">80</text><text x="726.1" y="288" text-anchor="middle">90</text><line x1="112.2" x2="112.2" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="180.4" x2="180.4" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="248.6" x2="248.6" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="316.8" x2="316.8" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="385.1" x2="385.1" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="453.3" x2="453.3" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="521.5" x2="521.5" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="589.7" x2="589.7" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="657.9" x2="657.9" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/><line x1="726.1" x2="726.1" y1="264" y2="270" stroke="var(--muted)" stroke-width="1.5"/></g><polyline points="44.0,36.1 81.9,28.8 119.8,29.0 157.7,26.6 195.6,31.6 233.5,39.4 271.4,41.6 309.3,46.9 347.2,53.7 385.1,61.5 422.9,67.7 460.8,73.2 498.7,82.3 536.6,94.9 574.5,108.9 612.4,122.7 650.3,134.9 688.2,149.8 726.1,163.3 764.0,175.3" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/><polyline points="44.0,49.4 81.9,40.3 119.8,39.6 157.7,49.0 195.6,57.5 233.5,65.9 271.4,75.9 309.3,80.6 347.2,95.1 385.1,106.6 422.9,127.0 460.8,140.7 498.7,153.0 536.6,164.3 574.5,173.4 612.4,183.9 650.3,194.5 688.2,205.1 726.1,214.9 764.0,223.0" fill="none" stroke="var(--s2)" stroke-width="2" stroke-linejoin="round"/><polyline points="44.0,38.7 81.9,33.2 119.8,32.1 157.7,29.7 195.6,29.0 233.5,37.7 271.4,34.9 309.3,39.0 347.2,43.0 385.1,46.6 422.9,49.8 460.8,54.9 498.7,63.6 536.6,83.0 574.5,98.9 612.4,118.8 650.3,144.4 688.2,170.4 726.1,196.4 764.0,209.9" fill="none" stroke="var(--s3)" stroke-width="2" stroke-linejoin="round"/><polyline points="44.0,45.4 81.9,48.2 119.8,58.4 157.7,75.8 195.6,91.8 233.5,108.0 271.4,116.3 309.3,129.9 347.2,141.2 385.1,155.9 422.9,169.9 460.8,182.4 498.7,194.4 536.6,206.0 574.5,218.2 612.4,224.3 650.3,236.0 688.2,244.8 726.1,250.1 764.0,261.9" fill="none" stroke="var(--s4)" stroke-width="2" stroke-linejoin="round"/><text class="lab" x="772" y="179.3">0.482 · History 跳帧</text><text class="lab" x="772" y="213.9">0.416 · Point4D 跳帧</text><text class="lab" x="772" y="228.9">0.390 · Point4D 12/3</text><text class="lab" x="772" y="265.9">0.316 · History 12/3</text><line class="cross" x1="0" x2="0" y1="10" y2="270" stroke="var(--muted)" stroke-width="1" style="display:none"/><rect x="44" y="10" width="720" height="260" fill="transparent"/></svg><div class="tip"></div><script type="application/json">{"T": 20, "L": 44, "pw": 720, "xs": [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95], "series": [{"label": "History v2 · 跳帧一条链", "color": "--s1", "v": [0.7499, 0.7639, 0.7635, 0.768, 0.7584, 0.7434, 0.7392, 0.729, 0.7159, 0.701, 0.689, 0.6784, 0.661, 0.6367, 0.6097, 0.5833, 0.5599, 0.5312, 0.5051, 0.4822]}, {"label": "Point4D head · 逐帧 12/3 拼接", "color": "--s2", "v": [0.7243, 0.7416, 0.7432, 0.725, 0.7087, 0.6925, 0.6733, 0.6642, 0.6363, 0.6143, 0.5749, 0.5487, 0.5249, 0.5033, 0.4859, 0.4657, 0.4453, 0.4248, 0.4059, 0.3904]}, {"label": "Point4D head · 跳帧一块", "color": "--s3", "v": [0.7447, 0.7554, 0.7575, 0.7621, 0.7634, 0.7468, 0.7521, 0.7441, 0.7365, 0.7297, 0.7235, 0.7137, 0.697, 0.6596, 0.629, 0.5907, 0.5416, 0.4916, 0.4415, 0.4156]}, {"label": "History v2 · 逐帧 12/3 接力", "color": "--s4", "v": [0.7319, 0.7265, 0.7069, 0.6734, 0.6428, 0.6115, 0.5957, 0.5694, 0.5476, 0.5194, 0.4925, 0.4684, 0.4454, 0.423, 0.3997, 0.3878, 0.3654, 0.3485, 0.3383, 0.3156]}]}</script></div>
+    <details><summary>逐帧数值表（含只进表的两行）</summary>
+    <div class="tablewrap" style="margin-top:8px"><table>
+      <thead><tr><th class="num">源帧</th><th class="num"><i class="key" style="border-color:var(--s1);margin-right:8px"></i><br><small>History v2 · 跳帧一条链</small></th><th class="num"><i class="key" style="border-color:var(--s2);margin-right:8px"></i><br><small>Point4D head · 逐帧 12/3 拼接</small></th><th class="num"><i class="key" style="border-color:var(--s3);margin-right:8px"></i><br><small>Point4D head · 跳帧一块</small></th><th class="num"><i class="key" style="border-color:var(--s4);margin-right:8px"></i><br><small>History v2 · 逐帧 12/3 接力</small></th><th class="num"><br><small>History v2 · 逐帧整段一条链</small></th><th class="num"><br><small>s4d_train 链式头 · 跳帧一条链</small></th></tr></thead>
+      <tbody>
+        <tr><td class="num">0</td><td class="num">0.750</td><td class="num">0.724</td><td class="num">0.745</td><td class="num">0.732</td><td class="num">0.740</td><td class="num">0.780</td></tr>
+        <tr><td class="num">5</td><td class="num">0.764</td><td class="num">0.742</td><td class="num">0.755</td><td class="num">0.726</td><td class="num">0.736</td><td class="num">0.776</td></tr>
+        <tr><td class="num">10</td><td class="num">0.763</td><td class="num">0.743</td><td class="num">0.758</td><td class="num">0.707</td><td class="num">0.712</td><td class="num">0.765</td></tr>
+        <tr><td class="num">15</td><td class="num">0.768</td><td class="num">0.725</td><td class="num">0.762</td><td class="num">0.673</td><td class="num">0.679</td><td class="num">0.757</td></tr>
+        <tr><td class="num">20</td><td class="num">0.758</td><td class="num">0.709</td><td class="num">0.763</td><td class="num">0.643</td><td class="num">0.629</td><td class="num">0.739</td></tr>
+        <tr><td class="num">25</td><td class="num">0.743</td><td class="num">0.692</td><td class="num">0.747</td><td class="num">0.612</td><td class="num">0.573</td><td class="num">0.711</td></tr>
+        <tr><td class="num">30</td><td class="num">0.739</td><td class="num">0.673</td><td class="num">0.752</td><td class="num">0.596</td><td class="num">0.538</td><td class="num">0.690</td></tr>
+        <tr><td class="num">35</td><td class="num">0.729</td><td class="num">0.664</td><td class="num">0.744</td><td class="num">0.569</td><td class="num">0.503</td><td class="num">0.669</td></tr>
+        <tr><td class="num">40</td><td class="num">0.716</td><td class="num">0.636</td><td class="num">0.737</td><td class="num">0.548</td><td class="num">0.453</td><td class="num">0.643</td></tr>
+        <tr><td class="num">45</td><td class="num">0.701</td><td class="num">0.614</td><td class="num">0.730</td><td class="num">0.519</td><td class="num">0.404</td><td class="num">0.616</td></tr>
+        <tr><td class="num">50</td><td class="num">0.689</td><td class="num">0.575</td><td class="num">0.724</td><td class="num">0.493</td><td class="num">0.368</td><td class="num">0.587</td></tr>
+        <tr><td class="num">55</td><td class="num">0.678</td><td class="num">0.549</td><td class="num">0.714</td><td class="num">0.468</td><td class="num">0.327</td><td class="num">0.572</td></tr>
+        <tr><td class="num">60</td><td class="num">0.661</td><td class="num">0.525</td><td class="num">0.697</td><td class="num">0.445</td><td class="num">0.299</td><td class="num">0.543</td></tr>
+        <tr><td class="num">65</td><td class="num">0.637</td><td class="num">0.503</td><td class="num">0.660</td><td class="num">0.423</td><td class="num">0.273</td><td class="num">0.523</td></tr>
+        <tr><td class="num">70</td><td class="num">0.610</td><td class="num">0.486</td><td class="num">0.629</td><td class="num">0.400</td><td class="num">0.254</td><td class="num">0.496</td></tr>
+        <tr><td class="num">75</td><td class="num">0.583</td><td class="num">0.466</td><td class="num">0.591</td><td class="num">0.388</td><td class="num">0.231</td><td class="num">0.454</td></tr>
+        <tr><td class="num">80</td><td class="num">0.560</td><td class="num">0.445</td><td class="num">0.542</td><td class="num">0.365</td><td class="num">0.211</td><td class="num">0.410</td></tr>
+        <tr><td class="num">85</td><td class="num">0.531</td><td class="num">0.425</td><td class="num">0.492</td><td class="num">0.348</td><td class="num">0.196</td><td class="num">0.375</td></tr>
+        <tr><td class="num">90</td><td class="num">0.505</td><td class="num">0.406</td><td class="num">0.441</td><td class="num">0.338</td><td class="num">0.179</td><td class="num">0.351</td></tr>
+        <tr><td class="num">95</td><td class="num">0.482</td><td class="num">0.390</td><td class="num">0.416</td><td class="num">0.316</td><td class="num">0.169</td><td class="num">0.320</td></tr>
+      </tbody>
+    </table></div>
+    </details>
+    <h3 style="margin:22px 0 8px;font-size:17px">分段均值</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>方案</th><th class="num">源帧<br><small>0</small></th><th class="num">源帧<br><small>5–20</small></th><th class="num">源帧<br><small>25–45</small></th><th class="num">源帧<br><small>50–70</small></th><th class="num">源帧<br><small>75–95</small></th></tr></thead>
+      <tbody>
+        <tr class="main"><td><i class="key" style="border-color:var(--s1);margin-right:8px"></i>History v2 · 跳帧一条链</td><td class="num">0.750</td><td class="num">0.763</td><td class="num">0.726</td><td class="num">0.655</td><td class="num">0.532</td></tr>
+        <tr class="main"><td><i class="key" style="border-color:var(--s2);margin-right:8px"></i>Point4D head · 逐帧 12/3 拼接</td><td class="num">0.724</td><td class="num">0.730</td><td class="num">0.656</td><td class="num">0.528</td><td class="num">0.426</td></tr>
+        <tr><td><i class="key" style="border-color:var(--s3);margin-right:8px"></i>Point4D head · 跳帧一块</td><td class="num">0.745</td><td class="num">0.760</td><td class="num">0.742</td><td class="num">0.685</td><td class="num">0.496</td></tr>
+        <tr><td><i class="key" style="border-color:var(--s4);margin-right:8px"></i>History v2 · 逐帧 12/3 接力</td><td class="num">0.732</td><td class="num">0.687</td><td class="num">0.569</td><td class="num">0.446</td><td class="num">0.351</td></tr>
+        <tr><td>History v2 · 逐帧整段一条链</td><td class="num">0.740</td><td class="num">0.689</td><td class="num">0.494</td><td class="num">0.304</td><td class="num">0.197</td></tr>
+        <tr class="ref"><td>s4d_train 链式头 · 跳帧一条链</td><td class="num">0.780</td><td class="num">0.759</td><td class="num">0.666</td><td class="num">0.544</td><td class="num">0.382</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<section id="pairs">
+  <div class="wrap">
+    <h2>逐段对比</h2>
+    <p class="lead">同一段上 A 减 B 的 avg_pts（5 次打分平均后），差 &gt; 0.005 算高 / 低。</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>A</th><th>B</th><th class="num">A 高 / 平 / 低</th><th class="num">均值差</th><th class="num">中位差</th></tr></thead>
+      <tbody>
+        <tr><td>History v2 · 跳帧一条链</td><td>Point4D head · 逐帧 12/3 拼接</td><td class="num">70 / 5 / 25</td><td class="num">+0.084</td><td class="num">+0.063</td></tr>
+        <tr><td>Point4D head · 跳帧一块</td><td>Point4D head · 逐帧 12/3 拼接</td><td class="num">80 / 0 / 20</td><td class="num">+0.085</td><td class="num">+0.068</td></tr>
+        <tr><td>History v2 · 跳帧一条链</td><td>Point4D head · 跳帧一块</td><td class="num">48 / 4 / 48</td><td class="num">-0.001</td><td class="num">+0.002</td></tr>
+        <tr><td>History v2 · 跳帧一条链</td><td>History v2 · 逐帧 12/3 接力</td><td class="num">92 / 2 / 6</td><td class="num">+0.153</td><td class="num">+0.143</td></tr>
+        <tr><td>History v2 · 跳帧一条链</td><td>History v2 · 逐帧整段一条链</td><td class="num">97 / 1 / 2</td><td class="num">+0.245</td><td class="num">+0.263</td></tr>
+        <tr><td>History v2 · 逐帧 12/3 接力</td><td>Point4D head · 逐帧 12/3 拼接</td><td class="num">10 / 4 / 86</td><td class="num">-0.069</td><td class="num">-0.060</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    抽帧 <code>experiment/make_keyframe_preds.py</code> → <code>eval_results/point_track_kf20/</code>，打分 <code>experiment/run_keyframe_s5_vs_f100.sh</code> → <code>eval_results/point_track_kf20_ransac{,_r2.._r5}/</code>，建页 <code>experiment/build_keyframe_s5_page.py</code>。生成于 2026-10-25。
+    <button id="theme" style="margin-left:8px">切换深浅色</button>
+  </div>
+</footer>
+<script>
+(() => {
+  document.getElementById("theme").onclick = () => {
+    const r = document.documentElement; const dark = !matchMedia("(prefers-color-scheme: light)").matches;
+    const cur = r.dataset.theme || (dark ? "dark" : "light");
+    r.dataset.theme = cur === "dark" ? "light" : "dark";
+    try { localStorage.setItem("s4d-theme", r.dataset.theme); } catch (e) {}
+  };
+  try { const t = localStorage.getItem("s4d-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  // 逐帧曲线的十字线 + 提示框：吸附到最近的关键帧，列出该帧所有曲线的值
+  document.querySelectorAll(".chart[data-chart]").forEach(box => {
+    const d = JSON.parse(box.querySelector("script[type='application/json']").textContent);
+    const svg = box.querySelector("svg"), cross = svg.querySelector(".cross"), tip = box.querySelector(".tip");
+    const move = ev => {
+      const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const t = Math.max(0, Math.min(d.T - 1, Math.round((p.x - d.L) / d.pw * (d.T - 1))));
+      const x = d.L + d.pw * t / (d.T - 1);
+      cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.style.display = "";
+      tip.replaceChildren();
+      const h = document.createElement("div"); h.className = "h"; h.textContent = "源帧 " + d.xs[t]; tip.append(h);
+      d.series.forEach(s => {
+        const r = document.createElement("div"); r.className = "r";
+        const k = document.createElement("i"); k.className = "key"; k.style.borderColor = "var(" + s.color + ")";
+        const b = document.createElement("b"); b.textContent = s.v[t].toFixed(3);
+        const l = document.createElement("span"); l.className = "l"; l.textContent = s.label;
+        r.append(k, b, l); tip.append(r);
+      });
+      tip.style.display = "block";
+      const bx = box.getBoundingClientRect(), w = tip.offsetWidth;
+      let left = ev.clientX - bx.left + 14; if (left + w > bx.width - 4) left = ev.clientX - bx.left - w - 14;
+      tip.style.left = Math.max(4, left) + "px"; tip.style.top = (ev.clientY - bx.top + 12) + "px";
+    };
+    svg.addEventListener("pointermove", move);
+    svg.addEventListener("pointerleave", () => { cross.style.display = "none"; tip.style.display = "none"; });
+  });
+})();
+</script>
+</body>
+</html>

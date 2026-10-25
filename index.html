@@ -107,6 +107,7 @@ footer{padding:28px 0 48px;color:var(--muted);font-size:13px}
     <p class="sub" style="margin:8px 0 0"><a href="dense_fg_test100_s10.html">→ s4d_train dense_head：测试集 100 段，预测深度对前景点的 3D 准确率（第 1–9 / 10–12 帧、逐帧，对照 motion_head）</a></p>
     <p class="sub" style="margin:8px 0 0"><a href="octave_ablation.html">→ s4d_train motion_head 位置编码：逐个 octave 置零看每一跳误差（干净 / 带噪输入），以及坐标跨度超过周期 2 的混叠检查</a></p>
     <p class="sub" style="margin:8px 0 0"><a href="point4d_orig_frame0_drift.html">→ 原版 Point4D 权重：第 0 帧深度反投影起点的误差（对照 step 44000 的 Point4D head / History v2），以及 track_long_video 在 100 帧上按 12/3 切 11 块拼接后的逐接缝漂移（对照不拼接的整段 100 帧和两个头的同样接力）</a></p>
+    <p class="sub" style="margin:8px 0 0"><a href="keyframes_s5_vs_relay_f100.html">→ 跳帧一条链 vs 逐帧 12/3 拼接：同样的深度起点、同一段时间（源帧 0–95），每 5 帧取 1 帧一次跑完 vs 连续 100 帧 12 帧一块拼接，在同一批 20 个关键帧上比 History v2 / Point4D head · step 44000</a></p>
   </div>
 </header>
 
